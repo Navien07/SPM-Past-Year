@@ -57,6 +57,10 @@ export default async function Home() {
               Ask the tutor
             </Link>
           </div>
+          <p className="mt-3 text-xs text-brand-100">
+            💬 Tap the chat bubble anytime to ask <strong>Cikgu AI</strong> — attach a screenshot and it
+            explains exactly what you&apos;re stuck on.
+          </p>
         </div>
       </section>
 

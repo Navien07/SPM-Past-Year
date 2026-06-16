@@ -284,6 +284,97 @@ ${input.examples.map((e, i) => `${i + 1}. ${e}`).join("\n") || "(none provided)"
   }
 }
 
+// ── AI chat (context-aware tutor, with screenshot/vision) ─────────────────
+
+export interface ChatImage {
+  mediaType: string; // e.g. "image/png"
+  dataBase64: string; // base64 without the data: prefix
+}
+export interface ChatTurn {
+  role: "user" | "assistant";
+  text: string;
+  images?: ChatImage[];
+}
+export interface ChatInput {
+  history: ChatTurn[];
+  context?: string; // app/page/question context, injected into the system prompt
+}
+
+export async function chatAnswer(
+  input: ChatInput,
+): Promise<{ reply: string; byAi: boolean }> {
+  const hasImage = input.history.some((t) => (t.images?.length ?? 0) > 0);
+
+  if (!aiEnabled()) {
+    return { reply: mockChat(input, hasImage), byAi: false };
+  }
+
+  const system = `You are "Cikgu AI", a warm, encouraging Malaysian SPM tutor inside an SPM
+revision app. Help students understand topics, exam questions, and marking schemes.
+- Reply in the language the student uses (Bahasa Melayu or English); mirror their mix.
+- Be clear and concise; use steps, bullet points and worked examples where helpful.
+- For exam answers, show how to score marks against the SPM marking scheme / KBAT expectations.
+- When the student attaches a screenshot or image, read it carefully and base your answer on it.
+- If you are unsure, say so and suggest what to check. Never invent facts.
+${input.context ? `\nCURRENT CONTEXT:\n${input.context}` : ""}`;
+
+  const messages: Anthropic.MessageParam[] = input.history.map((t) => {
+    if (t.role === "user" && t.images?.length) {
+      const blocks: Anthropic.ContentBlockParam[] = t.images.map((img) => ({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: img.mediaType as "image/png" | "image/jpeg" | "image/gif" | "image/webp",
+          data: img.dataBase64,
+        },
+      }));
+      blocks.push({ type: "text", text: t.text || "Tolong terangkan imej ini." });
+      return { role: "user", content: blocks };
+    }
+    return { role: t.role, content: t.text };
+  });
+
+  try {
+    const res = await client().messages.create({
+      model: MODEL,
+      max_tokens: 4096,
+      thinking: { type: "adaptive" },
+      system,
+      messages,
+    } as Anthropic.MessageCreateParamsNonStreaming);
+
+    const reply = res.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("\n")
+      .trim();
+    return { reply: reply || "(no response)", byAi: true };
+  } catch (e) {
+    return {
+      reply:
+        "Maaf, AI chat tidak dapat dihubungi sekarang. " +
+        (e instanceof Error ? e.message : "Sila cuba lagi."),
+      byAi: false,
+    };
+  }
+}
+
+function mockChat(input: ChatInput, hasImage: boolean): string {
+  const last = [...input.history].reverse().find((t) => t.role === "user");
+  return [
+    "🔌 **AI chat is in offline mode** (no `ANTHROPIC_API_KEY` set).",
+    "",
+    hasImage
+      ? "I can see you attached a screenshot — with a connected Anthropic API key I'd read it and explain it in detail."
+      : "With a connected Anthropic API key I'd give a full, context-aware explanation here.",
+    last?.text ? `\nYou asked: _"${last.text.slice(0, 200)}"_` : "",
+    "",
+    "In the meantime: break the question into what it's *asking*, recall the key syllabus facts for that topic, then structure your answer to match the marking scheme.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 // ── Deterministic offline fallbacks (no API key) ──────────────────────────
 // These keep the whole app demonstrable without a key, and clearly flag
 // themselves as offline so real grading is never silently faked.

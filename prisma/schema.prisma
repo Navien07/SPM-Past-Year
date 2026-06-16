@@ -8,8 +8,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Supabase: use the pooled connection for `url` (port 6543) and the direct
+  // connection for `directUrl` (port 5432) so migrations bypass PgBouncer.
+  directUrl = env("DIRECT_URL")
 }
 
 // ── Module 3: content taxonomy ────────────────────────────────────────────

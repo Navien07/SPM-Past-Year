@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import ChatWidget from "@/components/ChatWidget";
 
 export const metadata: Metadata = {
   title: "SPM AI — Learning Management System",
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Nav />
         <main className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:pb-10">{children}</main>
+        <ChatWidget />
       </body>
     </html>
   );

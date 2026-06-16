@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { QUESTION_TYPE_LABEL } from "@/lib/constants";
 import AttemptForm from "@/components/AttemptForm";
+import ExplainButton from "@/components/ExplainButton";
 import type { McqOption } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,9 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
         {q.paper && (
           <p className="mt-2 text-xs text-slate-400">Source: {q.paper.title}</p>
         )}
+        <div className="mt-4">
+          <ExplainButton />
+        </div>
       </div>
 
       <AttemptForm
