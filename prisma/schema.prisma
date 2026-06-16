@@ -1,0 +1,182 @@
+// SPM AI LMS — data model
+// SQLite for the POC (Json stored as text; enums modelled as String since
+// SQLite has no native enum/array support). Swap the datasource to Postgres
+// for production with no model changes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Module 3: content taxonomy ────────────────────────────────────────────
+
+model Subject {
+  id        String   @id @default(cuid())
+  name      String   @unique // e.g. "Sejarah"
+  nameEn    String? // e.g. "History"
+  code      String   @unique // e.g. "SEJ"
+  color     String   @default("#3470f4")
+  createdAt DateTime @default(now())
+
+  topics    Topic[]
+  questions Question[]
+  papers    Paper[]
+}
+
+model Topic {
+  id        String  @id @default(cuid())
+  subjectId String
+  form      Int // 4 or 5
+  chapter   Int // chapter number within the form
+  title     String // chapter title
+  subtopics String  @default("[]") // JSON string[]: named subtopics
+  createdAt DateTime @default(now())
+
+  subject            Subject              @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  questions          Question[]
+  generatedQuestions GeneratedQuestion[]
+
+  @@unique([subjectId, form, chapter])
+  @@index([subjectId])
+}
+
+// ── Module 1: uploaded source papers ──────────────────────────────────────
+
+model Paper {
+  id            String   @id @default(cuid())
+  title         String
+  subjectId     String
+  paperType     String // "past_year" | "trial" | "state" | "mock"
+  year          Int
+  state         String? // e.g. "Selangor" (for state/trial papers)
+  paperNumber   Int      @default(1) // 1 or 2
+  fileUrl       String? // local path under /public/uploads for the POC
+  fileName      String?
+  rawText       String? // extracted/pasted source text fed to the AI agent
+  markingScheme String? // marking scheme / answer key text
+  rubric        String? // JSON: essay rubric (criteria + bands)
+  status        String   @default("uploaded") // uploaded | categorizing | categorized | failed
+  categorizedAt DateTime?
+  createdAt     DateTime @default(now())
+
+  subject   Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  questions Question[]
+
+  @@index([subjectId])
+  @@index([paperType])
+}
+
+// ── Module 2 output: categorized questions (the question bank) ─────────────
+
+model Question {
+  id            String   @id @default(cuid())
+  subjectId     String
+  topicId       String?
+  paperId       String?
+  paperNumber   Int      @default(1) // 1 (objective) or 2 (subjective/essay)
+  questionType  String // "mcq" | "structured" | "essay"
+  number        String? // question label in the source, e.g. "3(a)"
+  stem          String // the question text
+  options       String   @default("[]") // JSON [{key,text}] for MCQ
+  answer        String? // correct option key (MCQ) or model answer
+  markingScheme String? // marking notes for structured/essay
+  rubric        String? // JSON rubric for essays
+  marks         Int      @default(1)
+  isKbat        Boolean  @default(false) // higher-order thinking (KBAT)
+  subtopic      String?
+  year          Int?
+  source        String   @default("past_paper") // past_paper | ai_generated
+  createdAt     DateTime @default(now())
+
+  subject  Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topic    Topic?    @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  paper    Paper?    @relation(fields: [paperId], references: [id], onDelete: SetNull)
+  attempts Attempt[]
+
+  @@index([subjectId])
+  @@index([topicId])
+  @@index([year])
+}
+
+// ── Students & their work ─────────────────────────────────────────────────
+
+model Student {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  form      Int      @default(5)
+  createdAt DateTime @default(now())
+
+  attempts Attempt[]
+  sessions StudySession[]
+}
+
+// Module 4/5: an attempt is one answered question, graded instantly by the AI.
+model Attempt {
+  id            String   @id @default(cuid())
+  studentId     String
+  questionId    String
+  answer        String // student's submitted answer
+  score         Float    @default(0) // marks awarded
+  maxScore      Float    @default(1)
+  band          String? // qualitative band, e.g. "Cemerlang" / "Band 5"
+  isCorrect     Boolean? // for MCQ
+  feedback      String? // JSON: { summary, strengths[], improvements[], criteria[] }
+  gradedByAi    Boolean  @default(false) // false => mock/offline grading
+  timeSpentSec  Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([questionId])
+}
+
+// Module 6: progress / time analytics
+model StudySession {
+  id           String   @id @default(cuid())
+  studentId    String
+  subjectId    String?
+  durationSec  Int      @default(0)
+  questionsDone Int     @default(0)
+  createdAt    DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+// Module 5: AI-generated practice questions (KBAT, pattern-matched)
+model GeneratedQuestion {
+  id           String   @id @default(cuid())
+  topicId      String
+  questionType String // mcq | structured | essay
+  stem         String
+  options      String   @default("[]") // JSON
+  answer       String?
+  markingScheme String?
+  rubric       String?
+  marks        Int      @default(1)
+  isKbat       Boolean  @default(true)
+  basedOn      String? // note on the pattern/source it mimics
+  createdAt    DateTime @default(now())
+
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+}
+
+// Module 6: assembled mock papers
+model MockPaper {
+  id          String   @id @default(cuid())
+  title       String
+  subjectId   String
+  paperNumber Int      @default(1)
+  questionIds String   @default("[]") // JSON string[]: Question ids in order
+  createdAt   DateTime @default(now())
+}

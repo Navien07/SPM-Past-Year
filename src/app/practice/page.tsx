@@ -1,0 +1,159 @@
+import Link from "next/link";
+import { prisma } from "@/lib/db";
+import { QUESTION_TYPE_LABEL } from "@/lib/constants";
+
+export const dynamic = "force-dynamic";
+
+type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: string }>;
+
+export default async function PracticePage({ searchParams }: { searchParams: SP }) {
+  const sp = await searchParams;
+  const subjects = await prisma.subject.findMany({
+    orderBy: { name: "asc" },
+    include: { _count: { select: { questions: true } } },
+  });
+
+  const subjectId = sp.subject || subjects[0]?.id;
+  const view = sp.view === "year" ? "year" : "topic";
+  const subject = subjects.find((s) => s.id === subjectId);
+
+  const topics = subjectId
+    ? await prisma.topic.findMany({
+        where: { subjectId },
+        orderBy: [{ form: "asc" }, { chapter: "asc" }],
+        include: { _count: { select: { questions: true } } },
+      })
+    : [];
+
+  const years = subjectId
+    ? await prisma.question.groupBy({
+        by: ["year"],
+        where: { subjectId, year: { not: null } },
+        _count: true,
+        orderBy: { year: "desc" },
+      })
+    : [];
+
+  // The selected drill-down (topic or year) → question list.
+  const where: Record<string, unknown> = { subjectId };
+  if (sp.topic) where.topicId = sp.topic;
+  if (sp.year) where.year = Number(sp.year);
+  const questions =
+    sp.topic || sp.year
+      ? await prisma.question.findMany({
+          where,
+          orderBy: [{ paperNumber: "asc" }, { number: "asc" }],
+          include: { topic: true },
+        })
+      : [];
+
+  const base = (extra: Record<string, string>) => {
+    const p = new URLSearchParams({ subject: subjectId ?? "", view, ...extra });
+    return `/practice?${p.toString()}`;
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Practice</h1>
+        <p className="text-sm text-slate-500">Choose a subject, then drill down by topic or by year.</p>
+      </div>
+
+      {/* Subject chips */}
+      <div className="flex flex-wrap gap-2">
+        {subjects.map((s) => (
+          <Link
+            key={s.id}
+            href={`/practice?subject=${s.id}&view=${view}`}
+            className={`badge border px-3 py-1.5 ${
+              s.id === subjectId ? "border-brand-300 bg-brand-50 text-brand-700" : "border-slate-200 bg-white text-slate-600"
+            }`}
+          >
+            {s.name} · {s._count.questions}
+          </Link>
+        ))}
+      </div>
+
+      {/* View toggle */}
+      <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1">
+        <Link
+          href={base({})}
+          className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${view === "topic" ? "bg-brand-600 text-white" : "text-slate-600"}`}
+        >
+          By Topic
+        </Link>
+        <Link
+          href={`/practice?subject=${subjectId}&view=year`}
+          className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${view === "year" ? "bg-brand-600 text-white" : "text-slate-600"}`}
+        >
+          By Year
+        </Link>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        {/* Left: topic/year list */}
+        <div className="space-y-2">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
+            {subject?.name} · {view === "topic" ? "Topics" : "Years"}
+          </h2>
+          {view === "topic"
+            ? topics.map((t) => (
+                <Link
+                  key={t.id}
+                  href={base({ topic: t.id })}
+                  className={`card flex items-center justify-between p-3 text-sm hover:border-brand-300 ${
+                    sp.topic === t.id ? "border-brand-400 ring-1 ring-brand-200" : ""
+                  }`}
+                >
+                  <span>
+                    <span className="text-xs text-slate-400">T{t.form} · Bab {t.chapter}</span>
+                    <br />
+                    {t.title}
+                  </span>
+                  <span className="badge bg-slate-100 text-slate-600">{t._count.questions}</span>
+                </Link>
+              ))
+            : years.map((y) => (
+                <Link
+                  key={String(y.year)}
+                  href={base({ year: String(y.year) })}
+                  className={`card flex items-center justify-between p-3 text-sm hover:border-brand-300 ${
+                    sp.year === String(y.year) ? "border-brand-400 ring-1 ring-brand-200" : ""
+                  }`}
+                >
+                  <span className="font-semibold">{y.year}</span>
+                  <span className="badge bg-slate-100 text-slate-600">{y._count}</span>
+                </Link>
+              ))}
+          {view === "topic" && topics.length === 0 && (
+            <p className="text-sm text-slate-400">No topics yet.</p>
+          )}
+        </div>
+
+        {/* Right: questions */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">Questions</h2>
+          {questions.length === 0 ? (
+            <div className="card p-6 text-center text-sm text-slate-400">
+              Select a {view === "topic" ? "topic" : "year"} to see its questions.
+            </div>
+          ) : (
+            questions.map((q) => (
+              <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300 hover:shadow-sm">
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
+                  <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
+                  <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
+                  {q.isKbat && <span className="tag-kbat">KBAT</span>}
+                  {q.year && <span className="badge bg-slate-100 text-slate-600">{q.year}</span>}
+                </div>
+                <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>
+                {q.topic && <p className="mt-1 text-xs text-slate-400">{q.topic.title}</p>}
+              </Link>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

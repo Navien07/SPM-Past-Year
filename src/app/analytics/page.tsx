@@ -1,0 +1,121 @@
+import Link from "next/link";
+import { prisma } from "@/lib/db";
+import { getCurrentStudent } from "@/lib/student";
+
+export const dynamic = "force-dynamic";
+
+function fmtDuration(sec: number) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.round((sec % 3600) / 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+export default async function AnalyticsPage() {
+  const student = await getCurrentStudent();
+
+  const attempts = await prisma.attempt.findMany({
+    where: { studentId: student.id },
+    orderBy: { createdAt: "asc" },
+    include: { question: { include: { subject: true, topic: true } } },
+  });
+
+  const sessions = await prisma.studySession.findMany({ where: { studentId: student.id } });
+  const totalTime =
+    sessions.reduce((a, s) => a + s.durationSec, 0) + attempts.reduce((a, x) => a + x.timeSpentSec, 0);
+
+  const totalAttempts = attempts.length;
+  const avgPct =
+    totalAttempts === 0
+      ? 0
+      : Math.round(
+          (attempts.reduce((a, x) => a + (x.maxScore ? x.score / x.maxScore : 0), 0) / totalAttempts) * 100,
+        );
+
+  // Mastery per subject
+  const bySubject = new Map<string, { name: string; sum: number; n: number }>();
+  for (const a of attempts) {
+    const name = a.question.subject.name;
+    const cur = bySubject.get(name) ?? { name, sum: 0, n: 0 };
+    cur.sum += a.maxScore ? (a.score / a.maxScore) * 100 : 0;
+    cur.n += 1;
+    bySubject.set(name, cur);
+  }
+  const subjectMastery = [...bySubject.values()]
+    .map((s) => ({ name: s.name, pct: Math.round(s.sum / s.n) }))
+    .sort((a, b) => b.pct - a.pct);
+
+  // Improvement trend (rolling): show each attempt's % in order
+  const trend = attempts.map((a) => ({
+    label: a.question.subject.code ?? a.question.subject.name.slice(0, 3),
+    pct: a.maxScore ? Math.round((a.score / a.maxScore) * 100) : 0,
+    aiGraded: a.gradedByAi,
+  }));
+
+  const stats = [
+    { label: "Attempts", value: totalAttempts },
+    { label: "Avg score", value: `${avgPct}%` },
+    { label: "Time on task", value: fmtDuration(totalTime) },
+    { label: "Subjects practised", value: subjectMastery.length },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Progress 📊</h1>
+        <p className="text-sm text-slate-500">{student.name}&apos;s learning analytics.</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map((s) => (
+          <div key={s.label} className="card p-4 text-center">
+            <div className="text-2xl font-bold text-brand-700">{s.value}</div>
+            <div className="mt-1 text-xs text-slate-500">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {totalAttempts === 0 ? (
+        <div className="card p-8 text-center">
+          <p className="text-slate-500">No attempts yet.</p>
+          <Link href="/practice" className="btn-primary mt-3">Start practising</Link>
+        </div>
+      ) : (
+        <>
+          <section>
+            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">Mastery by subject</h2>
+            <div className="card space-y-3 p-4">
+              {subjectMastery.map((s) => (
+                <div key={s.name} className="flex items-center gap-3">
+                  <span className="w-28 truncate text-sm">{s.name}</span>
+                  <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className={`h-full ${s.pct >= 70 ? "bg-emerald-500" : s.pct >= 40 ? "bg-amber-500" : "bg-red-500"}`}
+                      style={{ width: `${s.pct}%` }}
+                    />
+                  </div>
+                  <span className="w-10 text-right text-sm font-semibold">{s.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">Score trend (per attempt)</h2>
+            <div className="card flex items-end gap-2 overflow-x-auto p-4" style={{ height: 160 }}>
+              {trend.map((t, i) => (
+                <div key={i} className="flex flex-col items-center gap-1">
+                  <div
+                    className={`w-6 rounded-t ${t.pct >= 50 ? "bg-brand-500" : "bg-amber-400"}`}
+                    style={{ height: `${Math.max(6, t.pct)}%` }}
+                    title={`${t.pct}%${t.aiGraded ? " (AI)" : ""}`}
+                  />
+                  <span className="text-[10px] text-slate-400">{t.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
