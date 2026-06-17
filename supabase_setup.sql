@@ -1,15 +1,17 @@
 -- ============================================================
 -- SPM AI — one-shot Supabase setup (schema + seed)
--- Paste this whole file into Supabase → SQL Editor → Run.
--- Safe on a fresh project. Creates 9 tables + seeds 8 subjects,
--- 36 topics, a Sejarah trial paper, demo student & sample attempts.
+-- Paste this whole file into Supabase -> SQL Editor -> Run.
+-- Fresh project: creates 9 tables + seeds 8 subjects, 36 topics,
+-- a Sejarah trial paper, demo student & sample attempts.
 -- ============================================================
+
+SET search_path TO public;
 
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateTable
-CREATE TABLE "Subject" (
+CREATE TABLE public."Subject" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "nameEn" TEXT,
@@ -21,7 +23,7 @@ CREATE TABLE "Subject" (
 );
 
 -- CreateTable
-CREATE TABLE "Topic" (
+CREATE TABLE public."Topic" (
     "id" TEXT NOT NULL,
     "subjectId" TEXT NOT NULL,
     "form" INTEGER NOT NULL,
@@ -34,7 +36,7 @@ CREATE TABLE "Topic" (
 );
 
 -- CreateTable
-CREATE TABLE "Paper" (
+CREATE TABLE public."Paper" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "subjectId" TEXT NOT NULL,
@@ -55,7 +57,7 @@ CREATE TABLE "Paper" (
 );
 
 -- CreateTable
-CREATE TABLE "Question" (
+CREATE TABLE public."Question" (
     "id" TEXT NOT NULL,
     "subjectId" TEXT NOT NULL,
     "topicId" TEXT,
@@ -79,7 +81,7 @@ CREATE TABLE "Question" (
 );
 
 -- CreateTable
-CREATE TABLE "Student" (
+CREATE TABLE public."Student" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -90,7 +92,7 @@ CREATE TABLE "Student" (
 );
 
 -- CreateTable
-CREATE TABLE "Attempt" (
+CREATE TABLE public."Attempt" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "questionId" TEXT NOT NULL,
@@ -108,7 +110,7 @@ CREATE TABLE "Attempt" (
 );
 
 -- CreateTable
-CREATE TABLE "StudySession" (
+CREATE TABLE public."StudySession" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "subjectId" TEXT,
@@ -120,7 +122,7 @@ CREATE TABLE "StudySession" (
 );
 
 -- CreateTable
-CREATE TABLE "GeneratedQuestion" (
+CREATE TABLE public."GeneratedQuestion" (
     "id" TEXT NOT NULL,
     "topicId" TEXT NOT NULL,
     "questionType" TEXT NOT NULL,
@@ -138,7 +140,7 @@ CREATE TABLE "GeneratedQuestion" (
 );
 
 -- CreateTable
-CREATE TABLE "MockPaper" (
+CREATE TABLE public."MockPaper" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "subjectId" TEXT NOT NULL,
@@ -150,73 +152,73 @@ CREATE TABLE "MockPaper" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Subject_name_key" ON "Subject"("name");
+CREATE UNIQUE INDEX "Subject_name_key" ON public."Subject"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Subject_code_key" ON "Subject"("code");
+CREATE UNIQUE INDEX "Subject_code_key" ON public."Subject"("code");
 
 -- CreateIndex
-CREATE INDEX "Topic_subjectId_idx" ON "Topic"("subjectId");
+CREATE INDEX "Topic_subjectId_idx" ON public."Topic"("subjectId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Topic_subjectId_form_chapter_key" ON "Topic"("subjectId", "form", "chapter");
+CREATE UNIQUE INDEX "Topic_subjectId_form_chapter_key" ON public."Topic"("subjectId", "form", "chapter");
 
 -- CreateIndex
-CREATE INDEX "Paper_subjectId_idx" ON "Paper"("subjectId");
+CREATE INDEX "Paper_subjectId_idx" ON public."Paper"("subjectId");
 
 -- CreateIndex
-CREATE INDEX "Paper_paperType_idx" ON "Paper"("paperType");
+CREATE INDEX "Paper_paperType_idx" ON public."Paper"("paperType");
 
 -- CreateIndex
-CREATE INDEX "Question_subjectId_idx" ON "Question"("subjectId");
+CREATE INDEX "Question_subjectId_idx" ON public."Question"("subjectId");
 
 -- CreateIndex
-CREATE INDEX "Question_topicId_idx" ON "Question"("topicId");
+CREATE INDEX "Question_topicId_idx" ON public."Question"("topicId");
 
 -- CreateIndex
-CREATE INDEX "Question_year_idx" ON "Question"("year");
+CREATE INDEX "Question_year_idx" ON public."Question"("year");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Student_email_key" ON "Student"("email");
+CREATE UNIQUE INDEX "Student_email_key" ON public."Student"("email");
 
 -- CreateIndex
-CREATE INDEX "Attempt_studentId_idx" ON "Attempt"("studentId");
+CREATE INDEX "Attempt_studentId_idx" ON public."Attempt"("studentId");
 
 -- CreateIndex
-CREATE INDEX "Attempt_questionId_idx" ON "Attempt"("questionId");
+CREATE INDEX "Attempt_questionId_idx" ON public."Attempt"("questionId");
 
 -- CreateIndex
-CREATE INDEX "StudySession_studentId_idx" ON "StudySession"("studentId");
+CREATE INDEX "StudySession_studentId_idx" ON public."StudySession"("studentId");
 
 -- CreateIndex
-CREATE INDEX "GeneratedQuestion_topicId_idx" ON "GeneratedQuestion"("topicId");
+CREATE INDEX "GeneratedQuestion_topicId_idx" ON public."GeneratedQuestion"("topicId");
 
 -- AddForeignKey
-ALTER TABLE "Topic" ADD CONSTRAINT "Topic_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."Topic" ADD CONSTRAINT "Topic_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Paper" ADD CONSTRAINT "Paper_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."Paper" ADD CONSTRAINT "Paper_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."Question" ADD CONSTRAINT "Question_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "Topic"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE public."Question" ADD CONSTRAINT "Question_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES public."Topic"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_paperId_fkey" FOREIGN KEY ("paperId") REFERENCES "Paper"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE public."Question" ADD CONSTRAINT "Question_paperId_fkey" FOREIGN KEY ("paperId") REFERENCES public."Paper"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Attempt" ADD CONSTRAINT "Attempt_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."Attempt" ADD CONSTRAINT "Attempt_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Attempt" ADD CONSTRAINT "Attempt_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."Attempt" ADD CONSTRAINT "Attempt_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES public."Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StudySession" ADD CONSTRAINT "StudySession_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."StudySession" ADD CONSTRAINT "StudySession_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "GeneratedQuestion" ADD CONSTRAINT "GeneratedQuestion_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."GeneratedQuestion" ADD CONSTRAINT "GeneratedQuestion_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES public."Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 -- ===================== SEED DATA ============================
@@ -234,7 +236,6 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
