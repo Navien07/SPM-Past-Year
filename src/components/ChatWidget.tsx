@@ -188,12 +188,26 @@ export default function ChatWidget() {
           {/* Messages */}
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-3">
             {messages.length === 0 && (
-              <div className="space-y-2 text-sm text-slate-500">
-                <p>👋 Hi! I&apos;m Cikgu AI. Ask me to explain a topic, a past-paper question, or how to score marks.</p>
-                <p className="text-xs">
-                  Tip: tap <span className="font-semibold">📸</span> to attach a screenshot of anything you&apos;re
-                  stuck on — I&apos;ll read it and explain.
-                </p>
+              <div className="space-y-3 text-sm text-slate-500">
+                <p>👋 Hi! I&apos;m <strong>Cikgu AI</strong>. I can explain topics, walk through a question, show how to score full marks, or read a screenshot you&apos;re stuck on.</p>
+                <p className="text-xs">Tap <span className="font-semibold">📸</span> to grab a screenshot, or <span className="font-semibold">📎</span> to attach an image — I&apos;ll read it and help.</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Explain this topic simply",
+                    "How do I score full marks?",
+                    "Give me a hint, not the answer",
+                    "Make me a practice question",
+                    "What am I weak in?",
+                  ].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setInput(s)}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             {messages.map((m, i) => (

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { tutorRecommend } from "@/lib/ai";
 import { getSessionStudent } from "@/lib/student";
 
+export const maxDuration = 60;
+
 // Module 5: AI tutor — aggregate the student's attempts per topic, then ask the
 // tutor agent for weak areas + a focus plan.
 export async function GET() {

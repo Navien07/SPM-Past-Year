@@ -70,6 +70,7 @@ export interface TutorRecommendation {
 
 // Output of the generator agent.
 export interface GeneratedItem {
+  id?: string; // Question id once saved (attemptable in Practice)
   questionType: QuestionType;
   stem: string;
   options?: McqOption[];

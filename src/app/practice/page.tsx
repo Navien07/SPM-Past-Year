@@ -187,8 +187,9 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
           ) : (
             questions.map((q) => {
               const done = attemptedSet.has(q.id);
+              const isAi = q.source === "ai_generated";
               const tLabel = topicLabel({ chapter: q.topic?.chapter, form: q.topic?.form });
-              const exam = examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year });
+              const exam = isAi ? "Soalan AI dijana" : examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year });
               return (
                 <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300 hover:shadow-sm">
                   <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -200,6 +201,7 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                     <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
                     <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
                     <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
+                    {isAi && <span className="badge bg-violet-100 text-violet-700">✨ AI</span>}
                     {q.isKbat && <span className="tag-kbat">KBAT</span>}
                   </div>
                   <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>

@@ -33,6 +33,7 @@ export default async function Home() {
   const student = await requireStudent();
 
   let data: { enrolled: number; questions: number; kbat: number; attempts: number } | null = null;
+  let resume: { subjectId: string; topicId: string | null; subjectName: string; topicTitle: string | null } | null = null;
   try {
     const [enrolled, questions, kbat, attempts] = await Promise.all([
       prisma.enrollment.count({ where: { studentId: student.id, status: "active" } }),
@@ -41,6 +42,21 @@ export default async function Home() {
       prisma.attempt.count({ where: { studentId: student.id } }),
     ]);
     data = { enrolled, questions, kbat, attempts };
+
+    // "Continue where you left off" — most recent attempt's subject/topic.
+    const last = await prisma.attempt.findFirst({
+      where: { studentId: student.id },
+      orderBy: { createdAt: "desc" },
+      include: { question: { include: { subject: true, topic: true } } },
+    });
+    if (last) {
+      resume = {
+        subjectId: last.question.subjectId,
+        topicId: last.question.topicId,
+        subjectName: last.question.subject.name,
+        topicTitle: last.question.topic?.title ?? null,
+      };
+    }
   } catch {
     return <SetupNeeded />;
   }
@@ -90,6 +106,21 @@ export default async function Home() {
           </p>
         </div>
       </section>
+
+      {resume && (
+        <Link
+          href={`/practice?subject=${resume.subjectId}&view=topic${resume.topicId ? `&topic=${resume.topicId}` : ""}`}
+          className="card flex items-center justify-between p-4 hover:border-brand-300 hover:shadow-sm"
+        >
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Continue where you left off</div>
+            <div className="mt-0.5 font-semibold">
+              {resume.subjectName}{resume.topicTitle ? ` · ${resume.topicTitle}` : ""}
+            </div>
+          </div>
+          <span className="btn-primary shrink-0">Resume →</span>
+        </Link>
+      )}
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {stats.map((s) => (

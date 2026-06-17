@@ -4,6 +4,8 @@ import { gradeAnswer } from "@/lib/ai";
 import { getSessionStudent } from "@/lib/student";
 import type { McqOption } from "@/lib/types";
 
+export const maxDuration = 60;
+
 // Module 4: submit a student answer → instant AI (or deterministic) grade.
 export async function POST(req: NextRequest) {
   const { questionId, answer, timeSpentSec } = await req.json();

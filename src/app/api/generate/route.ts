@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateQuestions } from "@/lib/ai";
 
+export const maxDuration = 60;
+
 // Module 5: generate new practice questions (incl. KBAT) in the pattern of the
-// topic's real past-paper questions. Persists them as GeneratedQuestion rows.
+// topic's real past-paper questions. Stored as approved Question rows with
+// source "ai_generated" so students can attempt them anytime from Practice.
 export async function POST(req: NextRequest) {
   const { topicId, questionType, count, kbat } = await req.json();
   if (!topicId) return NextResponse.json({ error: "topicId is required" }, { status: 400 });
@@ -14,7 +17,7 @@ export async function POST(req: NextRequest) {
   });
   if (!topic) return NextResponse.json({ error: "Topic not found" }, { status: 404 });
 
-  // Use real questions from this topic as style exemplars.
+  // Use real past-paper questions on this topic as style exemplars.
   const examples = await prisma.question.findMany({
     where: { topicId, source: "past_paper", status: "approved" },
     take: 4,
@@ -33,9 +36,11 @@ export async function POST(req: NextRequest) {
 
   const saved = [];
   for (const item of result) {
-    const g = await prisma.generatedQuestion.create({
+    const q = await prisma.question.create({
       data: {
+        subjectId: topic.subjectId,
         topicId,
+        paperNumber: item.questionType === "mcq" ? 1 : 2,
         questionType: item.questionType,
         stem: item.stem,
         options: JSON.stringify(item.options ?? []),
@@ -43,10 +48,24 @@ export async function POST(req: NextRequest) {
         markingScheme: item.markingScheme ?? null,
         marks: item.marks || (item.questionType === "mcq" ? 1 : 4),
         isKbat: item.isKbat ?? true,
-        basedOn: item.basedOn ?? null,
+        source: "ai_generated",
+        status: "approved", // student-generated practice; available immediately
+        confidence: 1,
+        autoApproved: true,
+        reviewNote: item.basedOn ?? "AI-generated practice",
       },
     });
-    saved.push(g);
+    saved.push({
+      id: q.id,
+      questionType: q.questionType,
+      stem: q.stem,
+      options: q.options,
+      answer: q.answer,
+      markingScheme: q.markingScheme,
+      marks: q.marks,
+      isKbat: q.isKbat,
+      basedOn: q.reviewNote,
+    });
   }
 
   return NextResponse.json({ generated: saved, byAi });

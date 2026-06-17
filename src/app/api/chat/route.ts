@@ -4,6 +4,8 @@ import { chatAnswer, type ChatTurn } from "@/lib/ai";
 import { retrieveKnowledge } from "@/lib/knowledge";
 import type { McqOption } from "@/lib/types";
 
+export const maxDuration = 60;
+
 // AI chat — context-aware tutor. The client sends the conversation (with any
 // attached screenshots/images) plus light page context; if a questionId is
 // present we hydrate the exact question so answers are grounded.
