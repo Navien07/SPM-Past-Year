@@ -8,7 +8,7 @@ import type {
   TutorRecommendation,
 } from "./types";
 
-const MODEL = process.env.SPM_AI_MODEL || "claude-opus-4-8";
+const MODEL = process.env.SPM_AI_MODEL || "claude-sonnet-4-6";
 
 export function aiEnabled(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;

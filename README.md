@@ -7,7 +7,7 @@ rubric-based grading**, a **context-aware AI chat tutor (with screenshots)**, a 
 study planner**, and **AI-generated KBAT practice**.
 
 Built with **Next.js 15 + TypeScript + Tailwind + Prisma + PostgreSQL**, powered by
-**Anthropic Claude (`claude-opus-4-8`)**. Ships ready for **Vercel + Supabase**.
+**Anthropic Claude (`claude-sonnet-4-6`)**. Ships ready for **Vercel + Supabase**.
 
 > The app is fully runnable **without** an API key — every AI feature falls back to a
 > deterministic offline mode (clearly labelled in the UI). Add `ANTHROPIC_API_KEY` to switch
@@ -97,7 +97,7 @@ user-facing flows with **[UAT.md](./UAT.md)**.
 src/
   lib/
     ai.ts          # 5 AI agents: categorize / grade / tutor / generate / chat (vision),
-                   # all with offline fallbacks. Default claude-opus-4-8 + adaptive thinking.
+                   # all with offline fallbacks. Default claude-sonnet-4-6 + adaptive thinking.
     db.ts          # Prisma client singleton
     types.ts       # Shared shapes
     constants.ts   # Paper types, states, SPM bands
@@ -114,7 +114,7 @@ scripts/dev-setup.sh   # ephemeral-env bootstrap (deps + local Postgres + seed)
 ```
 
 ### AI layer (`src/lib/ai.ts`)
-- **Model:** `claude-opus-4-8` (override `SPM_AI_MODEL`), adaptive thinking on.
+- **Model:** `claude-sonnet-4-6` by default (override `SPM_AI_MODEL`; use `claude-opus-4-8` for top quality), adaptive thinking on.
 - **Chat:** multimodal — accepts screenshots/images as base64 vision blocks and grounds
   answers in the current question's context.
 - **Offline fallback:** with no `ANTHROPIC_API_KEY`, each agent returns a deterministic
