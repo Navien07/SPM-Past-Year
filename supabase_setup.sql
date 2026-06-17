@@ -225,7 +225,6 @@ ALTER TABLE "GeneratedQuestion" ADD CONSTRAINT "GeneratedQuestion_topicId_fkey" 
 -- PostgreSQL database dump
 --
 
-\restrict aAgta4IBFquekcJMAP288Sf2c3aT9iYcqxXabP2Py1V9xc3t1Q2devFzetq4EvM
 
 -- Dumped from database version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
 -- Dumped by pg_dump version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
@@ -362,5 +361,4 @@ INSERT INTO public."StudySession" (id, "studentId", "subjectId", "durationSec", 
 -- PostgreSQL database dump complete
 --
 
-\unrestrict aAgta4IBFquekcJMAP288Sf2c3aT9iYcqxXabP2Py1V9xc3t1Q2devFzetq4EvM
 
