@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const DEMO = [
   { role: "Admin", email: "admin@spm.my", password: "admin123" },
@@ -9,7 +8,6 @@ const DEMO = [
 ];
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,10 +23,11 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Login failed");
-      router.push(data.redirect || "/");
-      router.refresh();
+      // Full-page navigation so the freshly-set session cookie is sent on the
+      // next request (a soft client navigation can race the cookie).
+      window.location.assign(data.redirect || "/");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Login failed");
     } finally {

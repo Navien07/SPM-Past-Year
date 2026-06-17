@@ -8,17 +8,43 @@ function rm(n: number) {
   return "RM " + n.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function AdminError() {
+  return (
+    <div className="card mx-auto max-w-xl p-8 text-center">
+      <div className="text-4xl">⚠️</div>
+      <h1 className="mt-3 text-xl font-bold">Couldn&apos;t load the dashboard</h1>
+      <p className="mt-2 text-sm text-slate-600">
+        The database query failed. The most common cause on Vercel + Supabase is a
+        <code className="mx-1 rounded bg-slate-100 px-1">DATABASE_URL</code> on the transaction
+        pooler (port 6543) without <code className="mx-1 rounded bg-slate-100 px-1">?pgbouncer=true</code>.
+      </p>
+      <p className="mt-3 text-xs text-slate-500">
+        Open{" "}
+        <a href="/api/health" className="font-semibold text-brand-600 hover:underline">/api/health</a>{" "}
+        for an exact diagnosis (connection shape, tables, error).
+      </p>
+    </div>
+  );
+}
+
 export default async function AdminOverview() {
-  const [students, enrollments, paidAgg, pendingMod, papers, approvedQ, attempts, recentPayments] = await Promise.all([
-    prisma.student.count(),
-    prisma.enrollment.count({ where: { status: "active" } }),
-    prisma.payment.aggregate({ _sum: { amount: true }, where: { status: "paid" } }),
-    prisma.question.count({ where: { status: "pending" } }),
-    prisma.paper.count(),
-    prisma.question.count({ where: { status: "approved" } }),
-    prisma.attempt.count(),
-    prisma.payment.findMany({ orderBy: { paidAt: "desc" }, take: 5, include: { student: true } }),
-  ]);
+  let d;
+  try {
+    const [students, enrollments, paidAgg, pendingMod, papers, approvedQ, attempts, recentPayments] = await Promise.all([
+      prisma.student.count(),
+      prisma.enrollment.count({ where: { status: "active" } }),
+      prisma.payment.aggregate({ _sum: { amount: true }, where: { status: "paid" } }),
+      prisma.question.count({ where: { status: "pending" } }),
+      prisma.paper.count(),
+      prisma.question.count({ where: { status: "approved" } }),
+      prisma.attempt.count(),
+      prisma.payment.findMany({ orderBy: { paidAt: "desc" }, take: 5, include: { student: true } }),
+    ]);
+    d = { students, enrollments, paidAgg, pendingMod, papers, approvedQ, attempts, recentPayments };
+  } catch {
+    return <AdminError />;
+  }
+  const { students, enrollments, paidAgg, pendingMod, papers, approvedQ, attempts, recentPayments } = d;
 
   const revenue = paidAgg._sum.amount ?? 0;
 
