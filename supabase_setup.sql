@@ -1,13 +1,17 @@
 -- ============================================================
 -- SPM AI — one-shot Supabase setup (schema + seed)
 -- Paste this whole file into Supabase -> SQL Editor -> Run.
--- Fresh project: 13 tables + seed (roles, students, enrollments,
--- payments, approved + pending questions, confidence-gated
--- moderation, and knowledge-base notes for Cikgu AI).
+-- RE-RUNNABLE: it resets the public schema first, so you can paste it
+-- again any time the schema changes (this WIPES public-schema data).
 -- Demo logins: admin@spm.my/admin123 · moderator@spm.my/mod123
 --             ahmad@student.spm.my/student123
 -- ============================================================
 
+-- Reset (idempotent): drop & recreate the public schema
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
 SET search_path TO public;
 
 -- CreateSchema
