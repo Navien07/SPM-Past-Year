@@ -3,18 +3,50 @@ import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
 import { getCurrentStudent } from "@/lib/student";
 
+function SetupNeeded() {
+  return (
+    <div className="card mx-auto max-w-xl p-8 text-center">
+      <div className="text-4xl">🛠️</div>
+      <h1 className="mt-3 text-xl font-bold">Database not ready yet</h1>
+      <p className="mt-2 text-sm text-slate-600">
+        The app is deployed but the database tables haven&apos;t been created/seeded. Run the
+        one-time setup against your Supabase database:
+      </p>
+      <pre className="mt-3 overflow-x-auto rounded-xl bg-slate-900 p-3 text-left text-xs text-slate-100">
+{`DATABASE_URL="<session-pooler-uri>" \\
+DIRECT_URL="<session-pooler-uri>" \\
+npm run db:deploy`}
+      </pre>
+      <p className="mt-3 text-xs text-slate-500">
+        Then visit{" "}
+        <a href="/api/health" className="font-semibold text-brand-600 hover:underline">/api/health</a>{" "}
+        for a live diagnosis (connection, tables, seed, env vars).
+      </p>
+    </div>
+  );
+}
+
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [subjects, topics, questions, papers, kbat, student] = await Promise.all([
-    prisma.subject.count(),
-    prisma.topic.count(),
-    prisma.question.count(),
-    prisma.paper.count(),
-    prisma.question.count({ where: { isKbat: true } }),
-    getCurrentStudent(),
-  ]);
-  const attempts = await prisma.attempt.count({ where: { studentId: student.id } });
+  // Degrade gracefully if the database isn't reachable/seeded yet (e.g. fresh
+  // Vercel deploy before `npm run db:deploy`) instead of throwing a raw 500.
+  let data: { subjects: number; topics: number; questions: number; papers: number; kbat: number; student: { name: string; id: string }; attempts: number } | null = null;
+  try {
+    const [subjects, topics, questions, papers, kbat, student] = await Promise.all([
+      prisma.subject.count(),
+      prisma.topic.count(),
+      prisma.question.count(),
+      prisma.paper.count(),
+      prisma.question.count({ where: { isKbat: true } }),
+      getCurrentStudent(),
+    ]);
+    const attempts = await prisma.attempt.count({ where: { studentId: student.id } });
+    data = { subjects, topics, questions, papers, kbat, student, attempts };
+  } catch {
+    return <SetupNeeded />;
+  }
+  const { subjects, topics, questions, papers, kbat, student, attempts } = data;
 
   const stats = [
     { label: "Subjects", value: subjects },
