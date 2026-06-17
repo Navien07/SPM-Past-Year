@@ -49,5 +49,26 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Spaced repetition (Leitner): schedule a review unless well-mastered.
+  // <50% → reset to box 0 (due now-ish); ≥50% → advance a box (longer interval).
+  const pct = result.maxScore ? (result.score / result.maxScore) * 100 : 0;
+  const DAYS = [0, 1, 3, 7, 16, 35]; // box → days until next review
+  const existing = await prisma.reviewItem.findUnique({
+    where: { studentId_questionId: { studentId: student.id, questionId } },
+  });
+  const passed = pct >= 50;
+  const box = passed ? Math.min(5, (existing?.box ?? 0) + 1) : 0;
+  const dueAt = new Date(Date.now() + DAYS[box] * 86400000);
+  if (passed && box >= 5) {
+    // Mastered — drop from the review queue.
+    if (existing) await prisma.reviewItem.delete({ where: { id: existing.id } });
+  } else {
+    await prisma.reviewItem.upsert({
+      where: { studentId_questionId: { studentId: student.id, questionId } },
+      update: { box, dueAt, lastScorePct: pct, reps: { increment: 1 } },
+      create: { studentId: student.id, questionId, box, dueAt, lastScorePct: pct, reps: 1 },
+    });
+  }
+
   return NextResponse.json({ attempt, grade: result, byAi });
 }

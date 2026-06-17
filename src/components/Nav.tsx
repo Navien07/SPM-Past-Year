@@ -8,6 +8,7 @@ type NavUser = { name: string; role: string } | null;
 const STUDENT_LINKS = [
   { href: "/", label: "Home", icon: "🏠" },
   { href: "/practice", label: "Practice", icon: "📝" },
+  { href: "/review", label: "Review", icon: "🔁" },
   { href: "/generate", label: "Generate", icon: "✨" },
   { href: "/tutor", label: "Tutor", icon: "🧭" },
   { href: "/analytics", label: "Progress", icon: "📊" },

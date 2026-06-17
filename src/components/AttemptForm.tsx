@@ -8,9 +8,10 @@ interface Props {
   questionType: string;
   options: McqOption[];
   marks: number;
+  stem?: string;
 }
 
-export default function AttemptForm({ questionId, questionType, options, marks }: Props) {
+export default function AttemptForm({ questionId, questionType, options, marks, stem }: Props) {
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [grade, setGrade] = useState<GradeResult | null>(null);
@@ -144,15 +145,31 @@ export default function AttemptForm({ questionId, questionType, options, marks }
               </div>
             )}
 
-            <button
-              onClick={() => {
-                setGrade(null);
-                setAnswer("");
-              }}
-              className="btn-ghost"
-            >
-              Try again
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("open-cikgu-chat", {
+                      detail: {
+                        prompt: `I answered: "${answer.slice(0, 600)}". I scored ${grade.score}/${grade.maxScore}. Explain my mistake step by step and show me exactly how to get full marks.`,
+                      },
+                    }),
+                  )
+                }
+                className="btn-primary"
+              >
+                🧑‍🏫 Explain my mistake
+              </button>
+              <button
+                onClick={() => {
+                  setGrade(null);
+                  setAnswer("");
+                }}
+                className="btn-ghost"
+              >
+                Try again
+              </button>
+            </div>
           </div>
         </div>
       )}

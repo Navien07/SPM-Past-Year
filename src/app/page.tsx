@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
 import { requireStudent } from "@/lib/student";
+import SmartPracticeButton from "@/components/SmartPracticeButton";
 
 function SetupNeeded() {
   return (
@@ -32,8 +33,10 @@ export default async function Home() {
   // Redirects staff to their dashboards; returns the logged-in Student.
   const student = await requireStudent();
 
+  const DAILY_GOAL = 5;
   let data: { enrolled: number; questions: number; kbat: number; attempts: number } | null = null;
   let resume: { subjectId: string; topicId: string | null; subjectName: string; topicTitle: string | null } | null = null;
+  let streakData = { streak: 0, doneToday: 0 };
   try {
     const [enrolled, questions, kbat, attempts] = await Promise.all([
       prisma.enrollment.count({ where: { studentId: student.id, status: "active" } }),
@@ -43,12 +46,33 @@ export default async function Home() {
     ]);
     data = { enrolled, questions, kbat, attempts };
 
+    // Streak + daily goal from attempt activity.
+    const recent = await prisma.attempt.findMany({
+      where: { studentId: student.id },
+      orderBy: { createdAt: "desc" },
+      take: 400,
+      select: { createdAt: true },
+    });
+    const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+    const days = new Set(recent.map((a) => dayKey(a.createdAt)));
+    let streak = 0;
+    const cursor = new Date();
+    // Allow today to be empty (streak continues from yesterday) until first practice today.
+    if (!days.has(dayKey(cursor))) cursor.setDate(cursor.getDate() - 1);
+    while (days.has(dayKey(cursor))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    const todayKey = dayKey(new Date());
+    const doneToday = recent.filter((a) => dayKey(a.createdAt) === todayKey).length;
+
     // "Continue where you left off" — most recent attempt's subject/topic.
     const last = await prisma.attempt.findFirst({
       where: { studentId: student.id },
       orderBy: { createdAt: "desc" },
       include: { question: { include: { subject: true, topic: true } } },
     });
+    streakData = { streak, doneToday };
     if (last) {
       resume = {
         subjectId: last.question.subjectId,
@@ -93,11 +117,9 @@ export default async function Home() {
             unlimited KBAT practice.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/practice" className="btn bg-white text-brand-700 hover:bg-brand-50">
-              Start practising
-            </Link>
-            <Link href="/tutor" className="btn border border-white/40 text-white hover:bg-white/10">
-              Ask the tutor
+            <SmartPracticeButton className="btn bg-white text-brand-700 hover:bg-brand-50" label="▶ Smart practice" />
+            <Link href="/practice" className="btn border border-white/40 text-white hover:bg-white/10">
+              Browse papers
             </Link>
           </div>
           <p className="mt-3 text-xs text-brand-100">
@@ -106,6 +128,27 @@ export default async function Home() {
           </p>
         </div>
       </section>
+
+      {/* Streak + daily goal */}
+      <div className="card flex items-center justify-between gap-4 p-4">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">{streakData.streak > 0 ? "🔥" : "✨"}</span>
+          <div>
+            <div className="font-bold">{streakData.streak}-day streak</div>
+            <div className="text-xs text-slate-500">Practise daily to keep it alive</div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Today&apos;s goal</div>
+          <div className="font-bold">
+            {Math.min(streakData.doneToday, DAILY_GOAL)} / {DAILY_GOAL}
+            {streakData.doneToday >= DAILY_GOAL && <span className="ml-1">✅</span>}
+          </div>
+          <div className="mt-1 h-1.5 w-28 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full bg-emerald-500" style={{ width: `${Math.min(100, (streakData.doneToday / DAILY_GOAL) * 100)}%` }} />
+          </div>
+        </div>
+      </div>
 
       {resume && (
         <Link

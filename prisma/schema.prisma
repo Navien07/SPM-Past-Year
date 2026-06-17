@@ -105,15 +105,50 @@ model Question {
   reviewedAt    DateTime?
   createdAt     DateTime @default(now())
 
-  subject  Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  topic    Topic?    @relation(fields: [topicId], references: [id], onDelete: SetNull)
-  paper    Paper?    @relation(fields: [paperId], references: [id], onDelete: SetNull)
-  attempts Attempt[]
+  subject   Subject      @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topic     Topic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  paper     Paper?       @relation(fields: [paperId], references: [id], onDelete: SetNull)
+  attempts  Attempt[]
+  bookmarks Bookmark[]
+  reviewItems ReviewItem[]
 
   @@index([subjectId])
   @@index([topicId])
   @@index([year])
   @@index([status])
+}
+
+// Bookmarked / flagged-for-review questions.
+model Bookmark {
+  id         String   @id @default(cuid())
+  studentId  String
+  questionId String
+  createdAt  DateTime @default(now())
+
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, questionId])
+  @@index([studentId])
+}
+
+// Spaced repetition (Leitner): wrong/low answers resurface until mastered.
+model ReviewItem {
+  id           String   @id @default(cuid())
+  studentId    String
+  questionId   String
+  box          Int      @default(0) // Leitner box 0..5 (higher = longer interval)
+  dueAt        DateTime @default(now())
+  lastScorePct Float    @default(0)
+  reps         Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, questionId])
+  @@index([studentId, dueAt])
 }
 
 // ── Students & their work ─────────────────────────────────────────────────
@@ -130,6 +165,8 @@ model Student {
   user        User?
   enrollments Enrollment[]
   payments    Payment[]
+  bookmarks   Bookmark[]
+  reviewItems ReviewItem[]
 }
 
 // ── Auth & roles ──────────────────────────────────────────────────────────
