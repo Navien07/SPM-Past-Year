@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { gradeAnswer } from "@/lib/ai";
-import { getCurrentStudent } from "@/lib/student";
+import { getSessionStudent } from "@/lib/student";
 import type { McqOption } from "@/lib/types";
 
 // Module 4: submit a student answer → instant AI (or deterministic) grade.
@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
   });
   if (!question) return NextResponse.json({ error: "Question not found" }, { status: 404 });
 
-  const student = await getCurrentStudent();
+  const student = await getSessionStudent();
+  if (!student) return NextResponse.json({ error: "Not signed in as a student" }, { status: 401 });
 
   const { result, byAi } = await gradeAnswer({
     questionType: question.questionType,

@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { tutorRecommend } from "@/lib/ai";
-import { getCurrentStudent } from "@/lib/student";
+import { getSessionStudent } from "@/lib/student";
 
 // Module 5: AI tutor — aggregate the student's attempts per topic, then ask the
 // tutor agent for weak areas + a focus plan.
 export async function GET() {
-  const student = await getCurrentStudent();
+  const student = await getSessionStudent();
+  if (!student) return NextResponse.json({ error: "Not signed in as a student" }, { status: 401 });
 
   const attempts = await prisma.attempt.findMany({
     where: { studentId: student.id },

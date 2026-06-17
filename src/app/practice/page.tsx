@@ -1,16 +1,19 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { QUESTION_TYPE_LABEL } from "@/lib/constants";
+import { requireStudent } from "@/lib/student";
 
 export const dynamic = "force-dynamic";
 
 type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: string }>;
 
 export default async function PracticePage({ searchParams }: { searchParams: SP }) {
+  await requireStudent();
   const sp = await searchParams;
+  // Students only ever browse moderator-approved questions.
   const subjects = await prisma.subject.findMany({
     orderBy: { name: "asc" },
-    include: { _count: { select: { questions: true } } },
+    include: { _count: { select: { questions: { where: { status: "approved" } } } } },
   });
 
   const subjectId = sp.subject || subjects[0]?.id;
@@ -21,21 +24,21 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
     ? await prisma.topic.findMany({
         where: { subjectId },
         orderBy: [{ form: "asc" }, { chapter: "asc" }],
-        include: { _count: { select: { questions: true } } },
+        include: { _count: { select: { questions: { where: { status: "approved" } } } } },
       })
     : [];
 
   const years = subjectId
     ? await prisma.question.groupBy({
         by: ["year"],
-        where: { subjectId, year: { not: null } },
+        where: { subjectId, year: { not: null }, status: "approved" },
         _count: true,
         orderBy: { year: "desc" },
       })
     : [];
 
   // The selected drill-down (topic or year) → question list.
-  const where: Record<string, unknown> = { subjectId };
+  const where: Record<string, unknown> = { subjectId, status: "approved" };
   if (sp.topic) where.topicId = sp.topic;
   if (sp.year) where.year = Number(sp.year);
   const questions =

@@ -106,6 +106,36 @@ an **offline** label (that is itself a valid pass for **[offline]**).
 | 10.2 | Bad question id | Open `/practice/does-not-exist` | 404, no crash |
 | 10.3 | Reload | Refresh any page | State persists from Postgres |
 
+## 12. Authentication & roles
+| # | Case | Steps | Expected |
+|---|------|-------|----------|
+| 12.1 | Login required | Visit `/` while logged out | Redirected to `/login` |
+| 12.2 | Demo fill | On `/login`, tap a demo account chip | Email/password filled |
+| 12.3 | Admin login | Sign in `admin@spm.my` / `admin123` | Lands on `/admin`; nav shows Overview/Students/Papers/Moderation |
+| 12.4 | Moderator login | Sign in `moderator@spm.my` / `mod123` | Lands on `/moderate` |
+| 12.5 | Student login | Sign in `ahmad@student.spm.my` / `student123` | Lands on student home; chat bubble present |
+| 12.6 | Wrong password | Enter a bad password | "Invalid email or password" |
+| 12.7 | Role isolation | As student, open `/admin` | Redirected away (to `/`) |
+| 12.8 | Sign out | Click Sign out | Returns to `/login` |
+
+## 13. Admin dashboard
+| # | Case | Steps | Expected |
+|---|------|-------|----------|
+| 13.1 | Overview KPIs | `/admin` | Students, revenue (RM), pending moderation, papers, approved questions |
+| 13.2 | Students list | `/admin/students` | Table with subjects, attempts, avg score, paid per student |
+| 13.3 | Student detail | Click a student | Stats, mastery by subject, performance trend, enrolled subjects, payment history |
+| 13.4 | Upload paper | `/admin/papers` → add + Categorize | Questions created as **pending** (go to moderation, not student portal) |
+| 13.5 | Revenue | Compare overview revenue to sum of paid payments | Matches |
+
+## 14. Moderation
+| # | Case | Steps | Expected |
+|---|------|-------|----------|
+| 14.1 | Queue | As moderator, `/moderate` | Pending AI-categorized questions listed with counts |
+| 14.2 | Correct + approve | Change subject/topic/KBAT/marks → **Approve** | Card shows approved; item leaves queue |
+| 14.3 | Student visibility | As student, browse that topic | The approved question now appears |
+| 14.4 | Reject | **Reject** a question | Hidden from students; rejected count increments |
+| 14.5 | Pending hidden | Confirm a `pending` question never shows in `/practice` | Not visible to students |
+
 ## 11. Deployment (Vercel + Supabase)
 | # | Case | Steps | Expected |
 |---|------|-------|----------|

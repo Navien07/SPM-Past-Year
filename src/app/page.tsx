@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
-import { getCurrentStudent } from "@/lib/student";
+import { requireStudent } from "@/lib/student";
 
 function SetupNeeded() {
   return (
@@ -29,36 +29,31 @@ npm run db:deploy`}
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Degrade gracefully if the database isn't reachable/seeded yet (e.g. fresh
-  // Vercel deploy before `npm run db:deploy`) instead of throwing a raw 500.
-  let data: { subjects: number; topics: number; questions: number; papers: number; kbat: number; student: { name: string; id: string }; attempts: number } | null = null;
+  // Redirects staff to their dashboards; returns the logged-in Student.
+  const student = await requireStudent();
+
+  let data: { enrolled: number; questions: number; kbat: number; attempts: number } | null = null;
   try {
-    const [subjects, topics, questions, papers, kbat, student] = await Promise.all([
-      prisma.subject.count(),
-      prisma.topic.count(),
-      prisma.question.count(),
-      prisma.paper.count(),
-      prisma.question.count({ where: { isKbat: true } }),
-      getCurrentStudent(),
+    const [enrolled, questions, kbat, attempts] = await Promise.all([
+      prisma.enrollment.count({ where: { studentId: student.id, status: "active" } }),
+      prisma.question.count({ where: { status: "approved" } }),
+      prisma.question.count({ where: { status: "approved", isKbat: true } }),
+      prisma.attempt.count({ where: { studentId: student.id } }),
     ]);
-    const attempts = await prisma.attempt.count({ where: { studentId: student.id } });
-    data = { subjects, topics, questions, papers, kbat, student, attempts };
+    data = { enrolled, questions, kbat, attempts };
   } catch {
     return <SetupNeeded />;
   }
-  const { subjects, topics, questions, papers, kbat, student, attempts } = data;
+  const { enrolled, questions, kbat, attempts } = data;
 
   const stats = [
-    { label: "Subjects", value: subjects },
-    { label: "Topics", value: topics },
+    { label: "My subjects", value: enrolled },
     { label: "Questions", value: questions },
-    { label: "Papers", value: papers },
     { label: "KBAT items", value: kbat },
-    { label: "Your attempts", value: attempts },
+    { label: "My attempts", value: attempts },
   ];
 
   const modules = [
-    { href: "/admin", icon: "🗂️", title: "Upload & Categorize", desc: "Add past-year, trial, state & mock papers. The AI agent splits and tags every question." },
     { href: "/practice", icon: "📝", title: "Practice & Instant Grading", desc: "Browse by topic or year, attempt questions, get rubric-based feedback in seconds." },
     { href: "/generate", icon: "✨", title: "AI Question Generator", desc: "Create fresh KBAT questions in the style of real SPM papers, per topic." },
     { href: "/tutor", icon: "🧭", title: "AI Tutor", desc: "Find your weak subjects & topics and get a personalised focus plan." },
@@ -96,7 +91,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="card p-4 text-center">
             <div className="text-2xl font-bold text-brand-700">{s.value}</div>

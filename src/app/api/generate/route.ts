@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   // Use real questions from this topic as style exemplars.
   const examples = await prisma.question.findMany({
-    where: { topicId, source: "past_paper" },
+    where: { topicId, source: "past_paper", status: "approved" },
     take: 4,
     select: { stem: true },
   });

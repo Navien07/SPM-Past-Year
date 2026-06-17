@@ -62,6 +62,29 @@ A complete inventory of what the platform does, grouped by module. Legend:
 - **[Core]** Postgres/**Supabase**-ready data layer (Prisma); deployable to **Vercel**.
 - **[Core]** SessionStart bootstrap script for fresh/ephemeral environments.
 
+## Authentication & roles
+- **[Core]** Login (`/login`) with three roles: **Admin**, **Moderator**, **Student**; scrypt-hashed passwords; httpOnly session cookie.
+- **[Core]** Server-side route gating: `/admin/*` (admin), `/moderate` (moderator + admin), student portal (student); each role lands on its own home.
+- **[Core]** Seeded demo accounts (admin / moderator / 4 students).
+
+## Module 1b — Admin dashboard (`/admin`)
+- **[Core]** KPIs: students, active enrollments, **revenue (paid)**, pending moderation, papers, approved questions, attempts, AI status.
+- **[Core]** **Students list** (`/admin/students`) — per-student subjects, attempts, avg score, total paid.
+- **[Core]** **Student detail** (`/admin/students/[id]`) — stats, **mastery by subject**, **performance trend**, **enrolled subjects**, full **payment history**.
+- **[Core]** Recent payments feed + quick actions.
+- Paper upload & AI categorization (`/admin/papers`) is **admin-only**.
+
+## Module 2b — Moderation (`/moderate`, moderator + admin)
+- **[Core]** AI-categorized questions enter as **`pending`** and are hidden from students.
+- **[Core]** Review queue with per-question correction: **subject, topic (form · chapter), marks, KBAT**, then **Approve** (→ live) or **Reject** (→ hidden).
+- **[Core]** Counts of pending / approved / rejected.
+
+## SPM exam structure (encoded)
+- **[Core]** SPM = **Form 4–5**. Paper structure per subject in `constants.ts`:
+  sciences (Physics/Chemistry/Biology) have **Kertas 1 (objektif) / 2 (struktur+esei) / 3 (amali)**;
+  Sejarah/Maths/etc. have **Kertas 1 / 2**; languages have writing + comprehension papers.
+- **[Core]** Students only ever see **approved** questions; admin/moderator see all statuses.
+
 ## Data model (Prisma)
-`Subject`, `Topic`, `Paper`, `Question`, `Student`, `Attempt`, `StudySession`,
-`GeneratedQuestion`, `MockPaper`.
+`Subject`, `Topic`, `Paper`, `Question` (+ moderation `status`), `Student`, `Attempt`,
+`StudySession`, `GeneratedQuestion`, `MockPaper`, **`User`** (roles), **`Enrollment`**, **`Payment`**.

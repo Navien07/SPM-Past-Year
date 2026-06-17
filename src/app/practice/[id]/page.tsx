@@ -4,17 +4,19 @@ import { prisma } from "@/lib/db";
 import { QUESTION_TYPE_LABEL } from "@/lib/constants";
 import AttemptForm from "@/components/AttemptForm";
 import ExplainButton from "@/components/ExplainButton";
+import { requireStudent } from "@/lib/student";
 import type { McqOption } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireStudent();
   const { id } = await params;
   const q = await prisma.question.findUnique({
     where: { id },
     include: { subject: true, topic: true, paper: true },
   });
-  if (!q) notFound();
+  if (!q || q.status !== "approved") notFound();
 
   const options = JSON.parse(q.options || "[]") as McqOption[];
 

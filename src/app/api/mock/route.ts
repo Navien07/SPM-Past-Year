@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const want = Math.min(Number(count) || 10, 40);
 
   const pool = await prisma.question.findMany({
-    where: { subjectId, paperNumber: pn },
+    where: { subjectId, paperNumber: pn, status: "approved" },
     include: { topic: true },
   });
   if (pool.length === 0) {

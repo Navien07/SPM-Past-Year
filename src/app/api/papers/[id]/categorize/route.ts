@@ -73,6 +73,7 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
           subtopic: q.subtopic ?? null,
           year: paper.year,
           source: "past_paper",
+          status: "pending", // awaits moderator approval before students see it
         },
       });
       created++;

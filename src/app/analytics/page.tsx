@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { getCurrentStudent } from "@/lib/student";
+import { requireStudent } from "@/lib/student";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ function fmtDuration(sec: number) {
 }
 
 export default async function AnalyticsPage() {
-  const student = await getCurrentStudent();
+  const student = await requireStudent();
 
   const attempts = await prisma.attempt.findMany({
     where: { studentId: student.id },

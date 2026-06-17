@@ -28,6 +28,7 @@ model Subject {
   topics    Topic[]
   questions Question[]
   papers    Paper[]
+  enrollments Enrollment[]
 }
 
 model Topic {
@@ -93,6 +94,11 @@ model Question {
   subtopic      String?
   year          Int?
   source        String   @default("past_paper") // past_paper | ai_generated
+  // Moderation (human-in-the-loop): AI-categorized questions await review.
+  status        String   @default("approved") // pending | approved | rejected
+  reviewNote    String?
+  reviewedById  String?
+  reviewedAt    DateTime?
   createdAt     DateTime @default(now())
 
   subject  Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
@@ -103,6 +109,7 @@ model Question {
   @@index([subjectId])
   @@index([topicId])
   @@index([year])
+  @@index([status])
 }
 
 // ── Students & their work ─────────────────────────────────────────────────
@@ -114,8 +121,58 @@ model Student {
   form      Int      @default(5)
   createdAt DateTime @default(now())
 
-  attempts Attempt[]
-  sessions StudySession[]
+  attempts    Attempt[]
+  sessions    StudySession[]
+  user        User?
+  enrollments Enrollment[]
+  payments    Payment[]
+}
+
+// ── Auth & roles ──────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String // "admin" | "moderator" | "student"
+  password  String // scrypt hash "salt:hash"
+  studentId String?  @unique // set for student-role users
+  createdAt DateTime @default(now())
+
+  student Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([role])
+}
+
+// ── Enrollments & payments (admin dashboard) ──────────────────────────────
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  studentId String
+  subjectId String
+  status    String   @default("active") // active | paused | completed
+  createdAt DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, subjectId])
+  @@index([studentId])
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  studentId   String
+  amount      Float
+  currency    String   @default("MYR")
+  method      String? // fpx | card | ewallet | cash
+  status      String   @default("paid") // paid | pending | failed | refunded
+  description String?
+  paidAt      DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
 }
 
 // Module 4/5: an attempt is one answered question, graded instantly by the AI.
