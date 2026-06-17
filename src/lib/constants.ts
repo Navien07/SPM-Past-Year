@@ -116,7 +116,6 @@ export function papersForSubjectCode(code?: string | null): PaperSpec[] {
 
 export const ROLE_LABEL: Record<string, string> = {
   admin: "Administrator",
-  moderator: "Moderator",
   student: "Student",
 };
 

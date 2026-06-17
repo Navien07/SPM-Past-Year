@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 // subject/topic/KBAT/marks) or reject.
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
-  if (!user || (user.role !== "moderator" && user.role !== "admin")) {
+  if (!user || user.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

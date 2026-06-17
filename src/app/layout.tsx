@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 export const metadata: Metadata = {
   title: "SPM AI — Learning Management System",
   description:
-    "AI-powered SPM platform: admin & moderator dashboards, AI categorization with human moderation, and a student portal with instant grading, an AI tutor and KBAT practice.",
+    "AI-powered SPM platform: an admin dashboard with confidence-gated AI categorization & review, and a student portal with instant grading, an AI tutor and KBAT practice.",
 };
 
 export const viewport: Viewport = {

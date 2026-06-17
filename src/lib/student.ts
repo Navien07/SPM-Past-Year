@@ -14,7 +14,7 @@ export async function requireStudent() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (user.role !== "student" || !user.student) {
-    redirect(user.role === "admin" ? "/admin" : user.role === "moderator" ? "/moderate" : "/login");
+    redirect(user.role === "admin" ? "/admin" : "/login");
   }
   return user.student;
 }

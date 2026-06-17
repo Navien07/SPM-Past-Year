@@ -18,11 +18,7 @@ const ADMIN_LINKS = [
   { href: "/admin/students", label: "Students", icon: "👥" },
   { href: "/admin/papers", label: "Papers", icon: "🗂️" },
   { href: "/admin/knowledge", label: "Brain", icon: "🧠" },
-  { href: "/moderate", label: "Moderation", icon: "✅" },
-];
-
-const MODERATOR_LINKS = [
-  { href: "/moderate", label: "Moderation", icon: "✅" },
+  { href: "/moderate", label: "Review", icon: "✅" },
 ];
 
 export default function Nav({ user }: { user: NavUser }) {
@@ -31,7 +27,7 @@ export default function Nav({ user }: { user: NavUser }) {
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
   const links =
-    user?.role === "admin" ? ADMIN_LINKS : user?.role === "moderator" ? MODERATOR_LINKS : user?.role === "student" ? STUDENT_LINKS : [];
+    user?.role === "admin" ? ADMIN_LINKS : user?.role === "student" ? STUDENT_LINKS : [];
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -40,7 +36,7 @@ export default function Nav({ user }: { user: NavUser }) {
   }
 
   const roleColor =
-    user?.role === "admin" ? "bg-rose-100 text-rose-700" : user?.role === "moderator" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
+    user?.role === "admin" ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700";
 
   return (
     <>

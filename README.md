@@ -18,25 +18,24 @@ the acceptance-testing checklist.
 
 ## Roles, dashboards & access
 
-Three roles, gated by login (`/login`). SPM is a **Form 4–5** exam; the data model
+Two roles, gated by login (`/login`). SPM is a **Form 4–5** exam; the data model
 encodes the real paper structure — **Paper 1 / 2** for most subjects and **Paper 1 / 2 / 3**
 for the sciences (Physics/Chemistry/Biology, where Paper 3 = practical / *amali*).
 
 | Role | Sees | Can do |
 |------|------|--------|
-| **Admin** | `/admin` overview, `/admin/students`, `/admin/papers` | Monitor students, performance, trends, enrolled subjects & payments/revenue; **upload & AI-categorize papers** |
-| **Moderator** | `/moderate` | Review every AI categorization (right subject/form/topic), correct it, then **approve or reject** before students see it |
+| **Admin** | `/admin` overview, `/admin/students`, `/admin/papers`, `/admin/knowledge`, `/moderate` (Review) | Monitor students, performance, trends, enrolled subjects & payments/revenue; **upload & AI-categorize papers**; **review/correct/approve/reject** flagged questions |
 | **Student** | `/` portal, `/practice`, `/generate`, `/tutor`, `/analytics` | Practise **approved** questions, instant grading, AI tutor, KBAT generation, Cikgu AI chat |
 
-**Pipeline:** Admin uploads a paper → AI splits & tags each question (status `pending`) →
-Moderator verifies/corrects & approves (`approved`) → it appears in the student portal.
+**Pipeline:** Admin uploads a paper → AI splits & tags each question with a **confidence**.
+High-confidence questions are **auto-approved**; low-confidence ones become `pending`. The admin
+reviews/corrects & approves (`approved`) the flagged ones → they appear in the student portal.
 
 ### Demo logins (seeded)
 
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | `admin@spm.my` | `admin123` |
-| Moderator | `moderator@spm.my` | `mod123` |
 | Student | `ahmad@student.spm.my` | `student123` |
 
 (Other students: `siti@`, `kumar@`, `meiling@student.spm.my` — all `student123`.)

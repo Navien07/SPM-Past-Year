@@ -5,7 +5,7 @@ import { prisma } from "./db";
 const COOKIE = "spm_uid";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
-export type Role = "admin" | "moderator" | "student";
+export type Role = "admin" | "student";
 
 export async function getCurrentUser() {
   const store = await cookies();
@@ -33,7 +33,6 @@ export async function clearSession() {
 
 export function roleHome(role: string): string {
   if (role === "admin") return "/admin";
-  if (role === "moderator") return "/moderate";
   return "/";
 }
 

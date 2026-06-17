@@ -63,9 +63,10 @@ A complete inventory of what the platform does, grouped by module. Legend:
 - **[Core]** SessionStart bootstrap script for fresh/ephemeral environments.
 
 ## Authentication & roles
-- **[Core]** Login (`/login`) with three roles: **Admin**, **Moderator**, **Student**; scrypt-hashed passwords; httpOnly session cookie.
-- **[Core]** Server-side route gating: `/admin/*` (admin), `/moderate` (moderator + admin), student portal (student); each role lands on its own home.
-- **[Core]** Seeded demo accounts (admin / moderator / 4 students).
+- **[Core]** Login (`/login`) with two roles: **Admin** and **Student**; scrypt-hashed passwords; httpOnly session cookie.
+- **[Core]** Server-side route gating: `/admin/*` and `/moderate` (admin), student portal (student); each role lands on its own home.
+- **[Core]** The admin handles **everything** — content, students, payments, and the review/approval queue (no separate moderator).
+- **[Core]** Seeded demo accounts (1 admin / 4 students).
 
 ## Module 1b — Admin dashboard (`/admin`)
 - **[Core]** KPIs: students, active enrollments, **revenue (paid)**, pending moderation, papers, approved questions, attempts, AI status.
@@ -74,7 +75,7 @@ A complete inventory of what the platform does, grouped by module. Legend:
 - **[Core]** Recent payments feed + quick actions.
 - Paper upload & AI categorization (`/admin/papers`) is **admin-only**.
 
-## Module 2b — Confidence-gated moderation (`/moderate`, moderator + admin)
+## Module 2b — Confidence-gated review (`/moderate`, admin)
 - **[AI]** The categorizer returns a **confidence (0–1)** per question for its subject/form/topic tagging.
 - **[Core]** **Confidence gate**: questions at/above the threshold (`SPM_AUTOAPPROVE_THRESHOLD`, default **0.85**) are **auto-approved** (no review); below it they're flagged **`pending`** for a human. So the moderator only sees the doubtful ones.
 - **[Core]** Queue ordered **most-doubtful first**, each showing the AI confidence; per-question correction of **subject, topic (form · chapter), marks, KBAT**, then **Approve** (→ live) or **Reject** (→ hidden).

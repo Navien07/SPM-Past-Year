@@ -40,9 +40,10 @@ export default async function ModeratePage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Moderation ✅</h1>
+        <h1 className="text-2xl font-bold">Review queue ✅</h1>
         <p className="text-sm text-slate-500">
-          Verify the AI&apos;s categorization (right subject, form & topic) before questions go live to students.
+          High-confidence questions are auto-approved; these fell below the threshold. Verify the
+          subject, form & topic, then approve or reject before they go live to students.
         </p>
       </div>
 

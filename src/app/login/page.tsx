@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 const DEMO = [
   { role: "Admin", email: "admin@spm.my", password: "admin123" },
-  { role: "Moderator", email: "moderator@spm.my", password: "mod123" },
   { role: "Student", email: "ahmad@student.spm.my", password: "student123" },
 ];
 

@@ -307,16 +307,11 @@ async function main() {
     });
   }
 
-  // ── Users (admin / moderator / students) ─────────────────────────────────
+  // ── Users (admin handles review + everything; plus students) ─────────────
   await prisma.user.upsert({
     where: { email: "admin@spm.my" },
     update: { password: hashPassword("admin123"), role: "admin", name: "Admin Cikgu" },
     create: { email: "admin@spm.my", name: "Admin Cikgu", role: "admin", password: hashPassword("admin123") },
-  });
-  await prisma.user.upsert({
-    where: { email: "moderator@spm.my" },
-    update: { password: hashPassword("mod123"), role: "moderator", name: "Moderator Aisha" },
-    create: { email: "moderator@spm.my", name: "Moderator Aisha", role: "moderator", password: hashPassword("mod123") },
   });
 
   const STUDENTS = [
@@ -395,7 +390,7 @@ async function main() {
     attempts: await prisma.attempt.count(),
   };
   console.log("Seed complete:", counts);
-  console.log("Logins → admin@spm.my/admin123 · moderator@spm.my/mod123 · ahmad@student.spm.my/student123");
+  console.log("Logins → admin@spm.my/admin123 · ahmad@student.spm.my/student123");
 }
 
 main().catch((e) => { console.error(e); process.exit(1); }).finally(async () => { await prisma.$disconnect(); });

@@ -138,7 +138,7 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
-  role      String // "admin" | "moderator" | "student"
+  role      String // "admin" | "student" (admin also handles review/moderation)
   password  String // scrypt hash "salt:hash"
   studentId String?  @unique // set for student-role users
   createdAt DateTime @default(now())
