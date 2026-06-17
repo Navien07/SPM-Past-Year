@@ -287,6 +287,42 @@ ${input.examples.map((e, i) => `${i + 1}. ${e}`).join("\n") || "(none provided)"
   }
 }
 
+// ── OCR fallback for scanned PDFs ─────────────────────────────────────────
+// When unpdf finds no selectable text (image-only / scanned paper), send the
+// PDF itself to Claude (vision) to transcribe it faithfully. Returns "" offline.
+export async function ocrPdf(base64Pdf: string): Promise<{ text: string; byAi: boolean }> {
+  if (!aiEnabled()) return { text: "", byAi: false };
+  try {
+    const res = await client().messages.create({
+      model: MODEL,
+      max_tokens: 16000,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "document",
+              source: { type: "base64", media_type: "application/pdf", data: base64Pdf },
+            },
+            {
+              type: "text",
+              text: "This is a scanned exam paper. Transcribe ALL the text faithfully and in order — every question with its number, options (A–D), marks, and any marking scheme. Output plain text only, no commentary.",
+            },
+          ],
+        },
+      ],
+    } as Anthropic.MessageCreateParamsNonStreaming);
+    const text = res.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("\n")
+      .trim();
+    return { text, byAi: true };
+  } catch {
+    return { text: "", byAi: false };
+  }
+}
+
 // ── AI chat (context-aware tutor, with screenshot/vision) ─────────────────
 
 export interface ChatImage {

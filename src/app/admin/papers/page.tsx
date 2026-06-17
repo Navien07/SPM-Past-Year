@@ -205,8 +205,8 @@ export default function AdminPage() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           <p className="mt-1 text-xs text-slate-400">
-            Drop in the paper PDF — the text is extracted and the AI categorizes every question by
-            subject, topic, form & year automatically (max 4 MB; text-based PDFs, not scans).
+            Drop in the paper PDF — the text is extracted (scanned PDFs are auto-OCR&apos;d by AI) and
+            every question is categorized by subject, topic, form & year automatically (max 4 MB).
             {file ? ` Selected: ${file.name}` : ""}
           </p>
         </div>

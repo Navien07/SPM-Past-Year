@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { extractPdfText, MAX_PDF_BYTES } from "@/lib/pdf";
+import { aiEnabled, ocrPdf } from "@/lib/ai";
 
 export const maxDuration = 60;
 
@@ -47,10 +48,15 @@ export async function POST(req: NextRequest) {
       }
       if (!title) title = file.name.replace(/\.pdf$/i, "");
       if (!source) source = file.name;
+      const ab = await file.arrayBuffer();
       try {
-        content = await extractPdfText(await file.arrayBuffer());
+        content = await extractPdfText(ab);
       } catch {
-        return NextResponse.json({ error: "Could not read text from that PDF (is it scanned/image-only?)." }, { status: 422 });
+        content = "";
+      }
+      if ((!content || content.length < 200) && aiEnabled()) {
+        const { text } = await ocrPdf(Buffer.from(ab).toString("base64"));
+        if (text) content = text;
       }
     }
   } else {

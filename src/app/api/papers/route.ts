@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { extractPdfText, MAX_PDF_BYTES } from "@/lib/pdf";
+import { aiEnabled, ocrPdf } from "@/lib/ai";
 
 export const maxDuration = 60;
 
@@ -51,13 +52,22 @@ export async function POST(req: NextRequest) {
         );
       }
       fileName = file.name;
+      const ab = await file.arrayBuffer();
       try {
-        rawText = await extractPdfText(await file.arrayBuffer());
+        rawText = await extractPdfText(ab);
       } catch {
-        return NextResponse.json({ error: "Could not read text from that PDF (is it scanned/image-only?)." }, { status: 422 });
+        rawText = "";
+      }
+      // Scanned / image-only PDF → no selectable text. Fall back to Claude OCR.
+      if ((!rawText || rawText.length < 200) && aiEnabled()) {
+        const { text } = await ocrPdf(Buffer.from(ab).toString("base64"));
+        if (text) rawText = text;
       }
       if (!rawText) {
-        return NextResponse.json({ error: "No selectable text found in the PDF (it may be a scan)." }, { status: 422 });
+        return NextResponse.json(
+          { error: "No selectable text found (looks scanned). Set ANTHROPIC_API_KEY to enable OCR, or upload a text-based PDF." },
+          { status: 422 },
+        );
       }
     }
   } else {
