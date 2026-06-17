@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { extractPdfText, MAX_PDF_BYTES } from "@/lib/pdf";
 import { aiEnabled, ocrPdf } from "@/lib/ai";
+import { storageEnabled, downloadFromStorage, removeFromStorage } from "@/lib/storage";
 
 export const maxDuration = 60;
 
@@ -75,6 +76,28 @@ export async function POST(req: NextRequest) {
     ({ title, subjectId, paperType, year, state, paperNumber, rawText, markingScheme } = body);
     year = Number(year);
     paperNumber = Number(paperNumber) || 1;
+
+    // Large file uploaded directly to Supabase Storage → download & extract here.
+    if (body.storagePath && storageEnabled()) {
+      fileName = String(body.storagePath).split("/").pop() ?? null;
+      try {
+        const ab = await downloadFromStorage(String(body.storagePath));
+        rawText = await extractPdfText(ab).catch(() => "");
+        if ((!rawText || rawText.length < 200) && aiEnabled()) {
+          const { text } = await ocrPdf(Buffer.from(ab).toString("base64"));
+          if (text) rawText = text;
+        }
+        await removeFromStorage(String(body.storagePath)); // transient
+      } catch (e) {
+        return NextResponse.json(
+          { error: e instanceof Error ? e.message : "Could not read the uploaded file from storage." },
+          { status: 422 },
+        );
+      }
+      if (!rawText) {
+        return NextResponse.json({ error: "No text could be extracted (scanned & OCR unavailable?)." }, { status: 422 });
+      }
+    }
   }
 
   if (!title || !subjectId || !paperType || !year) {

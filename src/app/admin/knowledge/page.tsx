@@ -38,7 +38,30 @@ export default function KnowledgePage() {
     setMsg(file ? "Reading PDF…" : null);
 
     let res: Response;
-    if (file) {
+    const LARGE = 4 * 1024 * 1024;
+    if (file && file.size > LARGE) {
+      setMsg("Uploading large PDF to storage…");
+      try {
+        const r = await fetch("/api/upload-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "knowledge", filename: file.name }),
+        });
+        const d = await r.json();
+        if (!r.ok || !d.signedUrl) throw new Error(d.error || "Storage not configured for large files");
+        const up = await fetch(d.signedUrl, { method: "PUT", headers: { "content-type": file.type || "application/pdf" }, body: file });
+        if (!up.ok) throw new Error("Upload to storage failed");
+        res = await fetch("/api/knowledge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, kind: form.kind === "note" ? "textbook" : form.kind, storagePath: d.path }),
+        });
+      } catch (err) {
+        setBusy(false);
+        setMsg(err instanceof Error ? err.message : "Large upload failed");
+        return;
+      }
+    } else if (file) {
       const fd = new FormData();
       fd.append("title", form.title);
       fd.append("subjectId", form.subjectId);

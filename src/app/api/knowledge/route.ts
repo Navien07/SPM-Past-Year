@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { extractPdfText, MAX_PDF_BYTES } from "@/lib/pdf";
 import { aiEnabled, ocrPdf } from "@/lib/ai";
+import { storageEnabled, downloadFromStorage, removeFromStorage } from "@/lib/storage";
 
 export const maxDuration = 60;
 
@@ -67,6 +68,26 @@ export async function POST(req: NextRequest) {
     kind = body.kind || "note";
     source = body.source || null;
     content = body.content || "";
+
+    // Large textbook PDF uploaded directly to Storage → download & extract here.
+    if (body.storagePath && storageEnabled()) {
+      if (!title) title = String(body.storagePath).split("/").pop()?.replace(/\.pdf$/i, "") ?? "Document";
+      if (!source) source = String(body.storagePath).split("/").pop() ?? null;
+      try {
+        const ab = await downloadFromStorage(String(body.storagePath));
+        content = await extractPdfText(ab).catch(() => "");
+        if ((!content || content.length < 200) && aiEnabled()) {
+          const { text } = await ocrPdf(Buffer.from(ab).toString("base64"));
+          if (text) content = text;
+        }
+        await removeFromStorage(String(body.storagePath));
+      } catch (e) {
+        return NextResponse.json(
+          { error: e instanceof Error ? e.message : "Could not read the uploaded file from storage." },
+          { status: 422 },
+        );
+      }
+    }
   }
 
   if (!title || !content.trim()) {

@@ -62,14 +62,49 @@ export default function AdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Upload a large file straight to Supabase Storage via a signed URL; returns
+  // the storage path the server then downloads & extracts.
+  async function uploadToStorage(f: File, kind: string): Promise<string> {
+    const r = await fetch("/api/upload-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind, filename: f.name }),
+    });
+    const d = await r.json();
+    if (!r.ok || !d.signedUrl) throw new Error(d.error || "Storage not configured for large files");
+    const up = await fetch(d.signedUrl, {
+      method: "PUT",
+      headers: { "content-type": f.type || "application/pdf" },
+      body: f,
+    });
+    if (!up.ok) throw new Error("Upload to storage failed");
+    return d.path as string;
+  }
+
   async function createPaper(e: React.FormEvent) {
     e.preventDefault();
     setBusy("create");
     setMsg(null);
 
     let res: Response;
-    if (file) {
-      // PDF upload → server extracts the text into rawText.
+    const LARGE = 4 * 1024 * 1024;
+    if (file && file.size > LARGE) {
+      // Large PDF → upload directly to Supabase Storage (bypass Vercel's cap).
+      setMsg("Uploading large PDF to storage…");
+      try {
+        const storagePath = await uploadToStorage(file, "paper");
+        res = await fetch("/api/papers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, storagePath }),
+        });
+      } catch (err) {
+        setBusy(null);
+        setMsg(err instanceof Error ? err.message : "Large upload failed");
+        return;
+      }
+    } else if (file) {
+      // Small PDF → multipart; server extracts the text into rawText.
       setMsg("Reading PDF…");
       const fd = new FormData();
       fd.append("title", form.title);
@@ -205,9 +240,9 @@ export default function AdminPage() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           <p className="mt-1 text-xs text-slate-400">
-            Drop in the paper PDF — the text is extracted (scanned PDFs are auto-OCR&apos;d by AI) and
-            every question is categorized by subject, topic, form & year automatically (max 4 MB).
-            {file ? ` Selected: ${file.name}` : ""}
+            Drop in the paper PDF — text is extracted (scanned PDFs are auto-OCR&apos;d by AI) and every
+            question is categorized by subject, topic, form & year automatically. Large files (&gt;4 MB)
+            upload directly to Supabase Storage.{file ? ` Selected: ${file.name} (${(file.size / 1e6).toFixed(1)} MB)` : ""}
           </p>
         </div>
         <div className="sm:col-span-2">
