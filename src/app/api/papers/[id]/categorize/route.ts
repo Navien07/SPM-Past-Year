@@ -3,6 +3,9 @@ import { prisma } from "@/lib/db";
 import { categorizePaper } from "@/lib/ai";
 import { AUTO_APPROVE_THRESHOLD } from "@/lib/constants";
 
+export const maxDuration = 60;
+
+
 // Module 2: run the categorization agent over a paper's rawText, creating
 // tagged Question rows (and Topic rows as needed) in the question bank.
 export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {

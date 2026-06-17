@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { QUESTION_TYPE_LABEL } from "@/lib/constants";
+import { QUESTION_TYPE_LABEL, examLabel, topicLabel } from "@/lib/constants";
 import AttemptForm from "@/components/AttemptForm";
 import ExplainButton from "@/components/ExplainButton";
 import { requireStudent } from "@/lib/student";
@@ -33,14 +33,17 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
           <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
           {q.isKbat && <span className="tag-kbat">KBAT</span>}
-          {q.year && <span className="badge bg-slate-100 text-slate-600">{q.year}</span>}
         </div>
-        {q.topic && (
-          <p className="mb-2 text-xs text-slate-400">
-            Tingkatan {q.topic.form} · Bab {q.topic.chapter} · {q.topic.title}
-            {q.subtopic ? ` · ${q.subtopic}` : ""}
-          </p>
-        )}
+        {/* Label: Bab 3 · Tingkatan 4 · SPM 2025 */}
+        <p className="mb-2 text-sm font-semibold text-slate-600">
+          {[
+            q.topic ? `Bab ${q.topic.chapter}` : null,
+            q.topic ? `Tingkatan ${q.topic.form}` : null,
+            examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year }),
+          ].filter(Boolean).join(" · ")}
+          {q.topic ? ` — ${q.topic.title}` : ""}
+          {q.subtopic ? ` (${q.subtopic})` : ""}
+        </p>
         <h1 className="whitespace-pre-wrap text-lg font-semibold leading-relaxed">
           {q.number ? `${q.number}. ` : ""}
           {q.stem}

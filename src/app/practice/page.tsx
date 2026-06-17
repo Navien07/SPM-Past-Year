@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { QUESTION_TYPE_LABEL } from "@/lib/constants";
+import { QUESTION_TYPE_LABEL, examLabel, topicLabel } from "@/lib/constants";
 import { requireStudent } from "@/lib/student";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: string }>;
 
 export default async function PracticePage({ searchParams }: { searchParams: SP }) {
-  await requireStudent();
+  const student = await requireStudent();
   const sp = await searchParams;
   // Students only ever browse moderator-approved questions.
   const subjects = await prisma.subject.findMany({
@@ -46,9 +46,36 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
       ? await prisma.question.findMany({
           where,
           orderBy: [{ paperNumber: "asc" }, { number: "asc" }],
-          include: { topic: true },
+          include: { topic: true, paper: { select: { paperType: true, state: true } } },
         })
       : [];
+
+  // Progress tracker: which approved questions in this subject the student has
+  // already attempted (done vs not done), tallied overall + per topic/year.
+  const myAttempts = subjectId
+    ? await prisma.attempt.findMany({
+        where: { studentId: student.id, question: { subjectId, status: "approved" } },
+        select: { questionId: true, question: { select: { topicId: true, year: true } } },
+      })
+    : [];
+  const attemptedSet = new Set(myAttempts.map((a) => a.questionId));
+  const attemptedByTopic = new Map<string, Set<string>>();
+  const attemptedByYear = new Map<number, Set<string>>();
+  for (const a of myAttempts) {
+    if (a.question.topicId) {
+      const s = attemptedByTopic.get(a.question.topicId) ?? new Set();
+      s.add(a.questionId);
+      attemptedByTopic.set(a.question.topicId, s);
+    }
+    if (a.question.year != null) {
+      const s = attemptedByYear.get(a.question.year) ?? new Set();
+      s.add(a.questionId);
+      attemptedByYear.set(a.question.year, s);
+    }
+  }
+  const totalApproved = subject?._count.questions ?? 0;
+  const doneCount = attemptedSet.size;
+  const progressPct = totalApproved ? Math.round((doneCount / totalApproved) * 100) : 0;
 
   const base = (extra: Record<string, string>) => {
     const p = new URLSearchParams({ subject: subjectId ?? "", view, ...extra });
@@ -76,6 +103,19 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
           </Link>
         ))}
       </div>
+
+      {/* Progress tracker for this subject */}
+      {totalApproved > 0 && (
+        <div className="card p-4">
+          <div className="mb-1 flex items-center justify-between text-sm">
+            <span className="font-semibold">{subject?.name} progress</span>
+            <span className="text-slate-500">{doneCount} / {totalApproved} done · {totalApproved - doneCount} left</span>
+          </div>
+          <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full bg-emerald-500" style={{ width: `${progressPct}%` }} />
+          </div>
+        </div>
+      )}
 
       {/* View toggle */}
       <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1">
@@ -109,11 +149,13 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                   }`}
                 >
                   <span>
-                    <span className="text-xs text-slate-400">T{t.form} · Bab {t.chapter}</span>
+                    <span className="text-xs text-slate-400">Tingkatan {t.form} · Bab {t.chapter}</span>
                     <br />
                     {t.title}
                   </span>
-                  <span className="badge bg-slate-100 text-slate-600">{t._count.questions}</span>
+                  <span className="badge bg-slate-100 text-slate-600">
+                    {attemptedByTopic.get(t.id)?.size ?? 0}/{t._count.questions}
+                  </span>
                 </Link>
               ))
             : years.map((y) => (
@@ -125,7 +167,9 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                   }`}
                 >
                   <span className="font-semibold">{y.year}</span>
-                  <span className="badge bg-slate-100 text-slate-600">{y._count}</span>
+                  <span className="badge bg-slate-100 text-slate-600">
+                    {(y.year != null ? attemptedByYear.get(y.year)?.size : 0) ?? 0}/{y._count}
+                  </span>
                 </Link>
               ))}
           {view === "topic" && topics.length === 0 && (
@@ -141,19 +185,31 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
               Select a {view === "topic" ? "topic" : "year"} to see its questions.
             </div>
           ) : (
-            questions.map((q) => (
-              <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300 hover:shadow-sm">
-                <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
-                  <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
-                  <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
-                  {q.isKbat && <span className="tag-kbat">KBAT</span>}
-                  {q.year && <span className="badge bg-slate-100 text-slate-600">{q.year}</span>}
-                </div>
-                <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>
-                {q.topic && <p className="mt-1 text-xs text-slate-400">{q.topic.title}</p>}
-              </Link>
-            ))
+            questions.map((q) => {
+              const done = attemptedSet.has(q.id);
+              const tLabel = topicLabel({ chapter: q.topic?.chapter, form: q.topic?.form });
+              const exam = examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year });
+              return (
+                <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300 hover:shadow-sm">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
+                    {done ? (
+                      <span className="badge bg-emerald-100 text-emerald-700">✓ Done</span>
+                    ) : (
+                      <span className="badge bg-slate-100 text-slate-500">Not done</span>
+                    )}
+                    <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
+                    <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
+                    <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
+                    {q.isKbat && <span className="tag-kbat">KBAT</span>}
+                  </div>
+                  <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>
+                  {/* Label: Bab 3 · Tingkatan 4 · SPM 2025 */}
+                  <p className="mt-1 text-xs font-medium text-slate-500">
+                    {[q.topic?.title, tLabel, exam].filter(Boolean).join("  ·  ")}
+                  </p>
+                </Link>
+              );
+            })
           )}
         </div>
       </div>

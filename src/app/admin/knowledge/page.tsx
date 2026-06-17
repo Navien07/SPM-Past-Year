@@ -19,6 +19,7 @@ export default function KnowledgePage() {
   const [docs, setDocs] = useState<Doc[]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [form, setForm] = useState({ title: "", subjectId: "", form: "", kind: "note", source: "", content: "" });
 
   async function load() {
@@ -34,17 +35,32 @@ export default function KnowledgePage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setMsg(null);
-    const res = await fetch("/api/knowledge", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    setMsg(file ? "Reading PDF…" : null);
+
+    let res: Response;
+    if (file) {
+      const fd = new FormData();
+      fd.append("title", form.title);
+      fd.append("subjectId", form.subjectId);
+      fd.append("form", form.form);
+      fd.append("kind", form.kind === "note" ? "textbook" : form.kind);
+      fd.append("source", form.source);
+      fd.append("file", file);
+      res = await fetch("/api/knowledge", { method: "POST", body: fd });
+    } else {
+      res = await fetch("/api/knowledge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    }
+
     const data = await res.json();
     setBusy(false);
     if (!res.ok) { setMsg(data.error || "Failed"); return; }
     setMsg("Added to the knowledge base. Cikgu AI will now ground answers on it.");
     setForm({ ...form, title: "", source: "", content: "" });
+    setFile(null);
     load();
   }
 
@@ -93,8 +109,21 @@ export default function KnowledgePage() {
           <input className="input" value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} placeholder="e.g. Buku Teks KSSM Tingkatan 4" />
         </div>
         <div className="sm:col-span-2">
-          <label className="label">Content</label>
-          <textarea className="input resize-y" rows={6} required value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Paste notes / summary text…" />
+          <label className="label">Upload PDF (textbook / notes — text auto-extracted)</label>
+          <input
+            type="file"
+            accept="application/pdf"
+            className="input"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+          <p className="mt-1 text-xs text-slate-400">
+            Tag it with the subject & form above so retrieval can prioritise it. Max 4 MB; text-based
+            PDFs (not scans). Cikgu AI explains from it in its own words.{file ? ` Selected: ${file.name}` : ""}
+          </p>
+        </div>
+        <div className="sm:col-span-2">
+          <label className="label">…or paste content {file ? "(ignored — PDF selected)" : ""}</label>
+          <textarea className="input resize-y" rows={5} disabled={!!file} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Paste notes / summary text…" />
         </div>
         <div className="sm:col-span-2">
           <button className="btn-primary" disabled={busy}>{busy ? "Adding…" : "Add to knowledge base"}</button>

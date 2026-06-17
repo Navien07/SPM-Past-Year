@@ -31,6 +31,7 @@ export const MALAYSIA_STATES = [
   "Labuan",
   "MRSM",
   "SBP",
+  "SPP",
 ];
 
 // SPM grade bands (used by the grader for a qualitative label).
@@ -50,6 +51,27 @@ export const SPM_BANDS = [
 export function bandForPercent(pct: number): string {
   const b = SPM_BANDS.find((x) => pct >= x.min) ?? SPM_BANDS[SPM_BANDS.length - 1];
   return `${b.band} · ${b.descriptor}`;
+}
+
+// Exam-paper label, e.g. "SPM 2025", "Percubaan MRSM 2024", "Selangor 2025".
+export function examLabel(opts: { paperType?: string | null; state?: string | null; year?: number | null }): string {
+  const y = opts.year ?? "";
+  const body = opts.state ? `${opts.state} ` : "";
+  switch (opts.paperType) {
+    case "trial": return `Percubaan ${body}${y}`.trim();
+    case "state": return `${body || "Negeri "}${y}`.trim();
+    case "mock": return `Mock ${y}`.trim();
+    default: return `SPM ${y}`.trim(); // past_year (or seeded, no paper)
+  }
+}
+
+// Topic label, e.g. "Bab 3 · Tingkatan 4".
+export function topicLabel(opts: { chapter?: number | null; form?: number | null }): string | null {
+  if (!opts.form && !opts.chapter) return null;
+  const parts: string[] = [];
+  if (opts.chapter) parts.push(`Bab ${opts.chapter}`);
+  if (opts.form) parts.push(`Tingkatan ${opts.form}`);
+  return parts.join(" · ");
 }
 
 export const QUESTION_TYPE_LABEL: Record<string, string> = {

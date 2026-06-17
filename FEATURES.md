@@ -6,12 +6,11 @@ A complete inventory of what the platform does, grouped by module. Legend:
 
 ---
 
-## Module 1 — Admin / Ingest (`/admin`)
-- **[Core]** Add papers tagged by **type** (Past Year / Trial / State / Mock), **subject**, **year**, **state/body**, **paper number** (1/2).
-- **[Core]** Paste paper text (or extracted PDF text) as the source for categorization.
+## Module 1 — Admin / Ingest (`/admin/papers`)
+- **[Core]** Add papers tagged by **type** (Past Year / Trial / State / Mock), **subject**, **year**, **state/body** (incl. **MRSM, SBP, SPP**), **paper number** (1/2/**3** for sciences).
+- **[Core]** **PDF upload → auto-parse**: drop in a paper PDF; the text is extracted server-side (`unpdf`, serverless) and the AI **auto-categorizes** every question by subject/topic/form/year in one flow. Or paste text.
 - **[Core]** Attach a **marking scheme / answer key** and **rubric** per paper.
-- **[Core]** Paper list with live **status** (uploaded → categorizing → categorized / failed) and question counts.
-- **[Core]** Pre-filled sample text so the flow is demonstrable immediately.
+- **[Core]** Paper list with live **status** and question counts.
 
 ## Module 2 — AI Categorization Agent (`POST /api/papers/[id]/categorize`)
 - **[AI]** Splits a paper into individual questions.
@@ -27,6 +26,8 @@ A complete inventory of what the platform does, grouped by module. Legend:
 
 ## Module 4 — Practice & Instant Grading (`/practice`, `/practice/[id]`)
 - **[Core]** Browse **by Topic** or **by Year** (toggle), filtered per subject.
+- **[Core]** **Progress tracker**: a per-subject done/left bar, **done/total** counts on each topic & year, and a **✓ Done / Not done** badge on every question.
+- **[Core]** Every question is **labelled** with topic + form + exam, e.g. *Bab 3 · Tingkatan 4 · SPM 2025* (trial/state bodies render as *Percubaan MRSM 2024*, etc.).
 - **[Core]** Question detail with metadata (subject, topic, paper, marks, KBAT, year, source).
 - **[Core]** MCQ answered by option selection; structured/essay via free text.
 - **[Core]** **MCQ graded deterministically** (no model needed).
@@ -82,7 +83,7 @@ A complete inventory of what the platform does, grouped by module. Legend:
 - **[Core]** Counts of pending / approved / rejected; categorize result reports auto-approved vs sent-to-review.
 
 ## Knowledge base — "main brain" (`/admin/knowledge`)
-- **[Core]** Admin ingests reference notes/summaries (title · subject · form · kind · content).
+- **[Core]** Admin ingests reference notes/summaries (title · subject · form · kind · content), or **uploads a textbook/notes PDF** (text auto-extracted) tagged per subject & form.
 - **[AI]** **Cikgu AI chat is grounded** on the knowledge base: lexical retrieval pulls the most relevant bounded snippets (subject-boosted) into the chat context.
 - **[Core]** The prompt instructs the AI to **explain in its own words** — it synthesises from the notes rather than reproducing them verbatim. Lexical retrieval works offline; swap for pgvector embeddings later.
 

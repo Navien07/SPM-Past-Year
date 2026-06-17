@@ -34,6 +34,7 @@ export default function AdminPage() {
   const [papers, setPapers] = useState<Paper[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -65,20 +66,48 @@ export default function AdminPage() {
     e.preventDefault();
     setBusy("create");
     setMsg(null);
-    const res = await fetch("/api/papers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+
+    let res: Response;
+    if (file) {
+      // PDF upload → server extracts the text into rawText.
+      setMsg("Reading PDF…");
+      const fd = new FormData();
+      fd.append("title", form.title);
+      fd.append("subjectId", form.subjectId);
+      fd.append("paperType", form.paperType);
+      fd.append("year", String(form.year));
+      fd.append("state", form.state);
+      fd.append("paperNumber", String(form.paperNumber));
+      fd.append("markingScheme", form.markingScheme);
+      fd.append("file", file);
+      res = await fetch("/api/papers", { method: "POST", body: fd });
+    } else {
+      res = await fetch("/api/papers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    }
+
     const data = await res.json();
-    setBusy(null);
     if (!res.ok) {
+      setBusy(null);
       setMsg(data.error || "Failed to create paper");
       return;
     }
-    setMsg("Paper added. Run categorization to build the question bank.");
+
     setForm((f) => ({ ...f, title: "" }));
-    loadAll();
+    setFile(null);
+
+    // PDF flow auto-categorizes immediately so it's "drop-in & parsed".
+    if (file && data.id) {
+      setMsg("PDF read. Auto-categorizing with AI…");
+      await categorize(data.id);
+    } else {
+      setBusy(null);
+      setMsg("Paper added. Click Categorize to build the question bank.");
+      loadAll();
+    }
   }
 
   async function categorize(id: string) {
@@ -155,6 +184,7 @@ export default function AdminPage() {
           <select className="input" value={form.paperNumber} onChange={(e) => setForm({ ...form, paperNumber: Number(e.target.value) })}>
             <option value={1}>Kertas 1</option>
             <option value={2}>Kertas 2</option>
+            <option value={3}>Kertas 3 (amali — sains)</option>
           </select>
         </div>
         <div className="sm:col-span-2">
@@ -167,16 +197,28 @@ export default function AdminPage() {
           </select>
         </div>
         <div className="sm:col-span-2">
-          <label className="label">Paper text (paste the questions / extracted PDF text)</label>
+          <label className="label">Upload PDF (auto-parsed & categorized)</label>
+          <input
+            type="file"
+            accept="application/pdf"
+            className="input"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+          <p className="mt-1 text-xs text-slate-400">
+            Drop in the paper PDF — the text is extracted and the AI categorizes every question by
+            subject, topic, form & year automatically (max 4 MB; text-based PDFs, not scans).
+            {file ? ` Selected: ${file.name}` : ""}
+          </p>
+        </div>
+        <div className="sm:col-span-2">
+          <label className="label">…or paste paper text {file ? "(ignored — PDF selected)" : ""}</label>
           <textarea
             className="input resize-y font-mono text-xs"
-            rows={8}
+            rows={6}
+            disabled={!!file}
             value={form.rawText}
             onChange={(e) => setForm({ ...form, rawText: e.target.value })}
           />
-          <p className="mt-1 text-xs text-slate-400">
-            POC accepts pasted text. PDF upload + extraction can be wired to the Files API later.
-          </p>
         </div>
         <div className="sm:col-span-2">
           <label className="label">Marking scheme / answer key (optional)</label>
