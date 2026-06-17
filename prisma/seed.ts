@@ -245,7 +245,7 @@ async function main() {
     }
   }
 
-  async function createQuestion(q: QSpec, paperId: string | null, status: string) {
+  async function createQuestion(q: QSpec, paperId: string | null, status: string, confidence: number) {
     const subjectId = subjectByName.get(q.subject)!;
     const topicId = topicByKey.get(`${q.subject}::${q.topicTitle}`) ?? null;
     return prisma.question.create({
@@ -254,19 +254,21 @@ async function main() {
         number: q.number ?? null, stem: q.stem, options: JSON.stringify(q.options ?? []),
         answer: q.answer ?? null, markingScheme: q.markingScheme ?? null, rubric: q.rubric ?? null,
         marks: q.marks, isKbat: q.kbat, subtopic: q.subtopic ?? null, year: q.year, source: "past_paper",
-        status, reviewedAt: status === "approved" ? new Date() : null,
+        status, confidence, autoApproved: false,
+        reviewNote: status === "approved" ? "Curated seed content" : null,
+        reviewedAt: status === "approved" ? new Date() : null,
       },
     });
   }
 
-  // Approved bank
+  // Approved bank (high confidence / curated)
   const approvedQ: { id: string; subjectId: string }[] = [];
   for (const q of APPROVED) {
-    const created = await createQuestion(q, null, "approved");
+    const created = await createQuestion(q, null, "approved", 0.96);
     approvedQ.push({ id: created.id, subjectId: created.subjectId });
   }
 
-  // Pending papers (await moderation)
+  // Pending papers (low/mid AI confidence → flagged for moderation)
   for (const p of PENDING_PAPERS) {
     const subjectId = subjectByName.get(p.subject)!;
     const paper = await prisma.paper.create({
@@ -274,7 +276,35 @@ async function main() {
         paperNumber: p.paperNumber, status: "categorized", categorizedAt: new Date(),
         rawText: "Uploaded by admin; AI-categorized; awaiting moderation." },
     });
-    for (const q of p.questions) await createQuestion(q, paper.id, "pending");
+    let i = 0;
+    for (const q of p.questions) {
+      // Vary confidence so the moderator queue surfaces the doubtful ones first.
+      const conf = [0.55, 0.68, 0.78, 0.62][i % 4];
+      await createQuestion(q, paper.id, "pending", conf);
+      i++;
+    }
+  }
+
+  // Knowledge base ("main brain") — original, generic study notes that ground
+  // Cikgu AI chat. Replace/extend with the school's own materials via /admin/knowledge.
+  const KNOWLEDGE: { title: string; subject: string; form: number; kind: string; content: string }[] = [
+    {
+      title: "Photosynthesis — key concepts", subject: "Biology", form: 4, kind: "summary",
+      content: "Photosynthesis is how green plants make food using light energy. It needs carbon dioxide, water, light and chlorophyll. The light-dependent reactions in the thylakoids capture light energy; the light-independent reactions (Calvin cycle) in the stroma fix carbon dioxide into glucose. Products are glucose and oxygen. It matters because it provides food (glucose) for almost all food chains and releases the oxygen animals breathe. Common SPM points: word equation, limiting factors (light intensity, CO2 concentration, temperature), and adaptations of the leaf (broad lamina, many chloroplasts, stomata).",
+    },
+    {
+      title: "Acids, bases & salts — essentials", subject: "Chemistry", form: 4, kind: "summary",
+      content: "An acid produces hydrogen ions (H+) in water; an alkali produces hydroxide ions (OH-). The pH scale runs 0–14: below 7 acidic, 7 neutral, above 7 alkaline. Neutralisation: acid + base produces salt + water. Salts can be prepared by reacting an acid with a metal, a base, or a carbonate. Titration uses an indicator (e.g. phenolphthalein turns pink in alkali, colourless in acid) to find the end point. Remember to balance equations and state observations.",
+    },
+    {
+      title: "Pembinaan Negara dan Bangsa — Kemerdekaan 1957", subject: "Sejarah", form: 5, kind: "note",
+      content: "Kemerdekaan Persekutuan Tanah Melayu dicapai melalui semangat perpaduan dan rundingan. Antara usaha penting: Pakatan Murni antara kaum, Pilihan Raya Umum 1955, rombongan ke London 1956, dan penubuhan Suruhanjaya Reid untuk merangka Perlembagaan. Iktibar: perpaduan kaum, semangat patriotik, toleransi, dan kepimpinan yang bijaksana penting untuk mengekalkan kemerdekaan dan kedaulatan negara.",
+    },
+  ];
+  for (const k of KNOWLEDGE) {
+    await prisma.knowledgeDoc.create({
+      data: { title: k.title, subjectId: subjectByName.get(k.subject) ?? null, form: k.form, kind: k.kind, source: "Seed (sample notes)", content: k.content },
+    });
   }
 
   // ── Users (admin / moderator / students) ─────────────────────────────────

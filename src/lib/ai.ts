@@ -96,6 +96,9 @@ For EACH question, determine:
 - chapter: chapter number (best estimate)
 - chapterTitle: chapter/topic title in the subject's language
 - subtopic: a specific subtopic label
+- confidence: a number from 0 to 1 — how certain you are about the subject, form and topic
+  tagging for THIS question. Use 0.9+ only when you are very sure; use lower values when the
+  topic is ambiguous or the question could belong to multiple chapters.
 
 Return ONLY JSON: {"questions":[ ... ]}. No prose.`;
 
@@ -316,6 +319,9 @@ revision app. Help students understand topics, exam questions, and marking schem
 - For exam answers, show how to score marks against the SPM marking scheme / KBAT expectations.
 - When the student attaches a screenshot or image, read it carefully and base your answer on it.
 - If you are unsure, say so and suggest what to check. Never invent facts.
+- You may be given REFERENCE NOTES from the school's knowledge base. Use them to ground your
+  explanation, but teach the concept in your own words — explain and summarise, do not copy
+  long passages verbatim.
 ${input.context ? `\nCURRENT CONTEXT:\n${input.context}` : ""}`;
 
   const messages: Anthropic.MessageParam[] = input.history.map((t) => {
@@ -392,6 +398,9 @@ function mockCategorize(input: CategorizeInput): CategorizationResult {
     questions: chunks.slice(0, 30).map((chunk, i) => {
       const isMcq = /\n\s*[A-D][.)]\s/.test(chunk);
       const stem = chunk.replace(/^\s*\d{1,2}[.)]\s*/, "").trim();
+      // Offline confidence heuristic: longer/clearer stems → more confident;
+      // mix in some lower values so the moderator queue is exercised.
+      const confidence = Math.max(0.5, Math.min(0.97, 0.6 + (stem.length % 40) / 100 + (isMcq ? 0.2 : 0)));
       return {
         number: String(i + 1),
         questionType: isMcq ? "mcq" : stem.length > 160 ? "essay" : "structured",
@@ -407,6 +416,7 @@ function mockCategorize(input: CategorizeInput): CategorizationResult {
         chapter: (i % 6) + 1,
         chapterTitle: `${input.subjectName} — Bab ${(i % 6) + 1}`,
         subtopic: "Umum",
+        confidence: Math.round(confidence * 100) / 100,
       };
     }),
   };

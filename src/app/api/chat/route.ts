@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { chatAnswer, type ChatTurn } from "@/lib/ai";
+import { retrieveKnowledge } from "@/lib/knowledge";
 import type { McqOption } from "@/lib/types";
 
 // AI chat — context-aware tutor. The client sends the conversation (with any
@@ -44,6 +45,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Ground the answer in the admin knowledge base ("main brain"). Retrieve
+  // bounded snippets relevant to the student's last message + current subject.
+  const lastUser = [...history].reverse().find((t) => t.role !== "assistant");
+  let subjectIdForKb: string | null = null;
+  if (questionId) {
+    const q = await prisma.question.findUnique({ where: { id: questionId }, select: { subjectId: true } });
+    subjectIdForKb = q?.subjectId ?? null;
+  }
+  const refs = lastUser?.text
+    ? await retrieveKnowledge(lastUser.text, { subjectId: subjectIdForKb }).catch(() => [])
+    : [];
+  if (refs.length) {
+    parts.push(
+      "REFERENCE NOTES (from the knowledge base — explain in your own words, do not copy verbatim):\n" +
+        refs.map((r) => `• ${r.title}: ${r.snippet}`).join("\n\n"),
+    );
+  }
+
   // Cap images per turn defensively (vision payload size).
   const safeHistory: ChatTurn[] = history.slice(-12).map((t) => ({
     role: t.role === "assistant" ? "assistant" : "user",
@@ -52,5 +71,5 @@ export async function POST(req: NextRequest) {
   }));
 
   const { reply, byAi } = await chatAnswer({ history: safeHistory, context: parts.join("\n\n") });
-  return NextResponse.json({ reply, byAi });
+  return NextResponse.json({ reply, byAi, groundedOn: refs.map((r) => r.title) });
 }

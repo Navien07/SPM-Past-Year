@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { categorizePaper } from "@/lib/ai";
+import { AUTO_APPROVE_THRESHOLD } from "@/lib/constants";
 
 // Module 2: run the categorization agent over a paper's rawText, creating
 // tagged Question rows (and Topic rows as needed) in the question bank.
@@ -32,6 +33,8 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
     await prisma.question.deleteMany({ where: { paperId: id } });
 
     let created = 0;
+    let autoApproved = 0;
+    let pending = 0;
     for (const q of result.questions) {
       // Find or create the topic this question maps to.
       let topicId: string | null = null;
@@ -56,6 +59,11 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
         topicId = topic.id;
       }
 
+      // Confidence gate: high-confidence categorizations auto-approve; the rest
+      // are flagged `pending` so the moderator only reviews the doubtful ones.
+      const confidence = typeof q.confidence === "number" ? Math.max(0, Math.min(1, q.confidence)) : 0.5;
+      const auto = confidence >= AUTO_APPROVE_THRESHOLD;
+
       await prisma.question.create({
         data: {
           subjectId: paper.subjectId,
@@ -73,10 +81,16 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
           subtopic: q.subtopic ?? null,
           year: paper.year,
           source: "past_paper",
-          status: "pending", // awaits moderator approval before students see it
+          confidence,
+          status: auto ? "approved" : "pending",
+          autoApproved: auto,
+          reviewNote: auto ? `Auto-approved (AI confidence ${Math.round(confidence * 100)}%)` : null,
+          reviewedAt: auto ? new Date() : null,
         },
       });
       created++;
+      if (auto) autoApproved++;
+      else pending++;
     }
 
     await prisma.paper.update({
@@ -84,7 +98,7 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
       data: { status: "categorized", categorizedAt: new Date() },
     });
 
-    return NextResponse.json({ created, byAi });
+    return NextResponse.json({ created, autoApproved, pending, byAi, threshold: AUTO_APPROVE_THRESHOLD });
   } catch (e) {
     await prisma.paper.update({ where: { id }, data: { status: "failed" } });
     return NextResponse.json(

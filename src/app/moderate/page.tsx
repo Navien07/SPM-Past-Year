@@ -7,7 +7,7 @@ export default async function ModeratePage() {
   const [pending, subjects, approvedCount, rejectedCount] = await Promise.all([
     prisma.question.findMany({
       where: { status: "pending" },
-      orderBy: { createdAt: "asc" },
+      orderBy: [{ confidence: "asc" }, { createdAt: "asc" }], // most doubtful first
       include: { paper: true },
     }),
     prisma.subject.findMany({
@@ -28,6 +28,7 @@ export default async function ModeratePage() {
     subjectId: q.subjectId,
     topicId: q.topicId,
     paperTitle: q.paper?.title ?? null,
+    confidence: q.confidence,
   }));
 
   const subjectsLite = subjects.map((s) => ({

@@ -17,6 +17,7 @@ const ADMIN_LINKS = [
   { href: "/admin", label: "Overview", icon: "📈" },
   { href: "/admin/students", label: "Students", icon: "👥" },
   { href: "/admin/papers", label: "Papers", icon: "🗂️" },
+  { href: "/admin/knowledge", label: "Brain", icon: "🧠" },
   { href: "/moderate", label: "Moderation", icon: "✅" },
 ];
 

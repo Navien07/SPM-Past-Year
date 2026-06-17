@@ -127,14 +127,22 @@ an **offline** label (that is itself a valid pass for **[offline]**).
 | 13.4 | Upload paper | `/admin/papers` → add + Categorize | Questions created as **pending** (go to moderation, not student portal) |
 | 13.5 | Revenue | Compare overview revenue to sum of paid payments | Matches |
 
-## 14. Moderation
+## 14. Confidence-gated moderation
 | # | Case | Steps | Expected |
 |---|------|-------|----------|
-| 14.1 | Queue | As moderator, `/moderate` | Pending AI-categorized questions listed with counts |
-| 14.2 | Correct + approve | Change subject/topic/KBAT/marks → **Approve** | Card shows approved; item leaves queue |
-| 14.3 | Student visibility | As student, browse that topic | The approved question now appears |
-| 14.4 | Reject | **Reject** a question | Hidden from students; rejected count increments |
-| 14.5 | Pending hidden | Confirm a `pending` question never shows in `/practice` | Not visible to students |
+| 14.1 | Queue | As moderator, `/moderate` | Pending questions listed, **most-doubtful first**, each with an AI-confidence badge |
+| 14.2 | Confidence gate | As admin, categorize a paper | Result reports N **auto-approved** (≥85%) + M **sent to review** |
+| 14.3 | Correct + approve | Change subject/topic/KBAT/marks → **Approve** | Card shows approved; item leaves queue |
+| 14.4 | Student visibility | As student, browse that topic | The approved question now appears |
+| 14.5 | Reject | **Reject** a question | Hidden from students; rejected count increments |
+| 14.6 | Pending hidden | Confirm a `pending` question never shows in `/practice` | Not visible to students |
+
+## 15. Knowledge base & grounded chat
+| # | Case | Steps | Expected |
+|---|------|-------|----------|
+| 15.1 | Ingest | Admin `/admin/knowledge` → add a note → Save | Appears in the documents list |
+| 15.2 | Grounded chat | As student, ask Cikgu AI about that note's topic | Answer reflects the note (response JSON `groundedOn` names it) |
+| 15.3 | No verbatim | Ask for the note's content | AI explains/summarises rather than pasting it verbatim |
 
 ## 11. Deployment (Vercel + Supabase)
 | # | Case | Steps | Expected |

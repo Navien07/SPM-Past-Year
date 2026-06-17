@@ -15,6 +15,7 @@ interface Item {
   subjectId: string;
   topicId: string | null;
   paperTitle: string | null;
+  confidence: number | null;
 }
 
 export default function ModerateQueue({ items, subjects }: { items: Item[]; subjects: Subject[] }) {
@@ -74,6 +75,11 @@ function ReviewCard({ item, subjects }: { item: Item; subjects: Subject[] }) {
       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
         <span className="badge bg-slate-100 text-slate-600">{item.questionType}</span>
         <span className="badge bg-slate-100 text-slate-600">Kertas {item.paperNumber}</span>
+        {item.confidence != null && (
+          <span className={`badge ${item.confidence >= 0.7 ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-700"}`}>
+            AI {Math.round(item.confidence * 100)}% confident
+          </span>
+        )}
         {item.paperTitle && <span className="text-slate-400">{item.paperTitle}</span>}
       </div>
       <p className="whitespace-pre-wrap text-sm font-medium">{item.stem}</p>

@@ -25,10 +25,11 @@ model Subject {
   color     String   @default("#3470f4")
   createdAt DateTime @default(now())
 
-  topics    Topic[]
-  questions Question[]
-  papers    Paper[]
-  enrollments Enrollment[]
+  topics        Topic[]
+  questions     Question[]
+  papers        Paper[]
+  enrollments   Enrollment[]
+  knowledgeDocs KnowledgeDoc[]
 }
 
 model Topic {
@@ -94,8 +95,11 @@ model Question {
   subtopic      String?
   year          Int?
   source        String   @default("past_paper") // past_paper | ai_generated
-  // Moderation (human-in-the-loop): AI-categorized questions await review.
+  // Moderation (human-in-the-loop): AI-categorized questions await review,
+  // unless the AI's confidence clears the auto-approve threshold.
   status        String   @default("approved") // pending | approved | rejected
+  confidence    Float? // AI categorization confidence 0–1
+  autoApproved  Boolean  @default(false) // approved by confidence gate, not a human
   reviewNote    String?
   reviewedById  String?
   reviewedAt    DateTime?
@@ -173,6 +177,23 @@ model Payment {
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
+}
+
+// ── Knowledge base ("main brain") — admin-ingested reference notes that ground
+// the Cikgu AI chat. Lexical retrieval for the POC; swap for pgvector later.
+model KnowledgeDoc {
+  id        String   @id @default(cuid())
+  title     String
+  subjectId String?
+  form      Int? // 4 or 5 (optional)
+  kind      String   @default("note") // note | textbook | summary
+  source    String? // where it came from (admin-provided)
+  content   String // the reference text
+  createdAt DateTime @default(now())
+
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@index([subjectId])
 }
 
 // Module 4/5: an attempt is one answered question, graded instantly by the AI.

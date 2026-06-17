@@ -33,6 +33,7 @@ export interface CategorizedQuestion {
   chapter?: number;
   chapterTitle?: string;
   subtopic?: string;
+  confidence?: number; // 0–1: how sure the agent is about subject/form/topic
 }
 
 export interface CategorizationResult {

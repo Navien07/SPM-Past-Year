@@ -74,10 +74,16 @@ A complete inventory of what the platform does, grouped by module. Legend:
 - **[Core]** Recent payments feed + quick actions.
 - Paper upload & AI categorization (`/admin/papers`) is **admin-only**.
 
-## Module 2b — Moderation (`/moderate`, moderator + admin)
-- **[Core]** AI-categorized questions enter as **`pending`** and are hidden from students.
-- **[Core]** Review queue with per-question correction: **subject, topic (form · chapter), marks, KBAT**, then **Approve** (→ live) or **Reject** (→ hidden).
-- **[Core]** Counts of pending / approved / rejected.
+## Module 2b — Confidence-gated moderation (`/moderate`, moderator + admin)
+- **[AI]** The categorizer returns a **confidence (0–1)** per question for its subject/form/topic tagging.
+- **[Core]** **Confidence gate**: questions at/above the threshold (`SPM_AUTOAPPROVE_THRESHOLD`, default **0.85**) are **auto-approved** (no review); below it they're flagged **`pending`** for a human. So the moderator only sees the doubtful ones.
+- **[Core]** Queue ordered **most-doubtful first**, each showing the AI confidence; per-question correction of **subject, topic (form · chapter), marks, KBAT**, then **Approve** (→ live) or **Reject** (→ hidden).
+- **[Core]** Counts of pending / approved / rejected; categorize result reports auto-approved vs sent-to-review.
+
+## Knowledge base — "main brain" (`/admin/knowledge`)
+- **[Core]** Admin ingests reference notes/summaries (title · subject · form · kind · content).
+- **[AI]** **Cikgu AI chat is grounded** on the knowledge base: lexical retrieval pulls the most relevant bounded snippets (subject-boosted) into the chat context.
+- **[Core]** The prompt instructs the AI to **explain in its own words** — it synthesises from the notes rather than reproducing them verbatim. Lexical retrieval works offline; swap for pgvector embeddings later.
 
 ## SPM exam structure (encoded)
 - **[Core]** SPM = **Form 4–5**. Paper structure per subject in `constants.ts`:
