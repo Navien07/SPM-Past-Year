@@ -6,12 +6,15 @@ import AttemptForm from "@/components/AttemptForm";
 import ExplainButton from "@/components/ExplainButton";
 import QuestionTools from "@/components/QuestionTools";
 import { requireStudent } from "@/lib/student";
+import { getLang } from "@/lib/lang-server";
+import { t } from "@/lib/i18n";
 import type { McqOption } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
   const student = await requireStudent();
+  const lang = await getLang();
   const { id } = await params;
   const q = await prisma.question.findUnique({
     where: { id },
@@ -34,7 +37,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
   return (
     <div className="space-y-5">
       <Link href="/practice" className="text-sm text-brand-600 hover:underline">
-        ← Back to practice
+        ← {t(lang, "qd.back")}
       </Link>
 
       <div className="card p-5">
@@ -42,7 +45,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           <span className="badge bg-brand-50 text-brand-700">{q.subject.name}</span>
           <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
           <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
-          <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
+          <span className="badge bg-slate-100 text-slate-600">{q.marks} {t(lang, "common.marks")}</span>
           {q.isKbat && <span className="tag-kbat">KBAT</span>}
         </div>
         {/* Label: Bab 3 · Tingkatan 4 · SPM 2025 */}
@@ -62,7 +65,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           {q.stem}
         </h1>
         {q.paper && (
-          <p className="mt-2 text-xs text-slate-400">Source: {q.paper.title}</p>
+          <p className="mt-2 text-xs text-slate-400">{t(lang, "common.source")}: {q.paper.title}</p>
         )}
         <div className="mt-4 flex flex-wrap gap-2">
           <ExplainButton />
@@ -74,7 +77,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
       {notes.length > 0 && (
         <details className="card p-4">
           <summary className="cursor-pointer text-sm font-semibold text-slate-700">
-            📘 Notes &amp; formulas — {q.subject.name}
+            📘 {t(lang, "qd.notes")} — {q.subject.name}
           </summary>
           <div className="mt-3 space-y-3">
             {notes.map((n) => (

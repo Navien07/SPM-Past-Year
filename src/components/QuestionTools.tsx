@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useLang } from "@/lib/useLang";
+import { t } from "@/lib/i18n";
 
 // Bookmark toggle + read-aloud for a question (used on the question page).
 export default function QuestionTools({
@@ -12,6 +14,7 @@ export default function QuestionTools({
   text: string;
   initialBookmarked: boolean;
 }) {
+  const lang = useLang();
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [busy, setBusy] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -51,10 +54,10 @@ export default function QuestionTools({
   return (
     <div className="flex flex-wrap gap-2">
       <button onClick={toggleBookmark} disabled={busy} className="btn-ghost">
-        {bookmarked ? "★ Bookmarked" : "☆ Bookmark"}
+        {bookmarked ? `★ ${t(lang, "qt.bookmarked")}` : `☆ ${t(lang, "qt.bookmark")}`}
       </button>
       <button onClick={readAloud} className="btn-ghost">
-        {speaking ? "■ Stop" : "🔊 Read aloud"}
+        {speaking ? `■ ${t(lang, "qt.stop")}` : `🔊 ${t(lang, "qt.read")}`}
       </button>
     </div>
   );

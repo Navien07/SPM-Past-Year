@@ -117,6 +117,75 @@ export const STRINGS: Dict = {
 
   // help
   "help.title": { en: "Help Centre", bm: "Pusat Bantuan" },
+  "help.subtitle": { en: "How to use SPM AI — and an AI assistant ready for any question.", bm: "Cara guna SPM AI — serta pembantu AI sedia membantu sebarang soalan." },
+  "help.askTitle": { en: "Ask Cikgu AI anything", bm: "Tanya Cikgu AI apa sahaja" },
+  "help.askDesc": { en: "Stuck on a topic, a question, or how the app works? Ask in BM or English — attach a screenshot if it helps.", bm: "Buntu pada topik, soalan, atau cara guna app? Tanya dalam BM atau English — lampirkan tangkap layar jika perlu." },
+  "help.openChat": { en: "Open Cikgu AI", bm: "Buka Cikgu AI" },
+  "help.howUse": { en: "How do I use this app?", bm: "Macam mana guna app ini?" },
+  "help.revise": { en: "Help me revise", bm: "Bantu saya ulang kaji" },
+  "help.guides": { en: "Guides & FAQ", bm: "Panduan & Soalan Lazim" },
+  "help.still": { en: "Still need help? Reach us in the pilot WhatsApp group, or see our", bm: "Masih perlukan bantuan? Hubungi kami di kumpulan WhatsApp pilot, atau lihat" },
+
+  // common (extra)
+  "common.refresh": { en: "Refresh", bm: "Muat semula" },
+  "common.type": { en: "Type", bm: "Jenis" },
+  "common.paper": { en: "Paper", bm: "Kertas" },
+  "common.answer": { en: "Answer", bm: "Jawapan" },
+  "common.scheme": { en: "Scheme", bm: "Skema" },
+  "common.source": { en: "Source", bm: "Sumber" },
+
+  // tutor
+  "tutor.title": { en: "AI Tutor", bm: "Tutor AI" },
+  "tutor.subtitle": { en: "Your weak areas and a personalised focus plan.", bm: "Kelemahan anda dan pelan fokus peribadi." },
+  "tutor.focusSubjects": { en: "Focus subjects", bm: "Subjek fokus" },
+  "tutor.priority": { en: "Priority", bm: "Keutamaan" },
+  "tutor.topicsToRevise": { en: "Topics to revise", bm: "Topik untuk diulang kaji" },
+  "tutor.focusPlan": { en: "Your focus plan", bm: "Pelan fokus anda" },
+  "tutor.perTopic": { en: "Performance by topic", bm: "Prestasi ikut topik" },
+  "tutor.attempts": { en: "attempt(s)", bm: "percubaan" },
+  "tutor.poweredBy": { en: "Powered by Cikgu AI", bm: "Dikuasakan Cikgu AI" },
+  "tutor.offline": { en: "Offline analysis", bm: "Analisis luar talian" },
+
+  // generate
+  "generate.title": { en: "AI Question Generator", bm: "Penjana Soalan AI" },
+  "generate.subtitle": { en: "Create fresh practice questions in the style of real SPM past papers — including KBAT.", bm: "Cipta soalan latihan baharu dalam gaya kertas SPM sebenar — termasuk KBAT." },
+  "generate.howMany": { en: "How many", bm: "Berapa banyak" },
+  "generate.kbat": { en: "KBAT (higher-order thinking)", bm: "KBAT (kemahiran berfikir aras tinggi)" },
+  "generate.btn": { en: "Generate questions", bm: "Jana soalan" },
+  "generate.generating": { en: "Generating…", bm: "Menjana…" },
+  "generate.generated": { en: "generated", bm: "dijana" },
+  "generate.saved": { en: "Saved to Practice", bm: "Disimpan ke Latihan" },
+  "generate.showAns": { en: "Show answer & scheme", bm: "Tunjuk jawapan & skema" },
+  "generate.hideAns": { en: "Hide answer", bm: "Sembunyi jawapan" },
+  "generate.attempt": { en: "Attempt & get graded", bm: "Cuba & dapatkan markah" },
+
+  // mock
+  "mock.title": { en: "Mock Paper Builder", bm: "Pembina Kertas Mock" },
+  "mock.subtitle": { en: "Auto-assemble a mock paper from the question bank, spread across topics.", bm: "Bina kertas mock secara automatik dari bank soalan, merentas topik." },
+  "mock.numQ": { en: "Number of questions", bm: "Bilangan soalan" },
+  "mock.kbatBias": { en: "Bias toward KBAT", bm: "Utamakan KBAT" },
+  "mock.build": { en: "Build mock paper", bm: "Bina kertas mock" },
+  "mock.building": { en: "Building…", bm: "Membina…" },
+  "mock.questions": { en: "questions", bm: "soalan" },
+
+  // question detail / answer form
+  "qd.back": { en: "Back to practice", bm: "Kembali ke latihan" },
+  "qd.notes": { en: "Notes & formulas", bm: "Nota & formula" },
+  "af.placeholder": { en: "Write or say your answer here…", bm: "Tulis atau sebut jawapan anda di sini…" },
+  "af.grading": { en: "Grading…", bm: "Memarkah…" },
+  "af.result": { en: "Result", bm: "Keputusan" },
+  "af.gradedAi": { en: "Graded by AI", bm: "Dimarkah oleh AI" },
+  "af.offline": { en: "Offline estimate", bm: "Anggaran luar talian" },
+  "af.rubric": { en: "Rubric breakdown", bm: "Pecahan rubrik" },
+  "af.strengths": { en: "Strengths", bm: "Kekuatan" },
+  "af.improve": { en: "To improve", bm: "Perlu diperbaiki" },
+  "af.model": { en: "Model answer", bm: "Jawapan model" },
+  "af.explainMistake": { en: "Explain my mistake", bm: "Terangkan kesilapan saya" },
+  "qt.bookmark": { en: "Bookmark", bm: "Tanda buku" },
+  "qt.bookmarked": { en: "Bookmarked", bm: "Ditanda" },
+  "qt.read": { en: "Read aloud", bm: "Baca kuat" },
+  "qt.stop": { en: "Stop", bm: "Berhenti" },
+  "explain.label": { en: "Explain this", bm: "Terangkan ini" },
 };
 
 export function normLang(v?: string | null): Lang {

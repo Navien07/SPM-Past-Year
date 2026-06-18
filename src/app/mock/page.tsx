@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLang } from "@/lib/useLang";
+import { t } from "@/lib/i18n";
 
 interface Subject {
   id: string;
@@ -18,6 +20,7 @@ interface MockQuestion {
 }
 
 export default function MockPage() {
+  const lang = useLang();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [subjectId, setSubjectId] = useState("");
   const [paperNumber, setPaperNumber] = useState(1);
@@ -61,15 +64,13 @@ export default function MockPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Mock Paper Builder 🧪</h1>
-        <p className="text-sm text-slate-500">
-          Auto-assemble a mock paper from the question bank, spread across topics.
-        </p>
+        <h1 className="text-2xl font-bold">{t(lang, "mock.title")} 🧪</h1>
+        <p className="text-sm text-slate-500">{t(lang, "mock.subtitle")}</p>
       </div>
 
       <div className="card grid gap-4 p-5 sm:grid-cols-2">
         <div>
-          <label className="label">Subject</label>
+          <label className="label">{t(lang, "common.subject")}</label>
           <select className="input" value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
             {subjects.map((s) => (
               <option key={s.id} value={s.id}>{s.name} ({s._count.questions})</option>
@@ -77,14 +78,14 @@ export default function MockPage() {
           </select>
         </div>
         <div>
-          <label className="label">Paper</label>
+          <label className="label">{t(lang, "common.paper")}</label>
           <select className="input" value={paperNumber} onChange={(e) => setPaperNumber(Number(e.target.value))}>
             <option value={1}>Kertas 1 (Objektif)</option>
             <option value={2}>Kertas 2 (Subjektif)</option>
           </select>
         </div>
         <div>
-          <label className="label">Number of questions</label>
+          <label className="label">{t(lang, "mock.numQ")}</label>
           <input
             type="number"
             min={1}
@@ -96,11 +97,11 @@ export default function MockPage() {
         </div>
         <label className="flex items-center gap-2 text-sm font-medium sm:mt-7">
           <input type="checkbox" checked={kbatBias} onChange={(e) => setKbatBias(e.target.checked)} className="h-4 w-4" />
-          Bias toward KBAT
+          {t(lang, "mock.kbatBias")}
         </label>
         <div className="sm:col-span-2">
           <button onClick={build} disabled={loading || !subjectId} className="btn-primary w-full sm:w-auto">
-            {loading ? "Building…" : "Build mock paper"}
+            {loading ? t(lang, "mock.building") : t(lang, "mock.build")}
           </button>
         </div>
       </div>
@@ -113,7 +114,7 @@ export default function MockPage() {
             <div>
               <h2 className="font-bold">{title}</h2>
               <p className="text-sm text-slate-500">
-                {questions.length} questions · {totalMarks} marks
+                {questions.length} {t(lang, "mock.questions")} · {totalMarks} {t(lang, "common.marks")}
               </p>
             </div>
           </div>

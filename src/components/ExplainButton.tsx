@@ -1,8 +1,12 @@
 "use client";
 
+import { useLang } from "@/lib/useLang";
+import { t } from "@/lib/i18n";
+
 // Opens the global Cikgu AI chat with a preset prompt. The chat widget reads
 // the question id from the URL (/practice/[id]) for full context.
-export default function ExplainButton({ label = "Explain with AI" }: { label?: string }) {
+export default function ExplainButton({ label }: { label?: string }) {
+  const lang = useLang();
   return (
     <button
       onClick={() =>
@@ -14,7 +18,7 @@ export default function ExplainButton({ label = "Explain with AI" }: { label?: s
       }
       className="btn-ghost"
     >
-      🧑‍🏫 {label}
+      🧑‍🏫 {label ?? t(lang, "explain.label")}
     </button>
   );
 }
