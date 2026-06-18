@@ -98,7 +98,7 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
               <div className="text-sm font-medium text-slate-600">{grade.band}</div>
             </div>
             <span className={`badge ${byAi ? "bg-brand-100 text-brand-700" : "bg-slate-200 text-slate-600"}`}>
-              {byAi ? "Graded by Claude" : "Offline estimate"}
+              {byAi ? "Graded by AI" : "Offline estimate"}
             </span>
           </div>
 

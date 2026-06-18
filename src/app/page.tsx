@@ -107,7 +107,7 @@ export default async function Home() {
         <div className="bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white sm:p-8">
           <div className="mb-2 flex items-center gap-2">
             <span className="badge bg-white/20 text-white">
-              {aiEnabled() ? "● AI live (Claude)" : "○ AI offline — set ANTHROPIC_API_KEY"}
+              {aiEnabled() ? "● AI live" : "○ AI offline — set ANTHROPIC_API_KEY"}
             </span>
           </div>
           <h1 className="text-2xl font-bold sm:text-3xl">Salam, {student.name} 👋</h1>

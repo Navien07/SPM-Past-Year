@@ -155,7 +155,7 @@ export default function AdminPage() {
       setMsg(data.error || "Categorization failed");
     } else {
       setMsg(
-        `Categorized ${data.created} question(s) ${data.byAi ? "with Claude" : "(offline heuristic)"} — ` +
+        `Categorized ${data.created} question(s) ${data.byAi ? "with AI" : "(offline heuristic)"} — ` +
           `${data.autoApproved ?? 0} auto-approved (≥${Math.round((data.threshold ?? 0.85) * 100)}% confidence), ` +
           `${data.pending ?? 0} sent to the Review queue.`,
       );

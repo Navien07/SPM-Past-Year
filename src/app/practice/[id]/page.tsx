@@ -20,10 +20,16 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
   if (!q || q.status !== "approved") notFound();
 
   const options = JSON.parse(q.options || "[]") as McqOption[];
-  const [bookmark, notes] = await Promise.all([
-    prisma.bookmark.findUnique({ where: { studentId_questionId: { studentId: student.id, questionId: q.id } } }),
-    prisma.knowledgeDoc.findMany({ where: { subjectId: q.subjectId }, take: 3, orderBy: { createdAt: "desc" } }),
-  ]);
+  let bookmark = null;
+  let notes: { id: string; title: string; content: string }[] = [];
+  try {
+    [bookmark, notes] = await Promise.all([
+      prisma.bookmark.findUnique({ where: { studentId_questionId: { studentId: student.id, questionId: q.id } } }),
+      prisma.knowledgeDoc.findMany({ where: { subjectId: q.subjectId }, take: 3, orderBy: { createdAt: "desc" }, select: { id: true, title: true, content: true } }),
+    ]);
+  } catch {
+    /* bookmark/notes are optional — never block the question */
+  }
 
   return (
     <div className="space-y-5">

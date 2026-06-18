@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const DEMO = [
-  { role: "Admin", email: "admin@spm.my", password: "admin123" },
-  { role: "Student", email: "ahmad@student.spm.my", password: "student123" },
-];
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -60,26 +56,10 @@ export default function LoginPage() {
           <button className="btn-primary w-full" disabled={loading}>
             {loading ? "Signing in…" : "Sign in"}
           </button>
+          <p className="text-center text-sm text-slate-500">
+            New here? <Link href="/signup" className="font-semibold text-brand-600 hover:underline">Create an account</Link>
+          </p>
         </form>
-      </div>
-
-      <div className="card mt-4 p-4">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Demo accounts (tap to fill)</p>
-        <div className="space-y-2">
-          {DEMO.map((d) => (
-            <button
-              key={d.email}
-              onClick={() => {
-                setEmail(d.email);
-                setPassword(d.password);
-              }}
-              className="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-left text-sm hover:bg-slate-50"
-            >
-              <span className="font-medium">{d.role}</span>
-              <span className="text-xs text-slate-500">{d.email} · {d.password}</span>
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );

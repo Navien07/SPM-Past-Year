@@ -10,19 +10,34 @@ export default async function ReviewPage() {
   const student = await requireStudent();
   const now = new Date();
 
-  const [due, upcoming, bookmarks] = await Promise.all([
-    prisma.reviewItem.findMany({
-      where: { studentId: student.id, dueAt: { lte: now } },
-      orderBy: { dueAt: "asc" },
-      include: { question: { include: { subject: true, topic: true, paper: { select: { paperType: true, state: true } } } } },
-    }),
-    prisma.reviewItem.count({ where: { studentId: student.id, dueAt: { gt: now } } }),
-    prisma.bookmark.findMany({
-      where: { studentId: student.id },
-      orderBy: { createdAt: "desc" },
-      include: { question: { include: { subject: true, topic: true, paper: { select: { paperType: true, state: true } } } } },
-    }),
-  ]);
+  let due, upcoming, bookmarks;
+  try {
+    [due, upcoming, bookmarks] = await Promise.all([
+      prisma.reviewItem.findMany({
+        where: { studentId: student.id, dueAt: { lte: now } },
+        orderBy: { dueAt: "asc" },
+        include: { question: { include: { subject: true, topic: true, paper: { select: { paperType: true, state: true } } } } },
+      }),
+      prisma.reviewItem.count({ where: { studentId: student.id, dueAt: { gt: now } } }),
+      prisma.bookmark.findMany({
+        where: { studentId: student.id },
+        orderBy: { createdAt: "desc" },
+        include: { question: { include: { subject: true, topic: true, paper: { select: { paperType: true, state: true } } } } },
+      }),
+    ]);
+  } catch {
+    return (
+      <div className="card mx-auto max-w-xl p-8 text-center">
+        <div className="text-4xl">🔁</div>
+        <h1 className="mt-3 text-xl font-bold">Review isn&apos;t ready yet</h1>
+        <p className="mt-2 text-sm text-slate-600">
+          The review/bookmark tables aren&apos;t in the database yet. An admin needs to run the latest
+          <code className="mx-1 rounded bg-slate-100 px-1">supabase_setup.sql</code>. Once done, answer a
+          few questions and they&apos;ll appear here automatically.
+        </p>
+      </div>
+    );
+  }
 
   function Row({ q, meta }: { q: { id: string; stem: string; questionType: string; marks: number; isKbat: boolean; year: number | null; source: string; subject: { name: string }; topic: { title: string; form: number; chapter: number } | null; paper: { paperType: string; state: string | null } | null }; meta?: string }) {
     const exam = q.source === "ai_generated" ? "Soalan AI" : examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year });

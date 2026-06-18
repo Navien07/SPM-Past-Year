@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { TutorRecommendation } from "@/lib/types";
+import AILoader from "@/components/AILoader";
 
 interface PerTopic {
   subject: string;
@@ -42,14 +43,14 @@ export default function TutorPage() {
         </button>
       </div>
 
-      {loading && <div className="card p-6 text-center text-sm text-slate-400">Analysing your attempts…</div>}
+      {loading && <AILoader />}
 
       {!loading && rec && (
         <>
           <div className="card p-5">
             <div className="mb-2">
               <span className={`badge ${byAi ? "bg-brand-100 text-brand-700" : "bg-slate-200 text-slate-600"}`}>
-                {byAi ? "Powered by Claude" : "Offline analysis"}
+                {byAi ? "Powered by Cikgu AI" : "Offline analysis"}
               </span>
             </div>
             <p className="text-slate-700">{rec.overview}</p>
