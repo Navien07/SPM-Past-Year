@@ -20,6 +20,7 @@ const ADMIN_LINKS = [
   { href: "/admin/papers", label: "Papers", icon: "🗂️" },
   { href: "/admin/knowledge", label: "Brain", icon: "🧠" },
   { href: "/moderate", label: "Review", icon: "✅" },
+  { href: "/admin/activity", label: "Activity", icon: "🧾" },
 ];
 
 export default function Nav({ user }: { user: NavUser }) {

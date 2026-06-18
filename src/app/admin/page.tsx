@@ -111,6 +111,8 @@ export default async function AdminOverview() {
               ✅ Review AI categorization {pendingMod > 0 && <span className="tag-kbat ml-2">{pendingMod} pending</span>}
             </Link>
             <Link href="/admin/students" className="btn-ghost w-full justify-start">👥 View students & performance</Link>
+            <Link href="/admin/activity" className="btn-ghost w-full justify-start">🧾 Activity log (trace)</Link>
+            <Link href="/admin/account" className="btn-ghost w-full justify-start">🔐 Change my password</Link>
           </div>
         </section>
       </div>

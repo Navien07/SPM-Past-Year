@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateQuestions } from "@/lib/ai";
+import { getSessionStudent } from "@/lib/student";
+import { logActivity, clientIp } from "@/lib/activity";
 
 export const maxDuration = 60;
 
@@ -67,6 +69,16 @@ export async function POST(req: NextRequest) {
       basedOn: q.reviewNote,
     });
   }
+
+  const student = await getSessionStudent();
+  await logActivity({
+    studentId: student?.id ?? null,
+    name: student?.name ?? null,
+    role: "student",
+    action: "questions.generate",
+    detail: `${topic.subject.name} · ${topic.title} · ${saved.length} ${questionType || "structured"}`,
+    ip: clientIp(req),
+  });
 
   return NextResponse.json({ generated: saved, byAi });
 }

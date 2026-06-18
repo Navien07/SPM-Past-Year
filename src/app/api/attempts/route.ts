@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { gradeAnswer } from "@/lib/ai";
 import { getSessionStudent } from "@/lib/student";
+import { logActivity, clientIp } from "@/lib/activity";
 import type { McqOption } from "@/lib/types";
 
 export const maxDuration = 60;
@@ -72,6 +73,16 @@ export async function POST(req: NextRequest) {
   } catch {
     /* review scheduling is best-effort */
   }
+
+  await logActivity({
+    userId: null,
+    studentId: student.id,
+    name: student.name,
+    role: "student",
+    action: "attempt.graded",
+    detail: `${question.subject.name}: ${result.score}/${result.maxScore} (${question.questionType})`,
+    ip: clientIp(req),
+  });
 
   return NextResponse.json({ attempt, grade: result, byAi });
 }

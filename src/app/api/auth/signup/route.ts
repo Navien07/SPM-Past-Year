@@ -3,10 +3,16 @@ import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import { setSession } from "@/lib/auth";
 import { PILOT_MAX_STUDENTS } from "@/lib/constants";
+import { rateLimit } from "@/lib/ratelimit";
+import { logActivity, clientIp } from "@/lib/activity";
 
 // Self-serve onboarding: email is the username, the user sets their own password.
 export async function POST(req: NextRequest) {
-  const { name, email, password, form, subjectIds, whatsapp, consent } = await req.json();
+  const ip = clientIp(req);
+  if (!rateLimit(`signup:${ip}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: "Too many sign-up attempts. Please try again later." }, { status: 429 });
+  }
+  const { name, email, password, form, subjectIds, whatsapp, consent, school, age, state } = await req.json();
 
   const cleanEmail = String(email || "").toLowerCase().trim();
   if (!name || !cleanEmail || !password) {
@@ -45,11 +51,15 @@ export async function POST(req: NextRequest) {
 
   // Create the student profile + the auth user, then enrol in chosen subjects
   // (default: all subjects).
+  const ageNum = Number(age);
   const student = await prisma.student.create({
     data: {
       name: String(name).trim(),
       email: cleanEmail,
       form: formNum,
+      school: school ? String(school).trim().slice(0, 120) : null,
+      age: Number.isFinite(ageNum) && ageNum > 0 && ageNum < 100 ? ageNum : null,
+      state: state ? String(state).trim().slice(0, 60) : null,
       whatsapp: cleanWa,
       pdpaConsent: true,
       consentAt: new Date(),
@@ -76,6 +86,8 @@ export async function POST(req: NextRequest) {
       create: { studentId: student.id, subjectId, status: "active" },
     }).catch(() => {});
   }
+
+  await logActivity({ userId: user.id, studentId: student.id, name: user.name, role: "student", action: "signup", path: "/signup", ip });
 
   await setSession(user.id);
   return NextResponse.json({ ok: true, redirect: "/" });

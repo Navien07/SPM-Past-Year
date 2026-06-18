@@ -1,8 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import AdminStudentTools from "@/components/AdminStudentTools";
 
 export const dynamic = "force-dynamic";
+
+function timeAgo(d: Date) {
+  const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
+  if (s < 60) return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
 
 function rm(n: number) {
   return "RM " + n.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -22,6 +31,12 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
     },
   });
   if (!student) notFound();
+
+  const recentActivity = await prisma.activityLog.findMany({
+    where: { studentId: id },
+    orderBy: { createdAt: "desc" },
+    take: 25,
+  }).catch(() => []);
 
   const n = student.attempts.length;
   const avg = n === 0 ? 0 : Math.round((student.attempts.reduce((a, x) => a + (x.maxScore ? x.score / x.maxScore : 0), 0) / n) * 100);
@@ -60,6 +75,9 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
       <div className="card p-5">
         <h1 className="text-2xl font-bold">{student.name}</h1>
         <p className="text-sm text-slate-500">{student.email} · Tingkatan {student.form}</p>
+        <p className="mt-0.5 text-sm text-slate-500">
+          {[student.school, student.state, student.age ? `${student.age} yrs` : null].filter(Boolean).join(" · ") || "—"}
+        </p>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
           {student.whatsapp && (
             <a
@@ -142,6 +160,24 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="card p-5">
+        <h2 className="mb-3 font-bold">Recent activity</h2>
+        <div className="divide-y divide-slate-100">
+          {recentActivity.length === 0 && <p className="text-sm text-slate-400">No activity logged yet.</p>}
+          {recentActivity.map((a) => (
+            <div key={a.id} className="flex items-center justify-between py-1.5 text-sm">
+              <span>{a.action}{a.detail ? <span className="text-slate-400"> — {a.detail}</span> : null}</span>
+              <span className="text-xs text-slate-400">{timeAgo(a.createdAt)}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="card p-5">
+        <h2 className="mb-3 font-bold">Account</h2>
+        <AdminStudentTools studentId={student.id} />
       </section>
     </div>
   );

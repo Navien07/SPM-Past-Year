@@ -5,10 +5,16 @@ import Link from "next/link";
 
 interface Subject { id: string; name: string }
 
+const STATES = [
+  "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Perak", "Perlis",
+  "Pulau Pinang", "Sabah", "Sarawak", "Selangor", "Terengganu",
+  "Kuala Lumpur", "Putrajaya", "Labuan",
+];
+
 export default function SignupPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [picked, setPicked] = useState<Set<string>>(new Set());
-  const [form, setForm] = useState({ name: "", email: "", whatsapp: "", form: "5", password: "", confirm: "" });
+  const [form, setForm] = useState({ name: "", school: "", age: "", state: "", email: "", whatsapp: "", form: "5", password: "", confirm: "" });
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,6 +51,9 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
+          school: form.school,
+          age: form.age,
+          state: form.state,
           email: form.email,
           whatsapp: form.whatsapp,
           consent,
@@ -75,13 +84,30 @@ export default function SignupPage() {
             <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           </div>
           <div>
-            <label className="label">Email (this is your login)</label>
-            <input className="input" type="email" autoComplete="username" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+            <label className="label">School name</label>
+            <input className="input" value={form.school} onChange={(e) => setForm({ ...form, school: e.target.value })} placeholder="e.g. SMK Seksyen 9" required />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">Age</label>
+              <input className="input" type="number" min={10} max={25} value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
+            </div>
+            <div>
+              <label className="label">State</label>
+              <select className="input" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} required>
+                <option value="">— select —</option>
+                {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
           </div>
           <div>
-            <label className="label">WhatsApp number</label>
+            <label className="label">Phone / WhatsApp number</label>
             <input className="input" type="tel" placeholder="e.g. 0123456789" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} required />
             <p className="mt-1 text-xs text-slate-400">We&apos;ll add you to the pilot WhatsApp group to share feedback &amp; updates.</p>
+          </div>
+          <div>
+            <label className="label">Email (this is your login)</label>
+            <input className="input" type="email" autoComplete="username" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
           </div>
           <div>
             <label className="label">Form</label>

@@ -158,7 +158,10 @@ model Student {
   name        String
   email       String    @unique
   form        Int       @default(5)
-  whatsapp    String? // for the pilot WhatsApp feedback group
+  school      String?
+  age         Int?
+  state       String?
+  whatsapp    String? // phone / WhatsApp number for the pilot feedback group
   pdpaConsent Boolean   @default(false) // agreed to PDPA / privacy policy
   consentAt   DateTime?
   createdAt   DateTime  @default(now())
@@ -300,4 +303,34 @@ model MockPaper {
   paperNumber Int      @default(1)
   questionIds String   @default("[]") // JSON string[]: Question ids in order
   createdAt   DateTime @default(now())
+}
+
+// Trace logging — every notable user action, viewable by the admin.
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  studentId String?
+  name      String? // denormalised for easy admin display
+  role      String?
+  action    String // e.g. "login", "attempt.graded", "paper.categorize"
+  detail    String?
+  path      String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([studentId])
+  @@index([action])
+}
+
+// Password reset tokens (forgot/reset flow).
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }

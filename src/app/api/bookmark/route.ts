@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionStudent } from "@/lib/student";
+import { logActivity, clientIp } from "@/lib/activity";
 
 // Toggle a bookmark for the current student. Returns { bookmarked }.
 export async function POST(req: NextRequest) {
@@ -17,5 +18,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ bookmarked: false });
   }
   await prisma.bookmark.create({ data: { studentId: student.id, questionId } });
+  await logActivity({ studentId: student.id, name: student.name, role: "student", action: "bookmark.toggle", ip: clientIp(req) });
   return NextResponse.json({ bookmarked: true });
 }

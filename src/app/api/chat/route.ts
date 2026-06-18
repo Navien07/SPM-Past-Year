@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { chatAnswer, type ChatTurn } from "@/lib/ai";
 import { retrieveKnowledge } from "@/lib/knowledge";
+import { getSessionStudent } from "@/lib/student";
+import { logActivity, clientIp } from "@/lib/activity";
 import type { McqOption } from "@/lib/types";
 
 export const maxDuration = 60;
@@ -73,5 +75,17 @@ export async function POST(req: NextRequest) {
   }));
 
   const { reply, byAi } = await chatAnswer({ history: safeHistory, context: parts.join("\n\n") });
+
+  const student = await getSessionStudent();
+  await logActivity({
+    studentId: student?.id ?? null,
+    name: student?.name ?? null,
+    role: "student",
+    action: "chat.message",
+    detail: (lastUser?.text || "").slice(0, 120),
+    path: pathHint,
+    ip: clientIp(req),
+  });
+
   return NextResponse.json({ reply, byAi, groundedOn: refs.map((r) => r.title) });
 }
