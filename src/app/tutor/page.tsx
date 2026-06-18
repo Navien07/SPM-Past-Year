@@ -49,7 +49,7 @@ export default function TutorPage() {
         <>
           <div className="card p-5">
             <div className="mb-2">
-              <span className={`badge ${byAi ? "bg-brand-100 text-brand-700" : "bg-slate-200 text-slate-600"}`}>
+              <span className={`badge ${byAi ? "bg-accent-100 text-accent-700" : "bg-slate-200 text-slate-600"}`}>
                 {byAi ? "Powered by Cikgu AI" : "Offline analysis"}
               </span>
             </div>

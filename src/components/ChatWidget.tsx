@@ -163,7 +163,7 @@ export default function ChatWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Open Cikgu AI chat"
-        className="fixed bottom-20 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-brand-600 text-2xl text-white shadow-lg transition hover:bg-brand-700 sm:bottom-6"
+        className="fixed bottom-20 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand-600 to-accent-500 text-2xl text-white shadow-lg transition hover:opacity-90 sm:bottom-6"
       >
         {open ? "✕" : "💬"}
       </button>
@@ -171,12 +171,12 @@ export default function ChatWidget() {
       {open && (
         <div className="fixed bottom-36 right-4 z-40 flex h-[70vh] max-h-[560px] w-[min(92vw,400px)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:bottom-24">
           {/* Header */}
-          <div className="flex items-center justify-between bg-brand-600 px-4 py-3 text-white">
+          <div className="flex items-center justify-between bg-gradient-to-r from-brand-600 to-accent-600 px-4 py-3 text-white">
             <div className="flex items-center gap-2">
               <span className="text-lg">🧑‍🏫</span>
               <div className="leading-tight">
-                <div className="text-sm font-bold">Cikgu AI</div>
-                <div className="text-[11px] text-brand-100">
+                <div className="flex items-center gap-1.5 text-sm font-bold">Cikgu AI <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent-300" /></div>
+                <div className="text-[11px] text-white/80">
                   {questionId ? "Discussing this question" : "Ask me anything about SPM"}
                 </div>
               </div>
