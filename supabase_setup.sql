@@ -200,6 +200,21 @@ CREATE TABLE public."Payment" (
 
 
 --
+-- Name: PushSubscription; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."PushSubscription" (
+    id text NOT NULL,
+    "studentId" text,
+    endpoint text NOT NULL,
+    p256dh text NOT NULL,
+    auth text NOT NULL,
+    "userAgent" text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
 -- Name: Question; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -423,6 +438,14 @@ ALTER TABLE ONLY public."Payment"
 
 
 --
+-- Name: PushSubscription PushSubscription_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."PushSubscription"
+    ADD CONSTRAINT "PushSubscription_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: Question Question_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -596,6 +619,20 @@ CREATE INDEX "PasswordReset_userId_idx" ON public."PasswordReset" USING btree ("
 --
 
 CREATE INDEX "Payment_studentId_idx" ON public."Payment" USING btree ("studentId");
+
+
+--
+-- Name: PushSubscription_endpoint_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "PushSubscription_endpoint_key" ON public."PushSubscription" USING btree (endpoint);
+
+
+--
+-- Name: PushSubscription_studentId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "PushSubscription_studentId_idx" ON public."PushSubscription" USING btree ("studentId");
 
 
 --
@@ -1223,6 +1260,12 @@ INSERT INTO public."Payment" (id, "studentId", amount, currency, method, status,
 INSERT INTO public."Payment" (id, "studentId", amount, currency, method, status, description, "paidAt") VALUES ('cmqj3nloc00807ddp4ozuhzrb', 'cmqj1mibt006m7d003g92pw9f', 99, 'MYR', 'ewallet', 'pending', 'Monthly Premium — Jun 2026', '2026-05-29 06:09:07.775');
 INSERT INTO public."Payment" (id, "studentId", amount, currency, method, status, description, "paidAt") VALUES ('cmqj3nlrt00937ddpwek1cl36', 'cmqj1mifl007n7d00lnizxlp3', 99, 'MYR', 'fpx', 'paid', 'Monthly Premium — Jun 2026', '2026-05-24 06:09:07.775');
 INSERT INTO public."Payment" (id, "studentId", amount, currency, method, status, description, "paidAt") VALUES ('cmqj3nlrv00957ddp2oiqen0b', 'cmqj1mifl007n7d00lnizxlp3', 899, 'MYR', 'fpx', 'paid', 'Annual Plan 2026', '2026-06-04 06:09:07.775');
+
+
+--
+-- Data for Name: PushSubscription; Type: TABLE DATA; Schema: public; Owner: -
+--
+
 
 
 --

@@ -107,9 +107,13 @@ export default async function AdminOverview() {
           <h2 className="mb-3 font-bold">Quick actions</h2>
           <div className="space-y-2">
             <Link href="/admin/papers" className="btn-ghost w-full justify-start">🗂️ Upload & categorize papers</Link>
+            <Link href="/admin/papers/bulk" className="btn-ghost w-full justify-start">📦 Bulk import papers</Link>
             <Link href="/moderate" className="btn-ghost w-full justify-start">
               ✅ Review AI categorization {pendingMod > 0 && <span className="tag-kbat ml-2">{pendingMod} pending</span>}
             </Link>
+            <Link href="/admin/class" className="btn-ghost w-full justify-start">🏫 Class performance</Link>
+            <Link href="/admin/waitlist" className="btn-ghost w-full justify-start">📝 Waitlist</Link>
+            <Link href="/admin/notify" className="btn-ghost w-full justify-start">🔔 Send notification</Link>
             <Link href="/admin/students" className="btn-ghost w-full justify-start">👥 View students & performance</Link>
             <Link href="/admin/activity" className="btn-ghost w-full justify-start">🧾 Activity log (trace)</Link>
             <Link href="/admin/account" className="btn-ghost w-full justify-start">🔐 Change my password</Link>

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { McqOption } from "@/lib/types";
+import { useLang } from "@/lib/useLang";
+import { t } from "@/lib/i18n";
 
 interface Subject { id: string; name: string; _count: { questions: number } }
 interface ExamQ {
@@ -20,6 +22,7 @@ interface Result { id: string; score: number; maxScore: number; band: string | n
 type Phase = "config" | "running" | "grading" | "done";
 
 export default function ExamPage() {
+  const lang = useLang();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [cfg, setCfg] = useState({ subjectId: "", paperNumber: 1, count: 10, minutes: 30 });
   const [phase, setPhase] = useState<Phase>("config");
@@ -103,12 +106,12 @@ export default function ExamPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="font-display text-2xl font-black">Timed Exam Mode ⏱️</h1>
-          <p className="text-sm text-slate-500">Sit a real, timed paper. The clock counts down — answer everything, then submit for instant marking.</p>
+          <h1 className="font-display text-2xl font-black">{t(lang, "exam.title")} ⏱️</h1>
+          <p className="text-sm text-slate-500">{t(lang, "exam.subtitle")}</p>
         </div>
         <div className="card grid gap-4 p-5 sm:grid-cols-2">
           <div>
-            <label className="label">Subject</label>
+            <label className="label">{t(lang, "common.subject")}</label>
             <select className="input" value={cfg.subjectId} onChange={(e) => setCfg({ ...cfg, subjectId: e.target.value })}>
               {subjects.map((s) => <option key={s.id} value={s.id}>{s.name} ({s._count.questions})</option>)}
             </select>
@@ -125,13 +128,13 @@ export default function ExamPage() {
             <input type="number" min={1} max={40} className="input" value={cfg.count} onChange={(e) => setCfg({ ...cfg, count: Number(e.target.value) })} />
           </div>
           <div>
-            <label className="label">Duration (minutes)</label>
+            <label className="label">{t(lang, "exam.duration")}</label>
             <input type="number" min={1} max={240} className="input" value={cfg.minutes} onChange={(e) => setCfg({ ...cfg, minutes: Number(e.target.value) })} />
           </div>
           {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
           <div className="sm:col-span-2">
             <button onClick={start} disabled={busy || !cfg.subjectId} className="btn-primary w-full cursor-pointer sm:w-auto">
-              {busy ? "Building…" : "Start exam"}
+              {busy ? "Building…" : t(lang, "exam.start")}
             </button>
           </div>
         </div>
@@ -162,7 +165,7 @@ export default function ExamPage() {
       <div className="space-y-6">
         <div className="card overflow-hidden">
           <div className={`p-6 text-center ${pct >= 50 ? "bg-emerald-50" : "bg-amber-50"}`}>
-            <div className="text-xs font-bold uppercase tracking-wide text-slate-500">Exam results</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-slate-500">{t(lang, "exam.results")}</div>
             <div className="font-display mt-1 text-4xl font-black">{score}/{max}</div>
             <div className="text-lg font-semibold text-slate-600">{pct}%</div>
           </div>
@@ -187,8 +190,8 @@ export default function ExamPage() {
           })}
         </div>
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setPhase("config")} className="btn-primary cursor-pointer">New exam</button>
-          <Link href="/analytics" className="btn-ghost">View progress</Link>
+          <button onClick={() => setPhase("config")} className="btn-primary cursor-pointer">{t(lang, "exam.start")}</button>
+          <Link href="/analytics" className="btn-ghost">{t(lang, "nav.progress")}</Link>
         </div>
       </div>
     );
@@ -206,7 +209,7 @@ export default function ExamPage() {
         <div className={`font-display rounded-xl px-4 py-1.5 text-lg font-black tabular-nums ${lowTime ? "animate-pulse bg-red-100 text-red-700" : "bg-slate-100 text-slate-800"}`}>
           {mm}:{ss}
         </div>
-        <button onClick={submitExam} className="btn-primary cursor-pointer px-4 py-2 text-sm">Submit exam</button>
+        <button onClick={submitExam} className="btn-primary cursor-pointer px-4 py-2 text-sm">{t(lang, "exam.submit")}</button>
       </div>
 
       {questions.map((q, i) => (

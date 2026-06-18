@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { QUESTION_TYPE_LABEL, examLabel, topicLabel } from "@/lib/constants";
 import { requireStudent } from "@/lib/student";
+import { getLang } from "@/lib/lang-server";
+import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +12,7 @@ type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: stri
 export default async function PracticePage({ searchParams }: { searchParams: SP }) {
   const student = await requireStudent();
   const sp = await searchParams;
+  const lang = await getLang();
   // Students only ever browse moderator-approved questions.
   const subjects = await prisma.subject.findMany({
     orderBy: { name: "asc" },
@@ -85,8 +88,8 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Practice</h1>
-        <p className="text-sm text-slate-500">Choose a subject, then drill down by topic or by year.</p>
+        <h1 className="text-2xl font-bold">{t(lang, "practice.title")}</h1>
+        <p className="text-sm text-slate-500">{t(lang, "practice.subtitle")}</p>
       </div>
 
       {/* Subject chips */}
@@ -108,8 +111,8 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
       {totalApproved > 0 && (
         <div className="card p-4">
           <div className="mb-1 flex items-center justify-between text-sm">
-            <span className="font-semibold">{subject?.name} progress</span>
-            <span className="text-slate-500">{doneCount} / {totalApproved} done · {totalApproved - doneCount} left</span>
+            <span className="font-semibold">{subject?.name} {t(lang, "practice.progress")}</span>
+            <span className="text-slate-500">{doneCount} / {totalApproved} {t(lang, "common.done").toLowerCase()} · {totalApproved - doneCount} {t(lang, "practice.left")}</span>
           </div>
           <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
             <div className="h-full bg-emerald-500" style={{ width: `${progressPct}%` }} />
@@ -123,13 +126,13 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
           href={base({})}
           className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${view === "topic" ? "bg-brand-600 text-white" : "text-slate-600"}`}
         >
-          By Topic
+          {t(lang, "practice.byTopic")}
         </Link>
         <Link
           href={`/practice?subject=${subjectId}&view=year`}
           className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${view === "year" ? "bg-brand-600 text-white" : "text-slate-600"}`}
         >
-          By Year
+          {t(lang, "practice.byYear")}
         </Link>
       </div>
 
@@ -137,7 +140,7 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
         {/* Left: topic/year list */}
         <div className="space-y-2">
           <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
-            {subject?.name} · {view === "topic" ? "Topics" : "Years"}
+            {subject?.name} · {view === "topic" ? t(lang, "practice.topics") : t(lang, "practice.years")}
           </h2>
           {view === "topic"
             ? topics.map((t) => (
@@ -173,16 +176,16 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                 </Link>
               ))}
           {view === "topic" && topics.length === 0 && (
-            <p className="text-sm text-slate-400">No topics yet.</p>
+            <p className="text-sm text-slate-400">{t(lang, "practice.noTopics")}</p>
           )}
         </div>
 
         {/* Right: questions */}
         <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">Questions</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "practice.questions")}</h2>
           {questions.length === 0 ? (
             <div className="card p-6 text-center text-sm text-slate-400">
-              Select a {view === "topic" ? "topic" : "year"} to see its questions.
+              {view === "topic" ? t(lang, "practice.selectTopic") : t(lang, "practice.selectYear")}
             </div>
           ) : (
             questions.map((q) => {
@@ -194,13 +197,13 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                 <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300 hover:shadow-sm">
                   <div className="mb-1 flex flex-wrap items-center gap-2">
                     {done ? (
-                      <span className="badge bg-emerald-100 text-emerald-700">✓ Done</span>
+                      <span className="badge bg-emerald-100 text-emerald-700">✓ {t(lang, "common.done")}</span>
                     ) : (
-                      <span className="badge bg-slate-100 text-slate-500">Not done</span>
+                      <span className="badge bg-slate-100 text-slate-500">{t(lang, "common.notDone")}</span>
                     )}
                     <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
                     <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
-                    <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
+                    <span className="badge bg-slate-100 text-slate-600">{q.marks} {t(lang, "common.marks")}</span>
                     {isAi && <span className="badge bg-accent-100 text-accent-700">✨ AI</span>}
                     {q.isKbat && <span className="tag-kbat">KBAT</span>}
                   </div>

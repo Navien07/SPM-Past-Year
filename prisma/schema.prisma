@@ -339,6 +339,19 @@ model Waitlist {
   @@index([createdAt])
 }
 
+// Web Push subscriptions (PWA notifications). One row per browser/device.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  studentId String?
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([studentId])
+}
+
 // Password reset tokens (forgot/reset flow).
 model PasswordReset {
   id        String    @id @default(cuid())

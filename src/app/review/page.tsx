@@ -3,11 +3,14 @@ import { prisma } from "@/lib/db";
 import { requireStudent } from "@/lib/student";
 import { QUESTION_TYPE_LABEL, examLabel } from "@/lib/constants";
 import SmartPracticeButton from "@/components/SmartPracticeButton";
+import { getLang } from "@/lib/lang-server";
+import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage() {
   const student = await requireStudent();
+  const lang = await getLang();
   const now = new Date();
 
   let due, upcoming, bookmarks;
@@ -61,10 +64,8 @@ export default async function ReviewPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Review 🔁</h1>
-          <p className="text-sm text-slate-500">
-            Questions you got wrong come back on a spaced schedule until you master them.
-          </p>
+          <h1 className="text-2xl font-bold">{t(lang, "review.title")} 🔁</h1>
+          <p className="text-sm text-slate-500">{t(lang, "review.subtitle")}</p>
         </div>
         <SmartPracticeButton />
       </div>
@@ -72,23 +73,23 @@ export default async function ReviewPage() {
       <div className="grid grid-cols-3 gap-3">
         <div className="card p-4 text-center">
           <div className="text-2xl font-bold text-amber-600">{due.length}</div>
-          <div className="text-xs text-slate-500">Due now</div>
+          <div className="text-xs text-slate-500">{t(lang, "review.due")}</div>
         </div>
         <div className="card p-4 text-center">
           <div className="text-2xl font-bold text-brand-700">{upcoming}</div>
-          <div className="text-xs text-slate-500">Scheduled</div>
+          <div className="text-xs text-slate-500">{t(lang, "review.scheduled")}</div>
         </div>
         <div className="card p-4 text-center">
-          <div className="text-2xl font-bold text-violet-600">{bookmarks.length}</div>
-          <div className="text-xs text-slate-500">Bookmarked</div>
+          <div className="text-2xl font-bold text-accent-600">{bookmarks.length}</div>
+          <div className="text-xs text-slate-500">{t(lang, "review.bookmarks")}</div>
         </div>
       </div>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">Due for review</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "review.dueForReview")}</h2>
         {due.length === 0 ? (
           <div className="card p-6 text-center text-sm text-slate-400">
-            Nothing due — great job! Wrong answers reappear here automatically.
+            {t(lang, "review.nothingDue")}
           </div>
         ) : (
           due.map((r) => <Row key={r.id} q={r.question} meta={`${Math.round(r.lastScorePct)}% last`} />)
@@ -97,7 +98,7 @@ export default async function ReviewPage() {
 
       {bookmarks.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">⭐ Bookmarked</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">⭐ {t(lang, "review.bookmarks")}</h2>
           {bookmarks.map((b) => <Row key={b.id} q={b.question} />)}
         </section>
       )}

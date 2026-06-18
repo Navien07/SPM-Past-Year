@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
 import { getCurrentUser, roleHome } from "@/lib/auth";
 import { PILOT_MAX_STUDENTS } from "@/lib/constants";
+import { getLang } from "@/lib/lang-server";
+import { t } from "@/lib/i18n";
 import SmartPracticeButton from "@/components/SmartPracticeButton";
 import Landing from "@/components/Landing";
 
@@ -101,12 +103,13 @@ export default async function Home() {
     return <SetupNeeded />;
   }
   const { enrolled, questions, kbat, attempts } = data;
+  const lang = await getLang();
 
   const stats = [
-    { label: "My subjects", value: enrolled },
-    { label: "Questions", value: questions },
-    { label: "KBAT items", value: kbat },
-    { label: "My attempts", value: attempts },
+    { label: t(lang, "home.statSubjects"), value: enrolled },
+    { label: t(lang, "home.statQuestions"), value: questions },
+    { label: t(lang, "home.statKbat"), value: kbat },
+    { label: t(lang, "home.statAttempts"), value: attempts },
   ];
 
   const modules = [
@@ -127,22 +130,15 @@ export default async function Home() {
               {aiEnabled() ? "AI live" : "AI offline — set ANTHROPIC_API_KEY"}
             </span>
           </div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Salam, {student.name} 👋</h1>
-          <p className="mt-2 max-w-xl text-brand-50">
-            Your AI-powered SPM revision hub. Every past-year, trial and state paper —
-            categorized by subject, topic and year — with instant grading, a personal tutor and
-            unlimited KBAT practice.
-          </p>
+          <h1 className="text-2xl font-bold sm:text-3xl">{t(lang, "home.hello")}, {student.name} 👋</h1>
+          <p className="mt-2 max-w-xl text-brand-50">{t(lang, "home.heroDesc")}</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <SmartPracticeButton className="btn bg-white text-brand-700 hover:bg-brand-50" label="▶ Smart practice" />
+            <SmartPracticeButton className="btn bg-white text-brand-700 hover:bg-brand-50" label={`▶ ${t(lang, "home.smartPractice")}`} />
             <Link href="/practice" className="btn border border-white/40 text-white hover:bg-white/10">
-              Browse papers
+              {t(lang, "home.browse")}
             </Link>
           </div>
-          <p className="mt-3 text-xs text-brand-100">
-            💬 Tap the chat bubble anytime to ask <strong>Cikgu AI</strong> — attach a screenshot and it
-            explains exactly what you&apos;re stuck on.
-          </p>
+          <p className="mt-3 text-xs text-brand-100">💬 {t(lang, "home.chatHint")}</p>
         </div>
       </section>
 
@@ -151,12 +147,12 @@ export default async function Home() {
         <div className="flex items-center gap-3">
           <span className="text-3xl">{streakData.streak > 0 ? "🔥" : "✨"}</span>
           <div>
-            <div className="font-bold">{streakData.streak}-day streak</div>
-            <div className="text-xs text-slate-500">Practise daily to keep it alive</div>
+            <div className="font-bold">{streakData.streak}{t(lang, "home.streakSuffix")}</div>
+            <div className="text-xs text-slate-500">{t(lang, "home.streakSub")}</div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Today&apos;s goal</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t(lang, "home.todayGoal")}</div>
           <div className="font-bold">
             {Math.min(streakData.doneToday, DAILY_GOAL)} / {DAILY_GOAL}
             {streakData.doneToday >= DAILY_GOAL && <span className="ml-1">✅</span>}
@@ -173,12 +169,12 @@ export default async function Home() {
           className="card flex items-center justify-between p-4 hover:border-brand-300 hover:shadow-sm"
         >
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Continue where you left off</div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t(lang, "home.resume")}</div>
             <div className="mt-0.5 font-semibold">
               {resume.subjectName}{resume.topicTitle ? ` · ${resume.topicTitle}` : ""}
             </div>
           </div>
-          <span className="btn-primary shrink-0">Resume →</span>
+          <span className="btn-primary shrink-0">{t(lang, "home.resumeBtn")} →</span>
         </Link>
       )}
 
@@ -192,7 +188,7 @@ export default async function Home() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold">Modules</h2>
+        <h2 className="mb-3 text-lg font-bold">{t(lang, "home.modules")}</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((m) => (
             <Link key={m.href} href={m.href} className="card group p-5 transition hover:border-brand-300 hover:shadow-md">

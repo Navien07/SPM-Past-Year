@@ -3,23 +3,31 @@
 import { useEffect, useState } from "react";
 
 // Registers the service worker, surfaces an "Install app" button when the
-// browser offers it, and lets students opt in to a daily study reminder.
-// All best-effort: silently no-ops where the platform doesn't support it.
+// browser offers it, and lets students turn on push notifications (study
+// reminders + admin broadcasts). All best-effort.
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-const REMINDER_KEY = "spm_reminder_optin";
+const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
+
+function urlBase64ToUint8Array(base64: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+  const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(b64);
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
 
 export default function PwaRegister() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [reg, setReg] = useState<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker.register("/sw.js").then(setReg).catch(() => {});
     }
     const onPrompt = (e: Event) => {
       e.preventDefault();
@@ -31,21 +39,6 @@ export default function PwaRegister() {
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
-
-    // If the student opted into reminders, fire one per day on open.
-    try {
-      if (localStorage.getItem(REMINDER_KEY) === "1" && "Notification" in window && Notification.permission === "granted") {
-        const last = localStorage.getItem("spm_reminder_last");
-        const today = new Date().toDateString();
-        if (last !== today) {
-          new Notification("SPM AI", { body: "📚 Masa untuk berlatih hari ini! Teruskan streak anda.", icon: "/icon.svg" });
-          localStorage.setItem("spm_reminder_last", today);
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-
     return () => {
       window.removeEventListener("beforeinstallprompt", onPrompt);
       window.removeEventListener("appinstalled", onInstalled);
@@ -60,11 +53,33 @@ export default function PwaRegister() {
   }
 
   async function enableReminders() {
-    if (!("Notification" in window)) return;
-    const perm = await Notification.requestPermission();
-    if (perm === "granted") {
-      localStorage.setItem(REMINDER_KEY, "1");
-      new Notification("SPM AI", { body: "✅ Peringatan harian dihidupkan. Jumpa esok!", icon: "/icon.svg" });
+    try {
+      if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+        alert("Notifications aren't supported in this browser.");
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") return;
+      const registration = reg || (await navigator.serviceWorker.ready);
+
+      if (VAPID_PUBLIC) {
+        // Real Web Push subscription (works even when the app is closed).
+        const existing = await registration.pushManager.getSubscription();
+        const sub =
+          existing ||
+          (await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC) as BufferSource,
+          }));
+        await fetch("/api/push/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subscription: sub.toJSON(), userAgent: navigator.userAgent }),
+        });
+      }
+      registration.showNotification("SPM AI", { body: "✅ Peringatan dihidupkan. Jumpa lagi!", icon: "/icon-192.png" });
+    } catch {
+      /* ignore */
     }
   }
 
@@ -79,8 +94,8 @@ export default function PwaRegister() {
         <p className="text-xs text-slate-500">Add to your home screen — practise offline-ready, like an app.</p>
       </div>
       <div className="flex flex-col gap-1">
-        <button onClick={install} className="btn-primary px-3 py-1.5 text-xs">Install</button>
-        <button onClick={enableReminders} className="text-[11px] text-slate-500 hover:underline">Daily reminder</button>
+        <button onClick={install} className="btn-primary cursor-pointer px-3 py-1.5 text-xs">Install</button>
+        <button onClick={enableReminders} className="cursor-pointer text-[11px] text-slate-500 hover:underline">Notifications</button>
       </div>
     </div>
   );
