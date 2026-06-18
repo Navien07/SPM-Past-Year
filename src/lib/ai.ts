@@ -88,8 +88,10 @@ For EACH question, determine:
 - questionType: "mcq" (objective with options), "structured" (short subjective), or "essay"
 - stem: the full question text (clean, no leading number)
 - options: for mcq, an array of {key,text} (A/B/C/D); otherwise []
-- answer: correct option key for mcq, or a concise model answer otherwise (use the marking scheme if provided)
-- markingScheme: marking notes for structured/essay
+- answer: correct option key for mcq, or the model answer otherwise. If a MARKING SCHEME /
+  answer sheet is provided, match each question to its answer there and use it — pairing by
+  question number where possible. Every question MUST have an answer when the scheme provides one.
+- markingScheme: the per-question marking notes / accepted points from the scheme (for grading)
 - marks: marks allocated (integer)
 - isKbat: true if it is a higher-order-thinking (KBAT/HOTS) question
 - form: 4 or 5 (best estimate of which form the topic belongs to)
@@ -355,9 +357,12 @@ revision app. Help students understand topics, exam questions, and marking schem
 - For exam answers, show how to score marks against the SPM marking scheme / KBAT expectations.
 - When the student attaches a screenshot or image, read it carefully and base your answer on it.
 - If you are unsure, say so and suggest what to check. Never invent facts.
-- You may be given REFERENCE NOTES from the school's knowledge base. Use them to ground your
-  explanation, but teach the concept in your own words — explain and summarise, do not copy
-  long passages verbatim.
+- You may be given REFERENCE NOTES from the school's knowledge base (uploaded textbooks). These
+  are your PRIMARY source — always rely on them first and teach the concept in your own words
+  (explain and summarise, do not copy long passages verbatim).
+- A web_search tool is available as a FALLBACK only: use it when the reference notes don't cover
+  the question or current/external information is genuinely needed. Prefer the notes; keep
+  searches minimal and mention briefly when an answer came from the web.
 ${input.context ? `\nCURRENT CONTEXT:\n${input.context}` : ""}`;
 
   const messages: Anthropic.MessageParam[] = input.history.map((t) => {
@@ -376,20 +381,36 @@ ${input.context ? `\nCURRENT CONTEXT:\n${input.context}` : ""}`;
     return { role: t.role, content: t.text };
   });
 
-  try {
-    const res = await client().messages.create({
-      model: MODEL,
-      max_tokens: 4096,
-      thinking: { type: "adaptive" },
-      system,
-      messages,
-    } as Anthropic.MessageCreateParamsNonStreaming);
+  const baseParams = {
+    model: MODEL,
+    max_tokens: 4096,
+    thinking: { type: "adaptive" as const },
+    system,
+    messages,
+  };
+  // Web search is a fallback source (KB stays primary). Enabled unless turned
+  // off; if the API key/account rejects the tool, we retry without it.
+  const webSearch = process.env.SPM_WEB_SEARCH !== "0";
 
-    const reply = res.content
+  async function run(withSearch: boolean): Promise<string> {
+    const params = withSearch
+      ? { ...baseParams, tools: [{ type: "web_search_20260209", name: "web_search" }] }
+      : baseParams;
+    const res = await client().messages.create(params as Anthropic.MessageCreateParamsNonStreaming);
+    return res.content
       .filter((b): b is Anthropic.TextBlock => b.type === "text")
       .map((b) => b.text)
       .join("\n")
       .trim();
+  }
+
+  try {
+    let reply: string;
+    try {
+      reply = await run(webSearch);
+    } catch {
+      reply = await run(false); // retry without the web_search tool
+    }
     return { reply: reply || "(no response)", byAi: true };
   } catch (e) {
     return {

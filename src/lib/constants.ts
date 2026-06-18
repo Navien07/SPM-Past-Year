@@ -29,9 +29,11 @@ export const MALAYSIA_STATES = [
   "Kuala Lumpur",
   "Putrajaya",
   "Labuan",
+  "Wilayah Persekutuan",
   "MRSM",
   "SBP",
   "SPP",
+  "YIK",
 ];
 
 // SPM grade bands (used by the grader for a qualitative label).
@@ -126,6 +128,21 @@ export const SUBJECT_PAPER_STRUCTURE: Record<string, PaperSpec[]> = {
     { number: 1, name: "Kertas 1", format: "Objektif (aneka pilihan)", types: ["mcq"] },
     { number: 2, name: "Kertas 2", format: "Struktur & esei", types: ["structured", "essay"] },
     { number: 3, name: "Kertas 3", format: "Amali / eksperimen", types: ["structured"] },
+  ],
+  PI: [
+    { number: 1, name: "Kertas 1", format: "Objektif & struktur", types: ["mcq", "structured"] },
+    { number: 2, name: "Kertas 2", format: "Struktur & esei", types: ["structured", "essay"] },
+  ],
+  PM: [
+    { number: 1, name: "Kertas 1", format: "Struktur & esei (nilai moral)", types: ["structured", "essay"] },
+  ],
+  EKO: [
+    { number: 1, name: "Kertas 1", format: "Objektif (aneka pilihan)", types: ["mcq"] },
+    { number: 2, name: "Kertas 2", format: "Struktur & esei", types: ["structured", "essay"] },
+  ],
+  PP: [
+    { number: 1, name: "Kertas 1", format: "Objektif (aneka pilihan)", types: ["mcq"] },
+    { number: 2, name: "Kertas 2", format: "Subjektif (akaun & penyata)", types: ["structured"] },
   ],
 };
 

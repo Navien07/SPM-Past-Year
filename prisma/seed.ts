@@ -89,6 +89,43 @@ const SUBJECTS: {
       { form: 5, chapter: 3, title: "Coordination and Response", subtopics: ["Nervous system", "Hormones"] },
     ],
   },
+  {
+    name: "Pendidikan Islam", nameEn: "Islamic Studies", code: "PI", color: "#0f766e",
+    topics: [
+      { form: 4, chapter: 1, title: "Tilawah Al-Quran", subtopics: ["Ayat hafazan", "Hukum tajwid"] },
+      { form: 4, chapter: 2, title: "Akidah", subtopics: ["Rukun iman", "Sifat Allah"] },
+      { form: 4, chapter: 3, title: "Ibadah", subtopics: ["Solat", "Zakat", "Haji"] },
+      { form: 5, chapter: 4, title: "Sirah & Tamadun Islam", subtopics: ["Riwayat Nabi", "Kerajaan Islam"] },
+      { form: 5, chapter: 5, title: "Akhlak Islamiah", subtopics: ["Adab", "Nilai murni"] },
+    ],
+  },
+  {
+    name: "Pendidikan Moral", nameEn: "Moral Education", code: "PM", color: "#9333ea",
+    topics: [
+      { form: 4, chapter: 1, title: "Nilai Berkaitan Diri", subtopics: ["Amanah", "Harga diri", "Kerajinan"] },
+      { form: 4, chapter: 2, title: "Nilai Kekeluargaan", subtopics: ["Kasih sayang", "Tanggungjawab"] },
+      { form: 5, chapter: 3, title: "Nilai Alam Sekitar", subtopics: ["Kemampanan", "Peka terhadap alam"] },
+      { form: 5, chapter: 4, title: "Nilai Kemasyarakatan & Negara", subtopics: ["Hormat", "Patriotisme", "Keharmonian"] },
+    ],
+  },
+  {
+    name: "Ekonomi", nameEn: "Economics", code: "EKO", color: "#ca8a04",
+    topics: [
+      { form: 4, chapter: 1, title: "Pengenalan kepada Ekonomi", subtopics: ["Masalah ekonomi asas", "Kos lepas"] },
+      { form: 4, chapter: 2, title: "Permintaan & Penawaran", subtopics: ["Keseimbangan pasaran", "Keanjalan"] },
+      { form: 5, chapter: 3, title: "Wang & Institusi Kewangan", subtopics: ["Fungsi wang", "Bank"] },
+      { form: 5, chapter: 4, title: "Belanjawan & Dasar Kerajaan", subtopics: ["Hasil & perbelanjaan", "Cukai"] },
+    ],
+  },
+  {
+    name: "Prinsip Perakaunan", nameEn: "Principles of Accounting", code: "PP", color: "#0891b2",
+    topics: [
+      { form: 4, chapter: 1, title: "Pengenalan Perakaunan", subtopics: ["Persamaan perakaunan", "Dokumen"] },
+      { form: 4, chapter: 2, title: "Catatan Bergu & Lejar", subtopics: ["Debit & kredit", "Imbangan duga"] },
+      { form: 5, chapter: 3, title: "Penyata Kewangan", subtopics: ["Penyata pendapatan", "Kunci kira-kira"] },
+      { form: 5, chapter: 4, title: "Pelarasan & Penyesuaian Bank", subtopics: ["Pelarasan akhir tahun", "Penyata penyesuaian bank"] },
+    ],
+  },
 ];
 
 const SEJ_RUBRIC = JSON.stringify({
