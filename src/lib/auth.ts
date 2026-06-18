@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { prisma } from "./db";
 
 const COOKIE = "spm_uid";
@@ -7,12 +8,14 @@ const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export type Role = "admin" | "student";
 
-export async function getCurrentUser() {
+// Deduped per request: the layout and the page both call this, but React's
+// cache() collapses them into a single DB query per render.
+export const getCurrentUser = cache(async () => {
   const store = await cookies();
   const id = store.get(COOKIE)?.value;
   if (!id) return null;
   return prisma.user.findUnique({ where: { id }, include: { student: true } });
-}
+});
 
 // Cookie writes must happen in a Route Handler or Server Action.
 export async function setSession(userId: string) {
