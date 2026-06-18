@@ -7,9 +7,19 @@ import PwaRegister from "@/components/PwaRegister";
 import { getCurrentUser } from "@/lib/auth";
 import { LANG_COOKIE, normLang } from "@/lib/i18n";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://spm-ai.app");
+// Resolve an absolute site URL for OG/Twitter tags. Tolerate values pasted
+// without a protocol (e.g. "spm-past-year.vercel.app") so the build never
+// crashes on `new URL(...)`.
+function resolveSiteUrl(): string {
+  const raw = (process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || "spm-past-year.vercel.app").trim();
+  const withProto = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    return new URL(withProto).origin;
+  } catch {
+    return "https://spm-past-year.vercel.app";
+  }
+}
+const SITE_URL = resolveSiteUrl();
 
 const TITLE = "SPM AI — Malaysia's first AI-powered SPM platform";
 const DESCRIPTION =
