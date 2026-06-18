@@ -61,6 +61,9 @@ export default function Nav({ user }: { user: NavUser }) {
           <div className="flex items-center gap-2">
             {user ? (
               <>
+                {user.role === "student" && (
+                  <Link href="/help" className="rounded-lg px-2 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100" title="Help Centre">❓ Help</Link>
+                )}
                 <span className={`badge ${roleColor} hidden sm:inline-flex`}>{user.role}</span>
                 <span className="hidden text-sm text-slate-600 sm:inline">{user.name}</span>
                 <button onClick={logout} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">

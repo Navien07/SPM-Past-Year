@@ -26,9 +26,12 @@ export default async function StudentsPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold">Students 👥</h1>
-        <p className="text-sm text-slate-500">{rows.length} students · click a row for full performance & payments.</p>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Students 👥</h1>
+          <p className="text-sm text-slate-500">{rows.length} students · click a row for full performance & payments.</p>
+        </div>
+        <Link href="/admin/students/new" className="btn-primary shrink-0">＋ Add student</Link>
       </div>
 
       <div className="card overflow-x-auto">
