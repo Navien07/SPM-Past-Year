@@ -56,21 +56,28 @@ export default async function Home() {
   let resume: { subjectId: string; topicId: string | null; subjectName: string; topicTitle: string | null } | null = null;
   let streakData = { streak: 0, doneToday: 0 };
   try {
-    const [enrolled, questions, kbat, attempts] = await Promise.all([
+    // All independent queries in one round trip (collocated with the DB region,
+    // this keeps the dashboard fast).
+    const [enrolled, questions, kbat, attempts, recent, last] = await Promise.all([
       prisma.enrollment.count({ where: { studentId: student.id, status: "active" } }),
       prisma.question.count({ where: { status: "approved" } }),
       prisma.question.count({ where: { status: "approved", isKbat: true } }),
       prisma.attempt.count({ where: { studentId: student.id } }),
+      prisma.attempt.findMany({
+        where: { studentId: student.id },
+        orderBy: { createdAt: "desc" },
+        take: 400,
+        select: { createdAt: true },
+      }),
+      prisma.attempt.findFirst({
+        where: { studentId: student.id },
+        orderBy: { createdAt: "desc" },
+        include: { question: { include: { subject: true, topic: true } } },
+      }),
     ]);
     data = { enrolled, questions, kbat, attempts };
 
     // Streak + daily goal from attempt activity.
-    const recent = await prisma.attempt.findMany({
-      where: { studentId: student.id },
-      orderBy: { createdAt: "desc" },
-      take: 400,
-      select: { createdAt: true },
-    });
     const dayKey = (d: Date) => d.toISOString().slice(0, 10);
     const days = new Set(recent.map((a) => dayKey(a.createdAt)));
     let streak = 0;

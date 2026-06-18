@@ -20,12 +20,20 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
+const DISMISS_KEY = "spm_install_dismissed";
+
 export default function PwaRegister() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [dismissed, setDismissed] = useState(true); // assume hidden until we check
   const [reg, setReg] = useState<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
+    try {
+      setDismissed(localStorage.getItem(DISMISS_KEY) === "1");
+    } catch {
+      setDismissed(false);
+    }
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").then(setReg).catch(() => {});
     }
@@ -83,10 +91,26 @@ export default function PwaRegister() {
     }
   }
 
-  if (installed || !deferred) return null;
+  function dismiss() {
+    try {
+      localStorage.setItem(DISMISS_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    setDismissed(true);
+  }
+
+  if (installed || dismissed || !deferred) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg sm:left-4 sm:right-auto">
+    <div className="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 pr-9 shadow-lg sm:left-4 sm:right-auto">
+      <button
+        onClick={dismiss}
+        aria-label="Dismiss"
+        className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+      >
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+      </button>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/icon.svg" alt="SPM AI" className="h-10 w-10 rounded-xl" />
       <div className="min-w-0 flex-1">
