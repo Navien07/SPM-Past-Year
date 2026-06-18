@@ -65,6 +65,9 @@ model Paper {
   markingScheme String? // marking scheme / answer key text
   rubric        String? // JSON: essay rubric (criteria + bands)
   status        String   @default("uploaded") // uploaded | categorizing | categorized | failed
+  sourceKey     String?  @unique // stable id from the scraper → idempotent re-import
+  sourceUrl     String?
+  language      String? // "bm" | "en"
   categorizedAt DateTime?
   createdAt     DateTime @default(now())
 
@@ -229,8 +232,13 @@ model KnowledgeDoc {
   title     String
   subjectId String?
   form      Int? // 4 or 5 (optional)
+  chapter   Int? // KSSM bab number (optional)
+  topicId   String? // soft link to a Topic (optional)
   kind      String   @default("note") // note | textbook | summary
   source    String? // where it came from (admin-provided)
+  sourceUrl String?
+  sourceKey String?  @unique // stable id from the scraper → idempotent re-import
+  language  String? // "bm" | "en"
   content   String // the reference text
   createdAt DateTime @default(now())
 
@@ -303,6 +311,22 @@ model MockPaper {
   paperNumber Int      @default(1)
   questionIds String   @default("[]") // JSON string[]: Question ids in order
   createdAt   DateTime @default(now())
+}
+
+// Teacher/admin assignment to the pilot cohort: a paper or a topic to attempt
+// by a due date. Students see assigned work; completion is derived from attempts.
+model Assignment {
+  id          String    @id @default(cuid())
+  title       String
+  type        String    @default("paper") // paper | topic
+  paperId     String?
+  topicId     String?
+  subjectId   String?
+  dueAt       DateTime?
+  createdById String? // User id of the admin/teacher who set it
+  createdAt   DateTime  @default(now())
+
+  @@index([createdAt])
 }
 
 // Trace logging — every notable user action, viewable by the admin.

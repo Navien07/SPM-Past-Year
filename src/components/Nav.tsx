@@ -10,10 +10,15 @@ type NavUser = { name: string; role: string } | null;
 const STUDENT_LINKS = [
   { href: "/", key: "nav.home", icon: "🏠" },
   { href: "/practice", key: "nav.practice", icon: "📝" },
+  { href: "/papers", key: "nav.papers", icon: "📄" },
   { href: "/exam", key: "nav.exam", icon: "⏱️" },
   { href: "/review", key: "nav.review", icon: "🔁" },
   { href: "/tutor", key: "nav.tutor", icon: "🧭" },
   { href: "/analytics", key: "nav.progress", icon: "📊" },
+];
+
+const TEACHER_LINKS = [
+  { href: "/teacher", key: "nav.overview", icon: "👩‍🏫" },
 ];
 
 const ADMIN_LINKS = [
@@ -32,7 +37,10 @@ export default function Nav({ user, lang = "bm" }: { user: NavUser; lang?: Lang 
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
   const links =
-    user?.role === "admin" ? ADMIN_LINKS : user?.role === "student" ? STUDENT_LINKS : [];
+    user?.role === "admin" ? ADMIN_LINKS
+    : user?.role === "teacher" ? TEACHER_LINKS
+    : user?.role === "student" ? STUDENT_LINKS
+    : [];
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });

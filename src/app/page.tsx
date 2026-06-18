@@ -116,6 +116,9 @@ export default async function Home() {
 
   const modules = [
     { href: "/practice", icon: "📝", title: "Practice & Instant Grading", desc: "Browse by topic or year, attempt questions, get rubric-based feedback in seconds." },
+    { href: "/papers", icon: "📄", title: "Past Papers", desc: "Attempt a full SPM/trial paper end-to-end and get it marked instantly." },
+    { href: "/exam", icon: "⏱️", title: "Timed Exam Mode", desc: "Sit a timed paper against the clock, then get a marked breakdown." },
+    { href: "/assignments", icon: "📌", title: "My Assignments", desc: "See and complete the work set by your teacher." },
     { href: "/generate", icon: "✨", title: "AI Question Generator", desc: "Create fresh KBAT questions in the style of real SPM papers, per topic." },
     { href: "/tutor", icon: "🧭", title: "AI Tutor", desc: "Find your weak subjects & topics and get a personalised focus plan." },
     { href: "/analytics", icon: "📊", title: "Progress Analytics", desc: "Track mastery, time spent and improvement over time." },

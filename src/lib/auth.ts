@@ -6,7 +6,7 @@ import { prisma } from "./db";
 const COOKIE = "spm_uid";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
-export type Role = "admin" | "student";
+export type Role = "admin" | "teacher" | "student";
 
 // Deduped per request: the layout and the page both call this, but React's
 // cache() collapses them into a single DB query per render.
@@ -36,6 +36,7 @@ export async function clearSession() {
 
 export function roleHome(role: string): string {
   if (role === "admin") return "/admin";
+  if (role === "teacher") return "/teacher";
   return "/";
 }
 

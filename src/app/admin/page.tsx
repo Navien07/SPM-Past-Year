@@ -108,6 +108,7 @@ export default async function AdminOverview() {
           <div className="space-y-2">
             <Link href="/admin/papers" className="btn-ghost w-full justify-start">🗂️ Upload & categorize papers</Link>
             <Link href="/admin/papers/bulk" className="btn-ghost w-full justify-start">📦 Bulk import papers</Link>
+            <Link href="/admin/qa" className="btn-ghost w-full justify-start">🔍 Content QA (flagged questions)</Link>
             <Link href="/moderate" className="btn-ghost w-full justify-start">
               ✅ Review AI categorization {pendingMod > 0 && <span className="tag-kbat ml-2">{pendingMod} pending</span>}
             </Link>

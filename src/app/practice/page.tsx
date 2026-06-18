@@ -7,12 +7,23 @@ import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: string }>;
+type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: string; q?: string }>;
 
 export default async function PracticePage({ searchParams }: { searchParams: SP }) {
   const student = await requireStudent();
   const sp = await searchParams;
   const lang = await getLang();
+
+  // Question-bank search (across all approved questions).
+  const search = (sp.q || "").trim();
+  const searchResults = search
+    ? await prisma.question.findMany({
+        where: { status: "approved", stem: { contains: search, mode: "insensitive" } },
+        take: 50,
+        orderBy: { year: "desc" },
+        include: { subject: true, topic: true, paper: { select: { paperType: true, state: true } } },
+      })
+    : [];
   // Students only ever browse moderator-approved questions.
   const subjects = await prisma.subject.findMany({
     orderBy: { name: "asc" },
@@ -91,6 +102,34 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
         <h1 className="text-2xl font-bold">{t(lang, "practice.title")}</h1>
         <p className="text-sm text-slate-500">{t(lang, "practice.subtitle")}</p>
       </div>
+
+      {/* Question-bank search */}
+      <form action="/practice" method="get" className="flex gap-2">
+        <input name="q" defaultValue={search} placeholder={lang === "bm" ? "Cari soalan… (cth: pembezaan, fotosintesis)" : "Search questions… (e.g. differentiation, photosynthesis)"} className="input" />
+        <button className="btn-primary cursor-pointer">{lang === "bm" ? "Cari" : "Search"}</button>
+      </form>
+
+      {search && (
+        <section className="space-y-2">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
+            {searchResults.length} {lang === "bm" ? "hasil untuk" : "results for"} “{search}”
+          </h2>
+          {searchResults.length === 0 ? (
+            <div className="card p-6 text-center text-sm text-slate-400">{t(lang, "practice.selectTopic")}</div>
+          ) : (
+            searchResults.map((q) => (
+              <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300">
+                <div className="mb-1 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="badge bg-brand-50 text-brand-700">{q.subject.name}</span>
+                  {q.topic && <span className="text-slate-400">{q.topic.title}</span>}
+                  <span className="badge bg-slate-100 text-slate-600">{q.marks} {t(lang, "common.marks")}</span>
+                </div>
+                <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>
+              </Link>
+            ))
+          )}
+        </section>
+      )}
 
       {/* Subject chips */}
       <div className="flex flex-wrap gap-2">

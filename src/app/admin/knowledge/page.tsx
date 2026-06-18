@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface Subject { id: string; name: string }
@@ -89,12 +90,15 @@ export default function KnowledgePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Knowledge Base 🧠</h1>
-        <p className="text-sm text-slate-500">
-          Ingest reference notes & summaries. Cikgu AI retrieves relevant snippets to ground its
-          answers (it explains in its own words — it won&apos;t reproduce material verbatim).
-        </p>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Knowledge Base 🧠</h1>
+          <p className="text-sm text-slate-500">
+            Ingest reference notes & summaries. Cikgu AI retrieves relevant snippets to ground its
+            answers (it explains in its own words — it won&apos;t reproduce material verbatim).
+          </p>
+        </div>
+        <Link href="/admin/knowledge/bulk" className="btn-ghost shrink-0">📚 Bulk import</Link>
       </div>
 
       {msg && <div className="rounded-xl border border-brand-200 bg-brand-50 p-3 text-sm text-brand-800">{msg}</div>}

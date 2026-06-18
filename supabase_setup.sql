@@ -52,6 +52,23 @@ CREATE TABLE public."ActivityLog" (
 
 
 --
+-- Name: Assignment; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."Assignment" (
+    id text NOT NULL,
+    title text NOT NULL,
+    type text DEFAULT 'paper'::text NOT NULL,
+    "paperId" text,
+    "topicId" text,
+    "subjectId" text,
+    "dueAt" timestamp(3) without time zone,
+    "createdById" text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
 -- Name: Attempt; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -128,7 +145,12 @@ CREATE TABLE public."KnowledgeDoc" (
     kind text DEFAULT 'note'::text NOT NULL,
     source text,
     content text NOT NULL,
-    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    chapter integer,
+    language text,
+    "sourceKey" text,
+    "sourceUrl" text,
+    "topicId" text
 );
 
 
@@ -165,7 +187,10 @@ CREATE TABLE public."Paper" (
     rubric text,
     status text DEFAULT 'uploaded'::text NOT NULL,
     "categorizedAt" timestamp(3) without time zone,
-    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    language text,
+    "sourceKey" text,
+    "sourceUrl" text
 );
 
 
@@ -366,6 +391,14 @@ ALTER TABLE ONLY public."ActivityLog"
 
 
 --
+-- Name: Assignment Assignment_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Assignment"
+    ADD CONSTRAINT "Assignment_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: Attempt Attempt_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -531,6 +564,13 @@ CREATE INDEX "ActivityLog_studentId_idx" ON public."ActivityLog" USING btree ("s
 
 
 --
+-- Name: Assignment_createdAt_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Assignment_createdAt_idx" ON public."Assignment" USING btree ("createdAt");
+
+
+--
 -- Name: Attempt_questionId_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -580,6 +620,13 @@ CREATE INDEX "GeneratedQuestion_topicId_idx" ON public."GeneratedQuestion" USING
 
 
 --
+-- Name: KnowledgeDoc_sourceKey_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "KnowledgeDoc_sourceKey_key" ON public."KnowledgeDoc" USING btree ("sourceKey");
+
+
+--
 -- Name: KnowledgeDoc_subjectId_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -591,6 +638,13 @@ CREATE INDEX "KnowledgeDoc_subjectId_idx" ON public."KnowledgeDoc" USING btree (
 --
 
 CREATE INDEX "Paper_paperType_idx" ON public."Paper" USING btree ("paperType");
+
+
+--
+-- Name: Paper_sourceKey_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Paper_sourceKey_key" ON public."Paper" USING btree ("sourceKey");
 
 
 --
@@ -930,6 +984,12 @@ SET row_security = off;
 
 
 --
+-- Data for Name: Assignment; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
 -- Data for Name: Subject; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -951,8 +1011,8 @@ INSERT INTO public."Subject" (id, name, "nameEn", code, color, "createdAt") VALU
 -- Data for Name: Paper; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public."Paper" (id, title, "subjectId", "paperType", year, state, "paperNumber", "fileUrl", "fileName", "rawText", "markingScheme", rubric, status, "categorizedAt", "createdAt") VALUES ('cmqjdruyd00a57dfj00jxqvhe', 'Additional Mathematics Kertas 1 — Percubaan SPM 2025 (Johor)', 'cmqjdrury003a7dfjgeyjnao3', 'trial', 2025, 'Johor', 1, NULL, NULL, 'Uploaded by admin; AI-categorized; awaiting moderation.', NULL, NULL, 'categorized', '2026-06-18 10:52:23.029', '2026-06-18 10:52:23.03');
-INSERT INTO public."Paper" (id, title, "subjectId", "paperType", year, state, "paperNumber", "fileUrl", "fileName", "rawText", "markingScheme", rubric, status, "categorizedAt", "createdAt") VALUES ('cmqjdruyl00ad7dfjvm8x3tjd', 'Biology Kertas 2 — Percubaan SPM 2024 (Kedah)', 'cmqjdruua005t7dfj9q6x1q3q', 'trial', 2024, 'Kedah', 2, NULL, NULL, 'Uploaded by admin; AI-categorized; awaiting moderation.', NULL, NULL, 'categorized', '2026-06-18 10:52:23.037', '2026-06-18 10:52:23.038');
+INSERT INTO public."Paper" (id, title, "subjectId", "paperType", year, state, "paperNumber", "fileUrl", "fileName", "rawText", "markingScheme", rubric, status, "categorizedAt", "createdAt", language, "sourceKey", "sourceUrl") VALUES ('cmqjdruyd00a57dfj00jxqvhe', 'Additional Mathematics Kertas 1 — Percubaan SPM 2025 (Johor)', 'cmqjdrury003a7dfjgeyjnao3', 'trial', 2025, 'Johor', 1, NULL, NULL, 'Uploaded by admin; AI-categorized; awaiting moderation.', NULL, NULL, 'categorized', '2026-06-18 10:52:23.029', '2026-06-18 10:52:23.03', NULL, NULL, NULL);
+INSERT INTO public."Paper" (id, title, "subjectId", "paperType", year, state, "paperNumber", "fileUrl", "fileName", "rawText", "markingScheme", rubric, status, "categorizedAt", "createdAt", language, "sourceKey", "sourceUrl") VALUES ('cmqjdruyl00ad7dfjvm8x3tjd', 'Biology Kertas 2 — Percubaan SPM 2024 (Kedah)', 'cmqjdruua005t7dfj9q6x1q3q', 'trial', 2024, 'Kedah', 2, NULL, NULL, 'Uploaded by admin; AI-categorized; awaiting moderation.', NULL, NULL, 'categorized', '2026-06-18 10:52:23.037', '2026-06-18 10:52:23.038', NULL, NULL, NULL);
 
 
 --
@@ -1262,9 +1322,9 @@ INSERT INTO public."Enrollment" (id, "studentId", "subjectId", status, "createdA
 -- Data for Name: KnowledgeDoc; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public."KnowledgeDoc" (id, title, "subjectId", form, kind, source, content, "createdAt") VALUES ('cmqjdruys00aj7dfji1igg3t8', 'Photosynthesis — key concepts', 'cmqjdruua005t7dfj9q6x1q3q', 4, 'summary', 'Seed (sample notes)', 'Photosynthesis is how green plants make food using light energy. It needs carbon dioxide, water, light and chlorophyll. The light-dependent reactions in the thylakoids capture light energy; the light-independent reactions (Calvin cycle) in the stroma fix carbon dioxide into glucose. Products are glucose and oxygen. It matters because it provides food (glucose) for almost all food chains and releases the oxygen animals breathe. Common SPM points: word equation, limiting factors (light intensity, CO2 concentration, temperature), and adaptations of the leaf (broad lamina, many chloroplasts, stomata).', '2026-06-18 10:52:23.045');
-INSERT INTO public."KnowledgeDoc" (id, title, "subjectId", form, kind, source, content, "createdAt") VALUES ('cmqjdruyu00al7dfjqfdyih04', 'Acids, bases & salts — essentials', 'cmqjdrutl00527dfjapskw877', 4, 'summary', 'Seed (sample notes)', 'An acid produces hydrogen ions (H+) in water; an alkali produces hydroxide ions (OH-). The pH scale runs 0–14: below 7 acidic, 7 neutral, above 7 alkaline. Neutralisation: acid + base produces salt + water. Salts can be prepared by reacting an acid with a metal, a base, or a carbonate. Titration uses an indicator (e.g. phenolphthalein turns pink in alkali, colourless in acid) to find the end point. Remember to balance equations and state observations.', '2026-06-18 10:52:23.047');
-INSERT INTO public."KnowledgeDoc" (id, title, "subjectId", form, kind, source, content, "createdAt") VALUES ('cmqjdruyw00an7dfjqvrck42g', 'Pembinaan Negara dan Bangsa — Kemerdekaan 1957', 'cmqjdruoo00007dfje2vfvz6p', 5, 'note', 'Seed (sample notes)', 'Kemerdekaan Persekutuan Tanah Melayu dicapai melalui semangat perpaduan dan rundingan. Antara usaha penting: Pakatan Murni antara kaum, Pilihan Raya Umum 1955, rombongan ke London 1956, dan penubuhan Suruhanjaya Reid untuk merangka Perlembagaan. Iktibar: perpaduan kaum, semangat patriotik, toleransi, dan kepimpinan yang bijaksana penting untuk mengekalkan kemerdekaan dan kedaulatan negara.', '2026-06-18 10:52:23.048');
+INSERT INTO public."KnowledgeDoc" (id, title, "subjectId", form, kind, source, content, "createdAt", chapter, language, "sourceKey", "sourceUrl", "topicId") VALUES ('cmqjdruys00aj7dfji1igg3t8', 'Photosynthesis — key concepts', 'cmqjdruua005t7dfj9q6x1q3q', 4, 'summary', 'Seed (sample notes)', 'Photosynthesis is how green plants make food using light energy. It needs carbon dioxide, water, light and chlorophyll. The light-dependent reactions in the thylakoids capture light energy; the light-independent reactions (Calvin cycle) in the stroma fix carbon dioxide into glucose. Products are glucose and oxygen. It matters because it provides food (glucose) for almost all food chains and releases the oxygen animals breathe. Common SPM points: word equation, limiting factors (light intensity, CO2 concentration, temperature), and adaptations of the leaf (broad lamina, many chloroplasts, stomata).', '2026-06-18 10:52:23.045', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public."KnowledgeDoc" (id, title, "subjectId", form, kind, source, content, "createdAt", chapter, language, "sourceKey", "sourceUrl", "topicId") VALUES ('cmqjdruyu00al7dfjqfdyih04', 'Acids, bases & salts — essentials', 'cmqjdrutl00527dfjapskw877', 4, 'summary', 'Seed (sample notes)', 'An acid produces hydrogen ions (H+) in water; an alkali produces hydroxide ions (OH-). The pH scale runs 0–14: below 7 acidic, 7 neutral, above 7 alkaline. Neutralisation: acid + base produces salt + water. Salts can be prepared by reacting an acid with a metal, a base, or a carbonate. Titration uses an indicator (e.g. phenolphthalein turns pink in alkali, colourless in acid) to find the end point. Remember to balance equations and state observations.', '2026-06-18 10:52:23.047', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public."KnowledgeDoc" (id, title, "subjectId", form, kind, source, content, "createdAt", chapter, language, "sourceKey", "sourceUrl", "topicId") VALUES ('cmqjdruyw00an7dfjqvrck42g', 'Pembinaan Negara dan Bangsa — Kemerdekaan 1957', 'cmqjdruoo00007dfje2vfvz6p', 5, 'note', 'Seed (sample notes)', 'Kemerdekaan Persekutuan Tanah Melayu dicapai melalui semangat perpaduan dan rundingan. Antara usaha penting: Pakatan Murni antara kaum, Pilihan Raya Umum 1955, rombongan ke London 1956, dan penubuhan Suruhanjaya Reid untuk merangka Perlembagaan. Iktibar: perpaduan kaum, semangat patriotik, toleransi, dan kepimpinan yang bijaksana penting untuk mengekalkan kemerdekaan dan kedaulatan negara.', '2026-06-18 10:52:23.048', NULL, NULL, NULL, NULL, NULL);
 
 
 --

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const name = String(body.name || "").trim();
   const email = String(body.email || "").toLowerCase().trim();
   const password = String(body.password || "");
-  const role = body.role === "admin" ? "admin" : "student";
+  const role = body.role === "admin" ? "admin" : body.role === "teacher" ? "teacher" : "student";
 
   if (!name || !email || !password) {
     return NextResponse.json({ error: "Name, email and password are required." }, { status: 400 });
