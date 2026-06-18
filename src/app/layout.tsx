@@ -15,8 +15,11 @@ export const metadata: Metadata = {
   applicationName: "SPM AI",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "SPM AI" },
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icon.svg" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
   },
 };
 
