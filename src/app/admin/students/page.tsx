@@ -31,7 +31,10 @@ export default async function StudentsPage() {
           <h1 className="text-2xl font-bold">Students 👥</h1>
           <p className="text-sm text-slate-500">{rows.length} students · click a row for full performance & payments.</p>
         </div>
-        <Link href="/admin/students/new" className="btn-primary shrink-0">＋ Add student</Link>
+        <div className="flex shrink-0 gap-2">
+          <Link href="/admin/waitlist" className="btn-ghost">📝 Waitlist</Link>
+          <Link href="/admin/students/new" className="btn-primary">＋ Add student</Link>
+        </div>
       </div>
 
       <div className="card overflow-x-auto">
