@@ -72,7 +72,7 @@ export default async function ReportPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/icon.svg" alt="SPM AI" className="h-10 w-10 rounded-lg" />
             <div>
-              <div className="font-display text-lg font-black">SPM<span className="text-brand-600">AI</span></div>
+              <div className="font-display text-lg font-black">SPM<span className="text-accent-500">AI</span></div>
               <div className="text-xs text-slate-500">Progress Report · Laporan Kemajuan</div>
             </div>
           </div>

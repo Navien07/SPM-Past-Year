@@ -201,7 +201,7 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                     <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
                     <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
                     <span className="badge bg-slate-100 text-slate-600">{q.marks} markah</span>
-                    {isAi && <span className="badge bg-violet-100 text-violet-700">✨ AI</span>}
+                    {isAi && <span className="badge bg-accent-100 text-accent-700">✨ AI</span>}
                     {q.isKbat && <span className="tag-kbat">KBAT</span>}
                   </div>
                   <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>

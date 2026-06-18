@@ -122,8 +122,9 @@ export default async function Home() {
       <section className="card overflow-hidden">
         <div className="bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white sm:p-8">
           <div className="mb-2 flex items-center gap-2">
-            <span className="badge bg-white/20 text-white">
-              {aiEnabled() ? "● AI live" : "○ AI offline — set ANTHROPIC_API_KEY"}
+            <span className="badge inline-flex items-center gap-1.5 bg-white/20 text-white">
+              <span className={`inline-block h-2 w-2 rounded-full ${aiEnabled() ? "bg-accent-400" : "bg-slate-300"}`} />
+              {aiEnabled() ? "AI live" : "AI offline — set ANTHROPIC_API_KEY"}
             </span>
           </div>
           <h1 className="text-2xl font-bold sm:text-3xl">Salam, {student.name} 👋</h1>

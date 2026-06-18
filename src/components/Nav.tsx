@@ -50,7 +50,7 @@ export default function Nav({ user, lang = "bm" }: { user: NavUser; lang?: Lang 
           <Link href={user ? links[0]?.href ?? "/" : "/"} className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/icon.svg" alt="SPM AI" className="h-8 w-8 rounded-lg" />
-            <span className="font-bold tracking-tight">SPM<span className="text-brand-600">AI</span></span>
+            <span className="font-bold tracking-tight">SPM<span className="text-accent-500">AI</span></span>
           </Link>
 
           <nav className="hidden items-center gap-1 sm:flex">

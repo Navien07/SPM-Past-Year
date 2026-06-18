@@ -332,7 +332,7 @@ export default function Landing({ taken, total }: { taken: number; total: number
         <div className="flex items-center justify-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="SPM AI logo" className="h-7 w-7 rounded-lg" />
-          <span className="font-display font-bold text-slate-700">SPM<span className="text-[#2D5BFF]">AI</span></span>
+          <span className="font-display font-bold text-slate-700">SPM<span className="text-accent-500">AI</span></span>
         </div>
         <p className="mt-3">Helping students across Malaysia 🇲🇾</p>
         <p className="mt-2">
