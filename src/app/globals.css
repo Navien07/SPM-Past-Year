@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Rubik:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Rubik", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Outfit", var(--font-sans);
 }
 
 html {
@@ -12,6 +14,12 @@ html {
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 /* Reusable bits */
@@ -43,4 +51,86 @@ body {
 @keyframes loader {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
+}
+
+/* ── Landing-page animations ─────────────────────────────────────────────── */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-22px) rotate(6deg); }
+}
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(.8); }
+  60% { transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-floaty { animation: floaty 7s ease-in-out infinite; }
+.animate-fade-up { animation: fade-up .7s cubic-bezier(.2,.7,.2,1) both; }
+.animate-pop-in { animation: pop-in .5s cubic-bezier(.2,.7,.2,1) both; }
+
+.bg-aurora {
+  background: linear-gradient(120deg, #1e3a8a, #1f50e0, #4f46e5, #7c3aed, #0ea5e9, #1f50e0);
+  background-size: 300% 300%;
+  animation: gradient-shift 14s ease infinite;
+}
+.text-shine {
+  background: linear-gradient(90deg, #fde68a, #fbcfe8, #fef08a, #fde68a);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+.dot-grid {
+  background-image: radial-gradient(rgba(255,255,255,.18) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Signature: highlighter swipe (the student's own tool) — ink text on a marker
+   sweep so contrast stays high (≈11:1). box-decoration-break keeps it intact
+   across line wraps. */
+.hl {
+  background-image: linear-gradient(118deg, #FFE27A 0%, #FFD23F 100%);
+  color: #0B1020;
+  padding: 0.02em 0.22em;
+  border-radius: 0.16em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.hl-coral { background-image: linear-gradient(118deg, #FF8DA0 0%, #FF5D73 100%); color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-floaty, .animate-fade-up, .animate-pop-in, .bg-aurora, .text-shine, .marquee-track {
+    animation: none !important;
+  }
+}
+
+/* ── Print (PDF progress report) ─────────────────────────────────────────── */
+@media print {
+  header, nav, footer, .no-print { display: none !important; }
+  body { background: #fff !important; }
+  main { padding: 0 !important; max-width: 100% !important; }
+  .card { box-shadow: none !important; border-color: #cbd5e1 !important; break-inside: avoid; }
+  .print-block { break-inside: avoid; }
 }

@@ -323,6 +323,22 @@ model ActivityLog {
   @@index([action])
 }
 
+// Waitlist — captured when the free pilot is full (or from the landing page),
+// so we can invite students as more spots open.
+model Waitlist {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  whatsapp  String?
+  school    String?
+  state     String?
+  note      String?
+  invited   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 // Password reset tokens (forgot/reset flow).
 model PasswordReset {
   id        String    @id @default(cuid())

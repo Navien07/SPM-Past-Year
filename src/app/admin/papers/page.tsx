@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { PAPER_TYPES, PAPER_TYPE_LABEL, MALAYSIA_STATES } from "@/lib/constants";
 
 interface Subject {
@@ -165,12 +166,15 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Admin · Upload & Categorize 🗂️</h1>
-        <p className="text-sm text-slate-500">
-          Add past-year, trial, state and mock papers. The AI agent splits each paper into
-          questions and tags them by topic, form, year and KBAT.
-        </p>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Admin · Upload & Categorize 🗂️</h1>
+          <p className="text-sm text-slate-500">
+            Add past-year, trial, state and mock papers. The AI agent splits each paper into
+            questions and tags them by topic, form, year and KBAT.
+          </p>
+        </div>
+        <Link href="/admin/papers/bulk" className="btn-ghost shrink-0">📦 Bulk import</Link>
       </div>
 
       {msg && (

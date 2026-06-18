@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import MicButton from "./MicButton";
 
 interface Attachment {
   dataUrl: string; // data:image/...;base64,XXXX
@@ -278,6 +279,11 @@ export default function ChatWidget() {
                 📎
               </button>
               <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
+              <MicButton
+                onText={(text) => setInput((v) => (v ? `${v} ${text}` : text))}
+                title="Speak your question"
+                className="h-10 w-10 shrink-0"
+              />
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

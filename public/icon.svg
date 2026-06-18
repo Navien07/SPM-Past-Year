@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="SPM AI">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3470f4"/>
+      <stop offset="1" stop-color="#1f50e0"/>
+    </linearGradient>
+  </defs>
+  <!-- rounded app-icon tile -->
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <!-- open book / graduation mortarboard hybrid -->
+  <g fill="#ffffff">
+    <!-- mortarboard top -->
+    <path d="M256 120 L412 188 L256 256 L100 188 Z"/>
+    <!-- tassel -->
+    <path d="M412 188 v74 a8 8 0 0 1-16 0 v-67 l16-7 Z"/>
+    <!-- book base -->
+    <path d="M148 232 v92 c0 14 12 24 30 30 l63 22 v-96 l-63-22 c-12-4-22-2-30 2 Z" opacity="0.96"/>
+    <path d="M364 232 v92 c0 14-12 24-30 30 l-63 22 v-96 l63-22 c12-4 22-2 30 2 Z" opacity="0.82"/>
+  </g>
+  <!-- AI spark -->
+  <g fill="#ffd84d">
+    <path d="M360 312 l10 26 26 10 -26 10 -10 26 -10-26 -26-10 26-10 Z"/>
+  </g>
+</svg>

@@ -1,0 +1,22 @@
+{
+  "name": "SPM AI — Latih. Tanya. Cemerlang.",
+  "short_name": "SPM AI",
+  "description": "Malaysia's first AI-powered SPM revision platform: instant rubric grading, an AI tutor (Cikgu AI), KBAT practice and timed exams.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#1f50e0",
+  "lang": "ms-MY",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Practice", "short_name": "Practice", "url": "/practice" },
+    { "name": "Timed Exam", "short_name": "Exam", "url": "/exam" },
+    { "name": "Cikgu AI Tutor", "short_name": "Tutor", "url": "/tutor" }
+  ]
+}

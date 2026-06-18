@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import MicButton from "./MicButton";
 import type { GradeResult, McqOption } from "@/lib/types";
 
 interface Props {
@@ -68,14 +69,25 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
           ))}
         </div>
       ) : (
-        <textarea
-          value={answer}
-          disabled={!!grade}
-          onChange={(e) => setAnswer(e.target.value)}
-          rows={questionType === "essay" ? 10 : 5}
-          placeholder="Tulis jawapan anda di sini…"
-          className="input resize-y"
-        />
+        <div className="relative">
+          <textarea
+            value={answer}
+            disabled={!!grade}
+            onChange={(e) => setAnswer(e.target.value)}
+            rows={questionType === "essay" ? 10 : 5}
+            placeholder="Tulis atau sebut jawapan anda di sini…"
+            className="input resize-y pr-12"
+          />
+          {!grade && (
+            <div className="absolute right-2 top-2">
+              <MicButton
+                onText={(text) => setAnswer((v) => (v ? `${v} ${text}` : text))}
+                title="Sebut jawapan anda"
+                className="h-9 w-9"
+              />
+            </div>
+          )}
+        </div>
       )}
 
       {!grade && (

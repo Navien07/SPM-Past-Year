@@ -104,6 +104,7 @@ export default async function AnalyticsPage() {
         <div className="mt-3 flex flex-wrap gap-2">
           <Link href="/practice" className="btn-primary">Continue practising</Link>
           <Link href="/tutor" className="btn-ghost">🧭 Full AI analysis</Link>
+          <Link href="/report" className="btn-ghost">📄 PDF report</Link>
         </div>
       </div>
 

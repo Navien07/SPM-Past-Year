@@ -10,413 +10,861 @@ GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 SET search_path TO public;
 
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
+-- ===================== SCHEMA =============================
+--
+-- PostgreSQL database dump
+--
 
--- CreateTable
-CREATE TABLE public."Subject" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "nameEn" TEXT,
-    "code" TEXT NOT NULL,
-    "color" TEXT NOT NULL DEFAULT '#3470f4',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
-);
+-- Dumped from database version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
 
--- CreateTable
-CREATE TABLE public."Topic" (
-    "id" TEXT NOT NULL,
-    "subjectId" TEXT NOT NULL,
-    "form" INTEGER NOT NULL,
-    "chapter" INTEGER NOT NULL,
-    "title" TEXT NOT NULL,
-    "subtopics" TEXT NOT NULL DEFAULT '[]',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
-    CONSTRAINT "Topic_pkey" PRIMARY KEY ("id")
-);
+SET default_tablespace = '';
 
--- CreateTable
-CREATE TABLE public."Paper" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "subjectId" TEXT NOT NULL,
-    "paperType" TEXT NOT NULL,
-    "year" INTEGER NOT NULL,
-    "state" TEXT,
-    "paperNumber" INTEGER NOT NULL DEFAULT 1,
-    "fileUrl" TEXT,
-    "fileName" TEXT,
-    "rawText" TEXT,
-    "markingScheme" TEXT,
-    "rubric" TEXT,
-    "status" TEXT NOT NULL DEFAULT 'uploaded',
-    "categorizedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+SET default_table_access_method = heap;
 
-    CONSTRAINT "Paper_pkey" PRIMARY KEY ("id")
-);
+--
+-- Name: ActivityLog; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateTable
-CREATE TABLE public."Question" (
-    "id" TEXT NOT NULL,
-    "subjectId" TEXT NOT NULL,
-    "topicId" TEXT,
-    "paperId" TEXT,
-    "paperNumber" INTEGER NOT NULL DEFAULT 1,
-    "questionType" TEXT NOT NULL,
-    "number" TEXT,
-    "stem" TEXT NOT NULL,
-    "options" TEXT NOT NULL DEFAULT '[]',
-    "answer" TEXT,
-    "markingScheme" TEXT,
-    "rubric" TEXT,
-    "marks" INTEGER NOT NULL DEFAULT 1,
-    "isKbat" BOOLEAN NOT NULL DEFAULT false,
-    "subtopic" TEXT,
-    "year" INTEGER,
-    "source" TEXT NOT NULL DEFAULT 'past_paper',
-    "status" TEXT NOT NULL DEFAULT 'approved',
-    "confidence" DOUBLE PRECISION,
-    "autoApproved" BOOLEAN NOT NULL DEFAULT false,
-    "reviewNote" TEXT,
-    "reviewedById" TEXT,
-    "reviewedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."Bookmark" (
-    "id" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Bookmark_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."ReviewItem" (
-    "id" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
-    "box" INTEGER NOT NULL DEFAULT 0,
-    "dueAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "lastScorePct" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "reps" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "ReviewItem_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."Student" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "form" INTEGER NOT NULL DEFAULT 5,
-    "school" TEXT,
-    "age" INTEGER,
-    "state" TEXT,
-    "whatsapp" TEXT,
-    "pdpaConsent" BOOLEAN NOT NULL DEFAULT false,
-    "consentAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."User" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "role" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "studentId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."Enrollment" (
-    "id" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "subjectId" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'active',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Enrollment_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."Payment" (
-    "id" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "amount" DOUBLE PRECISION NOT NULL,
-    "currency" TEXT NOT NULL DEFAULT 'MYR',
-    "method" TEXT,
-    "status" TEXT NOT NULL DEFAULT 'paid',
-    "description" TEXT,
-    "paidAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."KnowledgeDoc" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "subjectId" TEXT,
-    "form" INTEGER,
-    "kind" TEXT NOT NULL DEFAULT 'note',
-    "source" TEXT,
-    "content" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "KnowledgeDoc_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."Attempt" (
-    "id" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
-    "answer" TEXT NOT NULL,
-    "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "maxScore" DOUBLE PRECISION NOT NULL DEFAULT 1,
-    "band" TEXT,
-    "isCorrect" BOOLEAN,
-    "feedback" TEXT,
-    "gradedByAi" BOOLEAN NOT NULL DEFAULT false,
-    "timeSpentSec" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Attempt_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."StudySession" (
-    "id" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "subjectId" TEXT,
-    "durationSec" INTEGER NOT NULL DEFAULT 0,
-    "questionsDone" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "StudySession_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."GeneratedQuestion" (
-    "id" TEXT NOT NULL,
-    "topicId" TEXT NOT NULL,
-    "questionType" TEXT NOT NULL,
-    "stem" TEXT NOT NULL,
-    "options" TEXT NOT NULL DEFAULT '[]',
-    "answer" TEXT,
-    "markingScheme" TEXT,
-    "rubric" TEXT,
-    "marks" INTEGER NOT NULL DEFAULT 1,
-    "isKbat" BOOLEAN NOT NULL DEFAULT true,
-    "basedOn" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "GeneratedQuestion_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE public."MockPaper" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "subjectId" TEXT NOT NULL,
-    "paperNumber" INTEGER NOT NULL DEFAULT 1,
-    "questionIds" TEXT NOT NULL DEFAULT '[]',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "MockPaper_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE public."ActivityLog" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT,
-    "studentId" TEXT,
-    "name" TEXT,
-    "role" TEXT,
-    "action" TEXT NOT NULL,
-    "detail" TEXT,
-    "path" TEXT,
-    "ip" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "ActivityLog_pkey" PRIMARY KEY ("id")
+    id text NOT NULL,
+    "userId" text,
+    "studentId" text,
+    name text,
+    role text,
+    action text NOT NULL,
+    detail text,
+    path text,
+    ip text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- CreateTable
+
+--
+-- Name: Attempt; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."Attempt" (
+    id text NOT NULL,
+    "studentId" text NOT NULL,
+    "questionId" text NOT NULL,
+    answer text NOT NULL,
+    score double precision DEFAULT 0 NOT NULL,
+    "maxScore" double precision DEFAULT 1 NOT NULL,
+    band text,
+    "isCorrect" boolean,
+    feedback text,
+    "gradedByAi" boolean DEFAULT false NOT NULL,
+    "timeSpentSec" integer DEFAULT 0 NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: Bookmark; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."Bookmark" (
+    id text NOT NULL,
+    "studentId" text NOT NULL,
+    "questionId" text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: Enrollment; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."Enrollment" (
+    id text NOT NULL,
+    "studentId" text NOT NULL,
+    "subjectId" text NOT NULL,
+    status text DEFAULT 'active'::text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: GeneratedQuestion; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."GeneratedQuestion" (
+    id text NOT NULL,
+    "topicId" text NOT NULL,
+    "questionType" text NOT NULL,
+    stem text NOT NULL,
+    options text DEFAULT '[]'::text NOT NULL,
+    answer text,
+    "markingScheme" text,
+    rubric text,
+    marks integer DEFAULT 1 NOT NULL,
+    "isKbat" boolean DEFAULT true NOT NULL,
+    "basedOn" text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: KnowledgeDoc; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."KnowledgeDoc" (
+    id text NOT NULL,
+    title text NOT NULL,
+    "subjectId" text,
+    form integer,
+    kind text DEFAULT 'note'::text NOT NULL,
+    source text,
+    content text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: MockPaper; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."MockPaper" (
+    id text NOT NULL,
+    title text NOT NULL,
+    "subjectId" text NOT NULL,
+    "paperNumber" integer DEFAULT 1 NOT NULL,
+    "questionIds" text DEFAULT '[]'::text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: Paper; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."Paper" (
+    id text NOT NULL,
+    title text NOT NULL,
+    "subjectId" text NOT NULL,
+    "paperType" text NOT NULL,
+    year integer NOT NULL,
+    state text,
+    "paperNumber" integer DEFAULT 1 NOT NULL,
+    "fileUrl" text,
+    "fileName" text,
+    "rawText" text,
+    "markingScheme" text,
+    rubric text,
+    status text DEFAULT 'uploaded'::text NOT NULL,
+    "categorizedAt" timestamp(3) without time zone,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: PasswordReset; Type: TABLE; Schema: public; Owner: -
+--
+
 CREATE TABLE public."PasswordReset" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "usedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "PasswordReset_pkey" PRIMARY KEY ("id")
+    id text NOT NULL,
+    "userId" text NOT NULL,
+    token text NOT NULL,
+    "expiresAt" timestamp(3) without time zone NOT NULL,
+    "usedAt" timestamp(3) without time zone,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "Subject_name_key" ON public."Subject"("name");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Subject_code_key" ON public."Subject"("code");
+--
+-- Name: Payment; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE INDEX "Topic_subjectId_idx" ON public."Topic"("subjectId");
+CREATE TABLE public."Payment" (
+    id text NOT NULL,
+    "studentId" text NOT NULL,
+    amount double precision NOT NULL,
+    currency text DEFAULT 'MYR'::text NOT NULL,
+    method text,
+    status text DEFAULT 'paid'::text NOT NULL,
+    description text,
+    "paidAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
 
--- CreateIndex
-CREATE UNIQUE INDEX "Topic_subjectId_form_chapter_key" ON public."Topic"("subjectId", "form", "chapter");
 
--- CreateIndex
-CREATE INDEX "Paper_subjectId_idx" ON public."Paper"("subjectId");
+--
+-- Name: Question; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE INDEX "Paper_paperType_idx" ON public."Paper"("paperType");
+CREATE TABLE public."Question" (
+    id text NOT NULL,
+    "subjectId" text NOT NULL,
+    "topicId" text,
+    "paperId" text,
+    "paperNumber" integer DEFAULT 1 NOT NULL,
+    "questionType" text NOT NULL,
+    number text,
+    stem text NOT NULL,
+    options text DEFAULT '[]'::text NOT NULL,
+    answer text,
+    "markingScheme" text,
+    rubric text,
+    marks integer DEFAULT 1 NOT NULL,
+    "isKbat" boolean DEFAULT false NOT NULL,
+    subtopic text,
+    year integer,
+    source text DEFAULT 'past_paper'::text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "reviewNote" text,
+    "reviewedAt" timestamp(3) without time zone,
+    "reviewedById" text,
+    status text DEFAULT 'approved'::text NOT NULL,
+    "autoApproved" boolean DEFAULT false NOT NULL,
+    confidence double precision
+);
 
--- CreateIndex
-CREATE INDEX "Question_subjectId_idx" ON public."Question"("subjectId");
 
--- CreateIndex
-CREATE INDEX "Question_topicId_idx" ON public."Question"("topicId");
+--
+-- Name: ReviewItem; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE INDEX "Question_year_idx" ON public."Question"("year");
+CREATE TABLE public."ReviewItem" (
+    id text NOT NULL,
+    "studentId" text NOT NULL,
+    "questionId" text NOT NULL,
+    box integer DEFAULT 0 NOT NULL,
+    "dueAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "lastScorePct" double precision DEFAULT 0 NOT NULL,
+    reps integer DEFAULT 0 NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
+);
 
--- CreateIndex
-CREATE INDEX "Question_status_idx" ON public."Question"("status");
 
--- CreateIndex
-CREATE INDEX "Bookmark_studentId_idx" ON public."Bookmark"("studentId");
+--
+-- Name: Student; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE UNIQUE INDEX "Bookmark_studentId_questionId_key" ON public."Bookmark"("studentId", "questionId");
+CREATE TABLE public."Student" (
+    id text NOT NULL,
+    name text NOT NULL,
+    email text NOT NULL,
+    form integer DEFAULT 5 NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "consentAt" timestamp(3) without time zone,
+    "pdpaConsent" boolean DEFAULT false NOT NULL,
+    whatsapp text,
+    age integer,
+    school text,
+    state text
+);
 
--- CreateIndex
-CREATE INDEX "ReviewItem_studentId_dueAt_idx" ON public."ReviewItem"("studentId", "dueAt");
 
--- CreateIndex
-CREATE UNIQUE INDEX "ReviewItem_studentId_questionId_key" ON public."ReviewItem"("studentId", "questionId");
+--
+-- Name: StudySession; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE UNIQUE INDEX "Student_email_key" ON public."Student"("email");
+CREATE TABLE public."StudySession" (
+    id text NOT NULL,
+    "studentId" text NOT NULL,
+    "subjectId" text,
+    "durationSec" integer DEFAULT 0 NOT NULL,
+    "questionsDone" integer DEFAULT 0 NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON public."User"("email");
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_studentId_key" ON public."User"("studentId");
+--
+-- Name: Subject; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE INDEX "User_role_idx" ON public."User"("role");
+CREATE TABLE public."Subject" (
+    id text NOT NULL,
+    name text NOT NULL,
+    "nameEn" text,
+    code text NOT NULL,
+    color text DEFAULT '#3470f4'::text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
 
--- CreateIndex
-CREATE INDEX "Enrollment_studentId_idx" ON public."Enrollment"("studentId");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Enrollment_studentId_subjectId_key" ON public."Enrollment"("studentId", "subjectId");
+--
+-- Name: Topic; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE INDEX "Payment_studentId_idx" ON public."Payment"("studentId");
+CREATE TABLE public."Topic" (
+    id text NOT NULL,
+    "subjectId" text NOT NULL,
+    form integer NOT NULL,
+    chapter integer NOT NULL,
+    title text NOT NULL,
+    subtopics text DEFAULT '[]'::text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
 
--- CreateIndex
-CREATE INDEX "KnowledgeDoc_subjectId_idx" ON public."KnowledgeDoc"("subjectId");
 
--- CreateIndex
-CREATE INDEX "Attempt_studentId_idx" ON public."Attempt"("studentId");
+--
+-- Name: User; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE INDEX "Attempt_questionId_idx" ON public."Attempt"("questionId");
+CREATE TABLE public."User" (
+    id text NOT NULL,
+    email text NOT NULL,
+    name text NOT NULL,
+    role text NOT NULL,
+    password text NOT NULL,
+    "studentId" text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
 
--- CreateIndex
-CREATE INDEX "StudySession_studentId_idx" ON public."StudySession"("studentId");
 
--- CreateIndex
-CREATE INDEX "GeneratedQuestion_topicId_idx" ON public."GeneratedQuestion"("topicId");
+--
+-- Name: Waitlist; Type: TABLE; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE INDEX "ActivityLog_createdAt_idx" ON public."ActivityLog"("createdAt");
+CREATE TABLE public."Waitlist" (
+    id text NOT NULL,
+    name text NOT NULL,
+    email text NOT NULL,
+    whatsapp text,
+    school text,
+    state text,
+    note text,
+    invited boolean DEFAULT false NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
 
--- CreateIndex
-CREATE INDEX "ActivityLog_studentId_idx" ON public."ActivityLog"("studentId");
 
--- CreateIndex
-CREATE INDEX "ActivityLog_action_idx" ON public."ActivityLog"("action");
+--
+-- Name: ActivityLog ActivityLog_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- CreateIndex
-CREATE UNIQUE INDEX "PasswordReset_token_key" ON public."PasswordReset"("token");
+ALTER TABLE ONLY public."ActivityLog"
+    ADD CONSTRAINT "ActivityLog_pkey" PRIMARY KEY (id);
 
--- CreateIndex
-CREATE INDEX "PasswordReset_userId_idx" ON public."PasswordReset"("userId");
 
--- AddForeignKey
-ALTER TABLE public."Topic" ADD CONSTRAINT "Topic_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- Name: Attempt Attempt_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- AddForeignKey
-ALTER TABLE public."Paper" ADD CONSTRAINT "Paper_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE ONLY public."Attempt"
+    ADD CONSTRAINT "Attempt_pkey" PRIMARY KEY (id);
 
--- AddForeignKey
-ALTER TABLE public."Question" ADD CONSTRAINT "Question_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE public."Question" ADD CONSTRAINT "Question_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES public."Topic"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+--
+-- Name: Bookmark Bookmark_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- AddForeignKey
-ALTER TABLE public."Question" ADD CONSTRAINT "Question_paperId_fkey" FOREIGN KEY ("paperId") REFERENCES public."Paper"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE ONLY public."Bookmark"
+    ADD CONSTRAINT "Bookmark_pkey" PRIMARY KEY (id);
 
--- AddForeignKey
-ALTER TABLE public."Bookmark" ADD CONSTRAINT "Bookmark_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE public."Bookmark" ADD CONSTRAINT "Bookmark_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES public."Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- Name: Enrollment Enrollment_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- AddForeignKey
-ALTER TABLE public."ReviewItem" ADD CONSTRAINT "ReviewItem_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE ONLY public."Enrollment"
+    ADD CONSTRAINT "Enrollment_pkey" PRIMARY KEY (id);
 
--- AddForeignKey
-ALTER TABLE public."ReviewItem" ADD CONSTRAINT "ReviewItem_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES public."Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE public."User" ADD CONSTRAINT "User_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+--
+-- Name: GeneratedQuestion GeneratedQuestion_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- AddForeignKey
-ALTER TABLE public."Enrollment" ADD CONSTRAINT "Enrollment_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE ONLY public."GeneratedQuestion"
+    ADD CONSTRAINT "GeneratedQuestion_pkey" PRIMARY KEY (id);
 
--- AddForeignKey
-ALTER TABLE public."Enrollment" ADD CONSTRAINT "Enrollment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE public."Payment" ADD CONSTRAINT "Payment_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- Name: KnowledgeDoc KnowledgeDoc_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- AddForeignKey
-ALTER TABLE public."KnowledgeDoc" ADD CONSTRAINT "KnowledgeDoc_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE ONLY public."KnowledgeDoc"
+    ADD CONSTRAINT "KnowledgeDoc_pkey" PRIMARY KEY (id);
 
--- AddForeignKey
-ALTER TABLE public."Attempt" ADD CONSTRAINT "Attempt_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE public."Attempt" ADD CONSTRAINT "Attempt_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES public."Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- Name: MockPaper MockPaper_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- AddForeignKey
-ALTER TABLE public."StudySession" ADD CONSTRAINT "StudySession_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE ONLY public."MockPaper"
+    ADD CONSTRAINT "MockPaper_pkey" PRIMARY KEY (id);
 
--- AddForeignKey
-ALTER TABLE public."GeneratedQuestion" ADD CONSTRAINT "GeneratedQuestion_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES public."Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Name: Paper Paper_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Paper"
+    ADD CONSTRAINT "Paper_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: PasswordReset PasswordReset_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."PasswordReset"
+    ADD CONSTRAINT "PasswordReset_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Payment Payment_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Payment"
+    ADD CONSTRAINT "Payment_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Question Question_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Question"
+    ADD CONSTRAINT "Question_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: ReviewItem ReviewItem_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."ReviewItem"
+    ADD CONSTRAINT "ReviewItem_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Student Student_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Student"
+    ADD CONSTRAINT "Student_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: StudySession StudySession_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."StudySession"
+    ADD CONSTRAINT "StudySession_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Subject Subject_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Subject"
+    ADD CONSTRAINT "Subject_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Topic Topic_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Topic"
+    ADD CONSTRAINT "Topic_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: User User_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."User"
+    ADD CONSTRAINT "User_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Waitlist Waitlist_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Waitlist"
+    ADD CONSTRAINT "Waitlist_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: ActivityLog_action_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "ActivityLog_action_idx" ON public."ActivityLog" USING btree (action);
+
+
+--
+-- Name: ActivityLog_createdAt_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "ActivityLog_createdAt_idx" ON public."ActivityLog" USING btree ("createdAt");
+
+
+--
+-- Name: ActivityLog_studentId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "ActivityLog_studentId_idx" ON public."ActivityLog" USING btree ("studentId");
+
+
+--
+-- Name: Attempt_questionId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Attempt_questionId_idx" ON public."Attempt" USING btree ("questionId");
+
+
+--
+-- Name: Attempt_studentId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Attempt_studentId_idx" ON public."Attempt" USING btree ("studentId");
+
+
+--
+-- Name: Bookmark_studentId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Bookmark_studentId_idx" ON public."Bookmark" USING btree ("studentId");
+
+
+--
+-- Name: Bookmark_studentId_questionId_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Bookmark_studentId_questionId_key" ON public."Bookmark" USING btree ("studentId", "questionId");
+
+
+--
+-- Name: Enrollment_studentId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Enrollment_studentId_idx" ON public."Enrollment" USING btree ("studentId");
+
+
+--
+-- Name: Enrollment_studentId_subjectId_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Enrollment_studentId_subjectId_key" ON public."Enrollment" USING btree ("studentId", "subjectId");
+
+
+--
+-- Name: GeneratedQuestion_topicId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "GeneratedQuestion_topicId_idx" ON public."GeneratedQuestion" USING btree ("topicId");
+
+
+--
+-- Name: KnowledgeDoc_subjectId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "KnowledgeDoc_subjectId_idx" ON public."KnowledgeDoc" USING btree ("subjectId");
+
+
+--
+-- Name: Paper_paperType_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Paper_paperType_idx" ON public."Paper" USING btree ("paperType");
+
+
+--
+-- Name: Paper_subjectId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Paper_subjectId_idx" ON public."Paper" USING btree ("subjectId");
+
+
+--
+-- Name: PasswordReset_token_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "PasswordReset_token_key" ON public."PasswordReset" USING btree (token);
+
+
+--
+-- Name: PasswordReset_userId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "PasswordReset_userId_idx" ON public."PasswordReset" USING btree ("userId");
+
+
+--
+-- Name: Payment_studentId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Payment_studentId_idx" ON public."Payment" USING btree ("studentId");
+
+
+--
+-- Name: Question_status_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Question_status_idx" ON public."Question" USING btree (status);
+
+
+--
+-- Name: Question_subjectId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Question_subjectId_idx" ON public."Question" USING btree ("subjectId");
+
+
+--
+-- Name: Question_topicId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Question_topicId_idx" ON public."Question" USING btree ("topicId");
+
+
+--
+-- Name: Question_year_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Question_year_idx" ON public."Question" USING btree (year);
+
+
+--
+-- Name: ReviewItem_studentId_dueAt_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "ReviewItem_studentId_dueAt_idx" ON public."ReviewItem" USING btree ("studentId", "dueAt");
+
+
+--
+-- Name: ReviewItem_studentId_questionId_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "ReviewItem_studentId_questionId_key" ON public."ReviewItem" USING btree ("studentId", "questionId");
+
+
+--
+-- Name: Student_email_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Student_email_key" ON public."Student" USING btree (email);
+
+
+--
+-- Name: StudySession_studentId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "StudySession_studentId_idx" ON public."StudySession" USING btree ("studentId");
+
+
+--
+-- Name: Subject_code_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Subject_code_key" ON public."Subject" USING btree (code);
+
+
+--
+-- Name: Subject_name_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Subject_name_key" ON public."Subject" USING btree (name);
+
+
+--
+-- Name: Topic_subjectId_form_chapter_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Topic_subjectId_form_chapter_key" ON public."Topic" USING btree ("subjectId", form, chapter);
+
+
+--
+-- Name: Topic_subjectId_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Topic_subjectId_idx" ON public."Topic" USING btree ("subjectId");
+
+
+--
+-- Name: User_email_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "User_email_key" ON public."User" USING btree (email);
+
+
+--
+-- Name: User_role_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "User_role_idx" ON public."User" USING btree (role);
+
+
+--
+-- Name: User_studentId_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "User_studentId_key" ON public."User" USING btree ("studentId");
+
+
+--
+-- Name: Waitlist_createdAt_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Waitlist_createdAt_idx" ON public."Waitlist" USING btree ("createdAt");
+
+
+--
+-- Name: Waitlist_email_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "Waitlist_email_key" ON public."Waitlist" USING btree (email);
+
+
+--
+-- Name: Attempt Attempt_questionId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Attempt"
+    ADD CONSTRAINT "Attempt_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES public."Question"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Attempt Attempt_studentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Attempt"
+    ADD CONSTRAINT "Attempt_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Bookmark Bookmark_questionId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Bookmark"
+    ADD CONSTRAINT "Bookmark_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES public."Question"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Bookmark Bookmark_studentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Bookmark"
+    ADD CONSTRAINT "Bookmark_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Enrollment Enrollment_studentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Enrollment"
+    ADD CONSTRAINT "Enrollment_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Enrollment Enrollment_subjectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Enrollment"
+    ADD CONSTRAINT "Enrollment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: GeneratedQuestion GeneratedQuestion_topicId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."GeneratedQuestion"
+    ADD CONSTRAINT "GeneratedQuestion_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES public."Topic"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: KnowledgeDoc KnowledgeDoc_subjectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."KnowledgeDoc"
+    ADD CONSTRAINT "KnowledgeDoc_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Paper Paper_subjectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Paper"
+    ADD CONSTRAINT "Paper_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Payment Payment_studentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Payment"
+    ADD CONSTRAINT "Payment_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Question Question_paperId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Question"
+    ADD CONSTRAINT "Question_paperId_fkey" FOREIGN KEY ("paperId") REFERENCES public."Paper"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Question Question_subjectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Question"
+    ADD CONSTRAINT "Question_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Question Question_topicId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Question"
+    ADD CONSTRAINT "Question_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES public."Topic"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: ReviewItem ReviewItem_questionId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."ReviewItem"
+    ADD CONSTRAINT "ReviewItem_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES public."Question"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ReviewItem ReviewItem_studentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."ReviewItem"
+    ADD CONSTRAINT "ReviewItem_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: StudySession StudySession_studentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."StudySession"
+    ADD CONSTRAINT "StudySession_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Topic Topic_subjectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Topic"
+    ADD CONSTRAINT "Topic_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES public."Subject"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: User User_studentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."User"
+    ADD CONSTRAINT "User_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES public."Student"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
 
 
 -- ===================== SEED DATA ============================
@@ -809,6 +1257,12 @@ INSERT INTO public."User" (id, email, name, role, password, "studentId", "create
 INSERT INTO public."User" (id, email, name, role, password, "studentId", "createdAt") VALUES ('cmqj1miaf005l7d00ld52zwnd', 'siti@student.spm.my', 'Siti Nurhaliza', 'student', '34c768422f6f93b4df079a6ff11aa5f6:154856633748c67b71462901a00048b1fb7f8b3134ad8acc35c2a734c313460c6ee76e405d57f10595997eec6cad9bd6ea93d4388412c4f4bae42d7dd745443e', 'cmqj1mi84005j7d005ou9vuzq', '2026-06-18 05:12:17.944');
 INSERT INTO public."User" (id, email, name, role, password, "studentId", "createdAt") VALUES ('cmqj1mie7006o7d00dc6or38w', 'kumar@student.spm.my', 'Kumar Raj', 'student', 'b74e6e63455075502e3a83b38cccbfd7:3a4071493d91271d2b195163cd6dad86a7e907cbc985c725dea317f7f2dc41ad352dbf878d0d0e7d88dd89eb1dfa8f3d41a6a88f4a85106eb72eb2dd8621e50d', 'cmqj1mibt006m7d003g92pw9f', '2026-06-18 05:12:18.079');
 INSERT INTO public."User" (id, email, name, role, password, "studentId", "createdAt") VALUES ('cmqj1mihu007p7d004vfvig1z', 'meiling@student.spm.my', 'Mei Ling', 'student', 'c38bf8a0426477888838237f3d2be4de:d5fdf56574364ca579d467537776e2dea32efd1676dc29c37f5db2d486577037942e09ac40b40ee46f94d5940be5cc350a37f178685c41eb812736be94d222b9', 'cmqj1mifl007n7d00lnizxlp3', '2026-06-18 05:12:18.21');
+
+
+--
+-- Data for Name: Waitlist; Type: TABLE DATA; Schema: public; Owner: -
+--
+
 
 
 --
