@@ -92,11 +92,6 @@ export default async function Home() {
     const doneToday = recent.filter((a) => dayKey(a.createdAt) === todayKey).length;
 
     // "Continue where you left off" — most recent attempt's subject/topic.
-    const last = await prisma.attempt.findFirst({
-      where: { studentId: student.id },
-      orderBy: { createdAt: "desc" },
-      include: { question: { include: { subject: true, topic: true } } },
-    });
     streakData = { streak, doneToday };
     if (last) {
       resume = {
