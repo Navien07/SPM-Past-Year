@@ -60,6 +60,20 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
       <div className="card p-5">
         <h1 className="text-2xl font-bold">{student.name}</h1>
         <p className="text-sm text-slate-500">{student.email} · Tingkatan {student.form}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+          {student.whatsapp && (
+            <a
+              href={`https://wa.me/${student.whatsapp.replace(/[^0-9]/g, "")}`}
+              target="_blank"
+              className="badge bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+            >
+              💬 {student.whatsapp}
+            </a>
+          )}
+          <span className={`badge ${student.pdpaConsent ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+            {student.pdpaConsent ? "✓ PDPA consent" : "No consent on file"}
+          </span>
+        </div>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="rounded-xl bg-slate-50 p-3 text-center">

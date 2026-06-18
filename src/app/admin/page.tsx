@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
+import { PILOT_MAX_STUDENTS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,7 @@ export default async function AdminOverview() {
   const revenue = paidAgg._sum.amount ?? 0;
 
   const kpis = [
+    { label: `Pilot spots (max ${PILOT_MAX_STUDENTS})`, value: `${students} / ${PILOT_MAX_STUDENTS}`, href: "/admin/students" },
     { label: "Students", value: students, href: "/admin/students" },
     { label: "Active enrollments", value: enrollments },
     { label: "Revenue (paid)", value: rm(revenue) },

@@ -1,8 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
-import { requireStudent } from "@/lib/student";
+import { getCurrentUser, roleHome } from "@/lib/auth";
+import { PILOT_MAX_STUDENTS } from "@/lib/constants";
 import SmartPracticeButton from "@/components/SmartPracticeButton";
+import Landing from "@/components/Landing";
 
 function SetupNeeded() {
   return (
@@ -30,8 +33,21 @@ npm run db:deploy`}
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Redirects staff to their dashboards; returns the logged-in Student.
-  const student = await requireStudent();
+  const user = await getCurrentUser();
+
+  // Public landing page for logged-out visitors.
+  if (!user) {
+    let taken = 0;
+    try {
+      taken = await prisma.student.count();
+    } catch {
+      /* DB not ready — show landing with 0 */
+    }
+    return <Landing taken={taken} total={PILOT_MAX_STUDENTS} />;
+  }
+  // Staff go to their dashboards.
+  if (user.role !== "student" || !user.student) redirect(roleHome(user.role));
+  const student = user.student;
 
   const DAILY_GOAL = 5;
   let data: { enrolled: number; questions: number; kbat: number; attempts: number } | null = null;

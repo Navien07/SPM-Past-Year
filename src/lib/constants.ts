@@ -150,3 +150,6 @@ export const MODERATION_STATUS_LABEL: Record<string, string> = {
 // Confidence-gated moderation: AI categorizations at/above this confidence are
 // auto-approved; below it they are flagged `pending` for a human moderator.
 export const AUTO_APPROVE_THRESHOLD = Number(process.env.SPM_AUTOAPPROVE_THRESHOLD ?? 0.85);
+
+// Free pilot programme: cap the number of student accounts.
+export const PILOT_MAX_STUDENTS = Number(process.env.PILOT_MAX_STUDENTS ?? 200);

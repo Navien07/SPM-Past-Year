@@ -8,7 +8,8 @@ interface Subject { id: string; name: string }
 export default function SignupPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [picked, setPicked] = useState<Set<string>>(new Set());
-  const [form, setForm] = useState({ name: "", email: "", form: "5", password: "", confirm: "" });
+  const [form, setForm] = useState({ name: "", email: "", whatsapp: "", form: "5", password: "", confirm: "" });
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -45,6 +46,8 @@ export default function SignupPage() {
         body: JSON.stringify({
           name: form.name,
           email: form.email,
+          whatsapp: form.whatsapp,
+          consent,
           password: form.password,
           form: Number(form.form),
           subjectIds: [...picked],
@@ -74,6 +77,11 @@ export default function SignupPage() {
           <div>
             <label className="label">Email (this is your login)</label>
             <input className="input" type="email" autoComplete="username" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+          </div>
+          <div>
+            <label className="label">WhatsApp number</label>
+            <input className="input" type="tel" placeholder="e.g. 0123456789" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} required />
+            <p className="mt-1 text-xs text-slate-400">We&apos;ll add you to the pilot WhatsApp group to share feedback &amp; updates.</p>
           </div>
           <div>
             <label className="label">Form</label>
@@ -107,8 +115,17 @@ export default function SignupPage() {
               ))}
             </div>
           </div>
+          <label className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
+            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4" required />
+            <span>
+              I have read and agree to the{" "}
+              <Link href="/privacy" target="_blank" className="font-semibold text-brand-600 hover:underline">Privacy Policy &amp; PDPA notice</Link>.
+              I consent to SPM AI processing my personal data (incl. my WhatsApp number) under the
+              Personal Data Protection Act 2010 and to being added to the pilot WhatsApp feedback group.
+            </span>
+          </label>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <button className="btn-primary w-full" disabled={loading}>
+          <button className="btn-primary w-full" disabled={loading || !consent}>
             {loading ? "Creating your account…" : "Create account & start"}
           </button>
           <p className="text-center text-sm text-slate-500">

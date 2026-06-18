@@ -154,11 +154,14 @@ model ReviewItem {
 // ── Students & their work ─────────────────────────────────────────────────
 
 model Student {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  form      Int      @default(5)
-  createdAt DateTime @default(now())
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  form        Int       @default(5)
+  whatsapp    String? // for the pilot WhatsApp feedback group
+  pdpaConsent Boolean   @default(false) // agreed to PDPA / privacy policy
+  consentAt   DateTime?
+  createdAt   DateTime  @default(now())
 
   attempts    Attempt[]
   sessions    StudySession[]

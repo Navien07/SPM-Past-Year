@@ -310,11 +310,14 @@ async function main() {
   // ── Users (admin handles review + everything; plus students) ─────────────
   await prisma.user.upsert({
     where: { email: "admin@spm.my" },
-    update: { password: hashPassword("admin123"), role: "admin", name: "Admin Cikgu" },
-    create: { email: "admin@spm.my", name: "Admin Cikgu", role: "admin", password: hashPassword("admin123") },
+    update: { password: hashPassword("Admin123@"), role: "admin", name: "Admin Cikgu" },
+    create: { email: "admin@spm.my", name: "Admin Cikgu", role: "admin", password: hashPassword("Admin123@") },
   });
 
-  const STUDENTS = [
+  const STUDENTS: { name: string; email: string; form: number; subjects: string[]; password?: string; whatsapp?: string }[] = [
+    // First pilot user.
+    { name: "Vikhash", email: "vikhash@student.spm.my", form: 5, password: "Vikhash123@", whatsapp: "+60123456789",
+      subjects: ["Sejarah", "Bahasa Melayu", "English", "Mathematics", "Additional Mathematics", "Physics", "Chemistry", "Biology"] },
     { name: "Ahmad", email: "ahmad@student.spm.my", form: 5, subjects: ["Sejarah", "Mathematics", "Physics", "Chemistry", "Biology", "Bahasa Melayu", "English"] },
     { name: "Siti Nurhaliza", email: "siti@student.spm.my", form: 5, subjects: ["Sejarah", "Bahasa Melayu", "English", "Mathematics", "Additional Mathematics", "Physics"] },
     { name: "Kumar Raj", email: "kumar@student.spm.my", form: 4, subjects: ["Mathematics", "Additional Mathematics", "Physics", "Chemistry"] },
@@ -331,13 +334,19 @@ async function main() {
   const now = Date.now();
   for (let si = 0; si < STUDENTS.length; si++) {
     const s = STUDENTS[si];
+    const pw = s.password ?? "student123";
+    const studentData = {
+      name: s.name, form: s.form,
+      whatsapp: s.whatsapp ?? null,
+      pdpaConsent: true, consentAt: new Date(),
+    };
     const student = await prisma.student.upsert({
-      where: { email: s.email }, update: { name: s.name, form: s.form }, create: { name: s.name, email: s.email, form: s.form },
+      where: { email: s.email }, update: studentData, create: { email: s.email, ...studentData },
     });
     await prisma.user.upsert({
       where: { email: s.email },
-      update: { password: hashPassword("student123"), role: "student", name: s.name, studentId: student.id },
-      create: { email: s.email, name: s.name, role: "student", password: hashPassword("student123"), studentId: student.id },
+      update: { password: hashPassword(pw), role: "student", name: s.name, studentId: student.id },
+      create: { email: s.email, name: s.name, role: "student", password: hashPassword(pw), studentId: student.id },
     });
 
     // Enrollments
@@ -390,7 +399,7 @@ async function main() {
     attempts: await prisma.attempt.count(),
   };
   console.log("Seed complete:", counts);
-  console.log("Logins → admin@spm.my/admin123 · ahmad@student.spm.my/student123");
+  console.log("Logins → admin@spm.my/Admin123@ · vikhash@student.spm.my/Vikhash123@");
 }
 
 main().catch((e) => { console.error(e); process.exit(1); }).finally(async () => { await prisma.$disconnect(); });
