@@ -1,18 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="SPM AI">
   <defs>
-    <linearGradient id="tile" x1="0" y1="0" x2="0.4" y2="1">
-      <stop offset="0" stop-color="#2740b8"/>
-      <stop offset="1" stop-color="#0a1566"/>
-    </linearGradient>
-    <linearGradient id="ai" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="#3b82f6"/>
-      <stop offset="1" stop-color="#8b5cf6"/>
+    <linearGradient id="t" x1="0.05" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#1c34b4"/>
+      <stop offset="1" stop-color="#2f74ff"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="15" fill="url(#tile)"/>
+  <rect width="64" height="64" rx="15" fill="url(#t)"/>
   <g font-family="'Arial Black',Arial,sans-serif" font-weight="900" text-anchor="middle">
-    <text x="32" y="31" font-size="25" fill="#ffffff" letter-spacing="-1.5">SPM</text>
-    <text x="27" y="54" font-size="24" fill="url(#ai)" letter-spacing="-1">Ai</text>
+    <text x="32" y="31" font-size="25" fill="#ffffff" letter-spacing="-2">SPM</text>
+    <text x="26" y="55" font-size="25" fill="#27d3ac" letter-spacing="-1.5">AI</text>
   </g>
-  <path d="M45 33 l4 10 10 4 -10 4 -4 10 -4-10 -10-4 10-4 Z" fill="#5b8cff"/>
+  <circle cx="49" cy="44" r="11" fill="#27d3ac" stroke="#fff" stroke-width="2"/>
+  <path d="M44 44 l3.5 4 6-7" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
