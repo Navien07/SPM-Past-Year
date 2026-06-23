@@ -29,7 +29,7 @@ async function callClaudeJson<T>(system: string, user: string, opts?: { fast?: b
   const params: Record<string, unknown> = opts?.fast
     ? { model: MODEL, max_tokens: 4000, system, messages: [{ role: "user", content: user }] }
     : { model: MODEL, max_tokens: 16000, thinking: { type: "adaptive" }, system, messages: [{ role: "user", content: user }] };
-  const res = await client().messages.create(params as Anthropic.MessageCreateParamsNonStreaming);
+  const res = await client().messages.create(params as unknown as Anthropic.MessageCreateParamsNonStreaming);
 
   const text = res.content
     .filter((b): b is Anthropic.TextBlock => b.type === "text")
@@ -422,7 +422,7 @@ ${input.context ? `\nCURRENT CONTEXT:\n${input.context}` : ""}`;
     const params = withSearch
       ? { ...baseParams, tools: [{ type: "web_search_20260209", name: "web_search" }] }
       : baseParams;
-    const res = await client().messages.create(params as Anthropic.MessageCreateParamsNonStreaming);
+    const res = await client().messages.create(params as unknown as Anthropic.MessageCreateParamsNonStreaming);
     return res.content
       .filter((b): b is Anthropic.TextBlock => b.type === "text")
       .map((b) => b.text)
