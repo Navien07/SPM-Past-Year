@@ -83,10 +83,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ created: 0, updated: 0, questionsCreated: 0, approved: 0, pending: 0, skipped: skipped.length, skippedDetail: skipped.slice(0, 50), ids: [] });
   }
 
-  // 2. Topic resolvers for the distinct subjects in this batch (one query each).
+  // 2. Topic resolvers for the distinct subjects in this batch (one query each,
+  //    sequential to use a single DB connection at a time).
   const distinctSubjects = [...new Set(prepared.map((p) => p.subjectId))];
   const resolvers = new Map<string, Awaited<ReturnType<typeof topicResolver>>>();
-  await Promise.all(distinctSubjects.map(async (sid) => resolvers.set(sid, await topicResolver(sid))));
+  for (const sid of distinctSubjects) resolvers.set(sid, await topicResolver(sid));
 
   // 3. Bulk existence check by sourceKey.
   const existing = await prisma.paper.findMany({
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
 
   // 4. Build paper + question write sets in memory.
   const toCreatePapers: Record<string, unknown>[] = [];
-  const updateOps: Promise<unknown>[] = [];
+  const toUpdatePapers: { id: string; data: Record<string, unknown> }[] = [];
   const reimportPaperIds: string[] = [];
   const questionRows: Record<string, unknown>[] = [];
   const ids: string[] = [];
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
     ids.push(paperId);
     if (existingId) {
       updated++;
-      updateOps.push(prisma.paper.update({ where: { id: existingId }, data: pr.data }));
+      toUpdatePapers.push({ id: existingId, data: pr.data });
       if (pr.hasParsed) reimportPaperIds.push(existingId);
     } else {
       created++;
@@ -146,11 +147,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 5. Execute writes in a few round-trips. Papers first (FK), then question reset + insert.
+  // 5. Execute writes sequentially (one connection at a time). Papers first
+  //    (FK), then update existing, clear their old questions, then insert.
   if (toCreatePapers.length) {
     for (const c of chunk(toCreatePapers, 200)) await prisma.paper.createMany({ data: c as never, skipDuplicates: true });
   }
-  if (updateOps.length) await Promise.all(updateOps);
+  for (const u of toUpdatePapers) await prisma.paper.update({ where: { id: u.id }, data: u.data });
   if (reimportPaperIds.length) await prisma.question.deleteMany({ where: { paperId: { in: reimportPaperIds } } });
   if (questionRows.length) {
     for (const c of chunk(questionRows, 500)) await prisma.question.createMany({ data: c as never });
