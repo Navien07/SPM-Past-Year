@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
 import { authorizeImport } from "@/lib/importAuth";
 import { logActivity, clientIp } from "@/lib/activity";
@@ -15,15 +16,16 @@ function deriveKey(p: Record<string, unknown>, subjectCode: string): string {
     .join("|").toLowerCase().replace(/\s+/g, " ").slice(0, 300);
 }
 
-function hasParsedAny(papers: unknown[]): boolean {
-  return papers.some((p) => Array.isArray((p as { questions?: unknown[] }).questions) && (p as { questions: unknown[] }).questions.length > 0);
+function chunk<T>(arr: T[], n: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+  return out;
 }
 
-// Bulk-create/update papers from the scraper. Re-running with the same
-// `sourceKey` updates the paper in place (no duplicates). If a paper carries a
-// pre-parsed `questions[]`, the questions are created directly (no AI) with
-// KSSM topic auto-linking + validation; otherwise the paper keeps rawText +
-// markingScheme for later AI categorization.
+// Bulk-create/update papers from the scraper. Idempotent by `sourceKey`.
+// Optimised for throughput: bulk existence check, client-generated ids, and
+// createMany for papers + questions (a few round-trips per batch, not per row),
+// so large batches finish well within the function timeout.
 export async function POST(req: NextRequest) {
   const admin = await authorizeImport(req);
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -34,59 +36,89 @@ export async function POST(req: NextRequest) {
   if (papers.length > 500) return NextResponse.json({ error: "Max 500 papers per request." }, { status: 400 });
 
   const resolveSubject = await subjectResolver();
-  const topicResolvers = new Map<string, Awaited<ReturnType<typeof topicResolver>>>();
-  async function getTopicResolver(subjectId: string) {
-    let r = topicResolvers.get(subjectId);
-    if (!r) { r = await topicResolver(subjectId); topicResolvers.set(subjectId, r); }
-    return r;
-  }
 
-  let created = 0, updated = 0, questionsCreated = 0, approved = 0, pending = 0;
+  // 1. Validate + dedupe inputs (skip unknown subject / missing year / in-batch dup key).
+  interface Prepared {
+    sourceKey: string; subjectId: string; year: number; paperNumber: number;
+    hasParsed: boolean; rawQuestions: ParsedQuestion[]; data: Record<string, unknown>;
+  }
+  const prepared: Prepared[] = [];
   const skipped: { title?: string; reason: string }[] = [];
-  const ids: string[] = [];
+  const seen = new Set<string>();
+  let anyParsed = false;
 
   for (const p of papers) {
     const subjectId = p.subjectId || resolveSubject(p.subject ?? p.subjectCode);
     if (!subjectId) { skipped.push({ title: p.title, reason: `Unknown subject: ${p.subject ?? "?"}` }); continue; }
     if (!p.year) { skipped.push({ title: p.title, reason: "Missing year" }); continue; }
-
     const subjectCode = String(p.subject ?? p.subjectCode ?? "").toUpperCase();
     const sourceKey = String(p.sourceKey || deriveKey(p, subjectCode)).slice(0, 300);
+    if (seen.has(sourceKey)) { skipped.push({ title: p.title, reason: "Duplicate sourceKey in batch" }); continue; }
+    seen.add(sourceKey);
+
     const hasParsed = Array.isArray(p.questions) && p.questions.length > 0;
+    if (hasParsed) anyParsed = true;
+    prepared.push({
+      sourceKey, subjectId, year: Number(p.year), paperNumber: Number(p.paperNumber) || 1,
+      hasParsed, rawQuestions: hasParsed ? (p.questions as ParsedQuestion[]) : [],
+      data: {
+        title: String(p.title || `${p.subject} ${p.year} ${p.state ?? ""} K${p.paperNumber ?? 1}`).trim().slice(0, 200),
+        subjectId,
+        paperType: normPaperType(p.paperType),
+        year: Number(p.year),
+        state: p.state ? String(p.state).slice(0, 60) : null,
+        paperNumber: Number(p.paperNumber) || 1,
+        rawText: p.rawText ? String(p.rawText) : null,
+        markingScheme: p.markingScheme ? String(p.markingScheme) : null,
+        fileName: p.fileName ? String(p.fileName) : null,
+        sourceUrl: p.sourceUrl ? String(p.sourceUrl).slice(0, 500) : null,
+        language: p.language ? String(p.language).slice(0, 5) : null,
+        status: hasParsed ? "categorized" : "uploaded",
+        categorizedAt: hasParsed ? new Date() : null,
+      },
+    });
+  }
 
-    const data = {
-      title: String(p.title || `${p.subject} ${p.year} ${p.state ?? ""} K${p.paperNumber ?? 1}`).trim().slice(0, 200),
-      subjectId,
-      paperType: normPaperType(p.paperType),
-      year: Number(p.year),
-      state: p.state ? String(p.state).slice(0, 60) : null,
-      paperNumber: Number(p.paperNumber) || 1,
-      rawText: p.rawText ? String(p.rawText) : null,
-      markingScheme: p.markingScheme ? String(p.markingScheme) : null,
-      fileName: p.fileName ? String(p.fileName) : null,
-      sourceUrl: p.sourceUrl ? String(p.sourceUrl).slice(0, 500) : null,
-      language: p.language ? String(p.language).slice(0, 5) : null,
-      status: hasParsed ? "categorized" : "uploaded",
-      categorizedAt: hasParsed ? new Date() : null,
-    };
+  if (prepared.length === 0) {
+    return NextResponse.json({ created: 0, updated: 0, questionsCreated: 0, approved: 0, pending: 0, skipped: skipped.length, skippedDetail: skipped.slice(0, 50), ids: [] });
+  }
 
-    const existing = await prisma.paper.findUnique({ where: { sourceKey } });
-    let paperId: string;
-    if (existing) {
-      await prisma.paper.update({ where: { id: existing.id }, data });
-      paperId = existing.id;
-      updated++;
-      if (hasParsed) await prisma.question.deleteMany({ where: { paperId } }); // replace on re-import
-    } else {
-      const paper = await prisma.paper.create({ data: { ...data, sourceKey } });
-      paperId = paper.id;
-      created++;
-    }
+  // 2. Topic resolvers for the distinct subjects in this batch (one query each).
+  const distinctSubjects = [...new Set(prepared.map((p) => p.subjectId))];
+  const resolvers = new Map<string, Awaited<ReturnType<typeof topicResolver>>>();
+  await Promise.all(distinctSubjects.map(async (sid) => resolvers.set(sid, await topicResolver(sid))));
+
+  // 3. Bulk existence check by sourceKey.
+  const existing = await prisma.paper.findMany({
+    where: { sourceKey: { in: prepared.map((p) => p.sourceKey) } },
+    select: { id: true, sourceKey: true },
+  });
+  const idByKey = new Map(existing.map((e) => [e.sourceKey!, e.id]));
+
+  // 4. Build paper + question write sets in memory.
+  const toCreatePapers: Record<string, unknown>[] = [];
+  const updateOps: Promise<unknown>[] = [];
+  const reimportPaperIds: string[] = [];
+  const questionRows: Record<string, unknown>[] = [];
+  const ids: string[] = [];
+  let created = 0, updated = 0, approved = 0, pending = 0;
+
+  for (const pr of prepared) {
+    const existingId = idByKey.get(pr.sourceKey);
+    const paperId = existingId ?? randomUUID();
     ids.push(paperId);
+    if (existingId) {
+      updated++;
+      updateOps.push(prisma.paper.update({ where: { id: existingId }, data: pr.data }));
+      if (pr.hasParsed) reimportPaperIds.push(existingId);
+    } else {
+      created++;
+      toCreatePapers.push({ id: paperId, sourceKey: pr.sourceKey, ...pr.data });
+    }
 
-    if (hasParsed) {
-      const resolveTopic = await getTopicResolver(subjectId);
-      for (const raw of p.questions as ParsedQuestion[]) {
+    if (pr.hasParsed) {
+      const resolveTopic = resolvers.get(pr.subjectId)!;
+      for (const raw of pr.rawQuestions) {
         const qType = normType(raw.type);
         const options = Array.isArray(raw.options) ? raw.options : [];
         const topicId = resolveTopic({ topicTitle: raw.topicTitle, form: raw.form, chapter: raw.chapter });
@@ -96,34 +128,41 @@ export async function POST(req: NextRequest) {
           marks: Number(raw.marks) || 0, topicId,
         });
         const status = importStatus(issues, raw.confidence);
-        await prisma.question.create({
-          data: {
-            subjectId, topicId, paperId, paperNumber: Number(p.paperNumber) || 1,
-            questionType: qType, number: raw.number ? String(raw.number) : null,
-            stem: String(raw.stem ?? ""), options: JSON.stringify(options),
-            answer: raw.answer ? String(raw.answer) : null,
-            markingScheme: raw.markingScheme ? String(raw.markingScheme) : null,
-            marks: Number(raw.marks) || 1, isKbat: !!raw.isKbat,
-            subtopic: raw.subtopic ? String(raw.subtopic) : null, year: Number(p.year),
-            source: "past_paper", status,
-            confidence: raw.confidence ?? (status === "approved" ? 0.95 : 0.6),
-            autoApproved: status === "approved",
-            reviewNote: issues.length ? issues.join("; ") : null,
-          },
+        questionRows.push({
+          subjectId: pr.subjectId, topicId, paperId, paperNumber: pr.paperNumber,
+          questionType: qType, number: raw.number ? String(raw.number) : null,
+          stem: String(raw.stem ?? ""), options: JSON.stringify(options),
+          answer: raw.answer ? String(raw.answer) : null,
+          markingScheme: raw.markingScheme ? String(raw.markingScheme) : null,
+          marks: Number(raw.marks) || 1, isKbat: !!raw.isKbat,
+          subtopic: raw.subtopic ? String(raw.subtopic) : null, year: pr.year,
+          source: "past_paper", status,
+          confidence: raw.confidence ?? (status === "approved" ? 0.95 : 0.6),
+          autoApproved: status === "approved",
+          reviewNote: issues.length ? issues.join("; ") : null,
         });
-        questionsCreated++;
         status === "approved" ? approved++ : pending++;
       }
     }
   }
 
+  // 5. Execute writes in a few round-trips. Papers first (FK), then question reset + insert.
+  if (toCreatePapers.length) {
+    for (const c of chunk(toCreatePapers, 200)) await prisma.paper.createMany({ data: c as never, skipDuplicates: true });
+  }
+  if (updateOps.length) await Promise.all(updateOps);
+  if (reimportPaperIds.length) await prisma.question.deleteMany({ where: { paperId: { in: reimportPaperIds } } });
+  if (questionRows.length) {
+    for (const c of chunk(questionRows, 500)) await prisma.question.createMany({ data: c as never });
+  }
+
   await logActivity({ userId: admin.id ?? undefined, name: admin.name, role: admin.role, action: "papers.bulk_import",
-    detail: `${created} created, ${updated} updated, ${questionsCreated} questions (${approved} approved/${pending} pending), ${skipped.length} skipped`, ip: clientIp(req) });
+    detail: `${created} created, ${updated} updated, ${questionRows.length} questions (${approved} approved/${pending} pending), ${skipped.length} skipped`, ip: clientIp(req) });
 
   return NextResponse.json({
-    created, updated, skipped: skipped.length, questionsCreated, approved, pending,
+    created, updated, skipped: skipped.length, questionsCreated: questionRows.length, approved, pending,
     skippedDetail: skipped.slice(0, 50), ids,
-    note: hasParsedAny(papers)
+    note: anyParsed
       ? "Pre-parsed questions imported. Empty/invalid ones are 'pending' — check the QA dashboard (/admin/qa)."
       : "Papers stored. Categorize each with AI: POST /api/papers/{id}/categorize",
   });
