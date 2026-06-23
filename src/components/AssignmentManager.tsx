@@ -6,12 +6,15 @@ interface Assignment {
   id: string; title: string; type: string; dueAt: string | null; scope: string | null;
   total: number; done: number;
 }
+interface PaperOpt { id: string; title: string; _count: { questions: number } }
 
 // Create + list class assignments (admin/teacher). Completion shown is cohort
 // total; students see their own progress on /assignments.
 export default function AssignmentManager() {
   const [items, setItems] = useState<Assignment[]>([]);
+  const [papers, setPapers] = useState<PaperOpt[]>([]);
   const [title, setTitle] = useState("");
+  const [paperId, setPaperId] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -19,7 +22,12 @@ export default function AssignmentManager() {
     const res = await fetch("/api/assignments");
     if (res.ok) setItems(await res.json());
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    fetch("/api/papers").then((r) => (r.ok ? r.json() : [])).then((d: PaperOpt[]) =>
+      setPapers(d.filter((p) => p._count.questions > 0)),
+    );
+  }, []);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -27,9 +35,14 @@ export default function AssignmentManager() {
     setBusy(true);
     await fetch("/api/assignments", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, type: "topic", dueAt: dueAt || null }),
+      body: JSON.stringify({
+        title,
+        type: paperId ? "paper" : "topic",
+        paperId: paperId || null,
+        dueAt: dueAt || null,
+      }),
     });
-    setTitle(""); setDueAt("");
+    setTitle(""); setPaperId(""); setDueAt("");
     setBusy(false);
     load();
   }
@@ -47,6 +60,13 @@ export default function AssignmentManager() {
         <div className="min-w-[12rem] flex-1">
           <label className="label">Title / instruction</label>
           <input value={title} onChange={(e) => setTitle(e.target.value)} className="input" placeholder="e.g. Complete Sejarah Bab 8 questions" />
+        </div>
+        <div>
+          <label className="label">Attach a paper (optional)</label>
+          <select value={paperId} onChange={(e) => setPaperId(e.target.value)} className="input">
+            <option value="">— general / by topic —</option>
+            {papers.map((p) => <option key={p.id} value={p.id}>{p.title} ({p._count.questions})</option>)}
+          </select>
         </div>
         <div>
           <label className="label">Due (optional)</label>

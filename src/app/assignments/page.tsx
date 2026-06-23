@@ -5,6 +5,7 @@ import Link from "next/link";
 
 interface Assignment {
   id: string; title: string; type: string; dueAt: string | null; scope: string | null;
+  paperId: string | null; topicId: string | null; subjectId: string | null;
   total: number; done: number;
 }
 
@@ -50,7 +51,12 @@ export default function AssignmentsPage() {
                   <div className={`h-full ${pct >= 100 ? "bg-emerald-500" : "bg-brand-500"}`} style={{ width: `${pct}%` }} />
                 </div>
                 <p className="mt-1 text-xs text-slate-500">{a.done}/{a.total} questions done</p>
-                <Link href="/practice" className="btn-primary mt-3 inline-flex px-3 py-1.5 text-xs">Continue</Link>
+                <Link
+                  href={a.paperId ? `/paper/${a.paperId}` : a.subjectId ? `/practice?subject=${a.subjectId}` : "/practice"}
+                  className="btn-primary mt-3 inline-flex px-3 py-1.5 text-xs"
+                >
+                  {pct >= 100 ? "Review" : "Start"}
+                </Link>
               </div>
             );
           })}

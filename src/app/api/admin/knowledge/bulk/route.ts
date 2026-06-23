@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth";
+import { authorizeImport } from "@/lib/importAuth";
 import { logActivity, clientIp } from "@/lib/activity";
 import { subjectResolver, topicResolver } from "@/lib/import";
 
@@ -10,8 +10,8 @@ export const maxDuration = 60;
 // Idempotent by `sourceKey`. Auto-links each chunk to a KSSM topic when
 // form+chapter or topicTitle is provided. One chunk per chapter/section is best.
 export async function POST(req: NextRequest) {
-  const admin = await getCurrentUser();
-  if (!admin || admin.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const admin = await authorizeImport(req);
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const docs = Array.isArray(body.docs) ? body.docs : [];
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  await logActivity({ userId: admin.id, name: admin.name, role: "admin", action: "knowledge.bulk_import",
+  await logActivity({ userId: admin.id ?? undefined, name: admin.name, role: admin.role, action: "knowledge.bulk_import",
     detail: `${created} created, ${updated} updated, ${skipped.length} skipped`, ip: clientIp(req) });
 
   return NextResponse.json({ created, updated, skipped: skipped.length, skippedDetail: skipped.slice(0, 50) });

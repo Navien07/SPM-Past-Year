@@ -46,6 +46,7 @@ export async function GET() {
       }
       return {
         id: a.id, title: a.title, type: a.type, dueAt: a.dueAt,
+        paperId: a.paperId, topicId: a.topicId, subjectId: a.subjectId,
         scope: a.type === "paper" ? paperName.get(a.paperId ?? "") : a.type === "topic" ? topicName.get(a.topicId ?? "") : null,
         total, done,
       };

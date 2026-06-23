@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth";
+import { authorizeImport } from "@/lib/importAuth";
 import { logActivity, clientIp } from "@/lib/activity";
 import {
   normPaperType, normType, subjectResolver, topicResolver,
@@ -25,10 +25,8 @@ function hasParsedAny(papers: unknown[]): boolean {
 // KSSM topic auto-linking + validation; otherwise the paper keeps rawText +
 // markingScheme for later AI categorization.
 export async function POST(req: NextRequest) {
-  const admin = await getCurrentUser();
-  if (!admin || (admin.role !== "admin" && admin.role !== "teacher")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const admin = await authorizeImport(req);
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const papers = Array.isArray(body.papers) ? body.papers : [];
@@ -119,7 +117,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  await logActivity({ userId: admin.id, name: admin.name, role: admin.role, action: "papers.bulk_import",
+  await logActivity({ userId: admin.id ?? undefined, name: admin.name, role: admin.role, action: "papers.bulk_import",
     detail: `${created} created, ${updated} updated, ${questionsCreated} questions (${approved} approved/${pending} pending), ${skipped.length} skipped`, ip: clientIp(req) });
 
   return NextResponse.json({
