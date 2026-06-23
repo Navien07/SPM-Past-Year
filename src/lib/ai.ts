@@ -25,14 +25,11 @@ function client(): Anthropic {
  * Uses adaptive thinking for these reasoning-heavy tasks. Robust to the model
  * wrapping JSON in prose or code fences.
  */
-async function callClaudeJson<T>(system: string, user: string): Promise<T> {
-  const res = await client().messages.create({
-    model: MODEL,
-    max_tokens: 16000,
-    thinking: { type: "adaptive" },
-    system,
-    messages: [{ role: "user", content: user }],
-  } as Anthropic.MessageCreateParamsNonStreaming);
+async function callClaudeJson<T>(system: string, user: string, opts?: { fast?: boolean }): Promise<T> {
+  const params: Record<string, unknown> = opts?.fast
+    ? { model: MODEL, max_tokens: 4000, system, messages: [{ role: "user", content: user }] }
+    : { model: MODEL, max_tokens: 16000, thinking: { type: "adaptive" }, system, messages: [{ role: "user", content: user }] };
+  const res = await client().messages.create(params as Anthropic.MessageCreateParamsNonStreaming);
 
   const text = res.content
     .filter((b): b is Anthropic.TextBlock => b.type === "text")
@@ -60,7 +57,7 @@ export async function classifyQuestionTopics(
     `If no topic clearly fits, use -1. Respond ONLY with a JSON array of integers, one per question, in order.`;
   const user = `TOPICS:\n${topicList}\n\nQUESTIONS:\n${qList}\n\nReturn a JSON array of ${questions.length} integers.`;
   try {
-    const arr = await callClaudeJson<number[]>(system, user);
+    const arr = await callClaudeJson<number[]>(system, user, { fast: true });
     if (!Array.isArray(arr)) return questions.map(() => -1);
     return questions.map((_, i) => {
       const v = Number(arr[i]);

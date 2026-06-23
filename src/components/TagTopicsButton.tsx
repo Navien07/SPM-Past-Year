@@ -16,18 +16,19 @@ export default function TagTopicsButton() {
   useEffect(() => { refresh(); }, []);
 
   async function loop(target: "questions" | "knowledge", label: string) {
-    let total = 0, guard = 0;
-    while (guard++ < 800) {
-      const res = await fetch("/api/admin/tag-topics", {
+    let total = 0, guard = 0, cursor: string | null = null;
+    while (guard++ < 2000) {
+      const res: Response = await fetch("/api/admin/tag-topics", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target, limit: 90 }),
+        body: JSON.stringify({ target, limit: 120, afterId: cursor }),
       });
       const data = await res.json();
       if (!res.ok) { setStatus(data.error || "Tagging failed."); return; }
       total += data.tagged || 0;
-      setStatus(`${label}: tagged ${total}, ${data.remaining} remaining…`);
+      cursor = data.nextCursor;
+      setStatus(`${label}: tagged ${total} so far…`);
       await refresh();
-      if (data.done || data.processed === 0) break;
+      if (data.done) break;
     }
     return total;
   }

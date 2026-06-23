@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   // 1. Validate + dedupe inputs (skip unknown subject / missing year / in-batch dup key).
   interface Prepared {
     sourceKey: string; subjectId: string; year: number; paperNumber: number;
-    hasParsed: boolean; rawQuestions: ParsedQuestion[]; data: Record<string, unknown>;
+    provided: boolean; hasParsed: boolean; rawQuestions: ParsedQuestion[]; data: Record<string, unknown>;
   }
   const prepared: Prepared[] = [];
   const skipped: { title?: string; reason: string }[] = [];
@@ -56,11 +56,15 @@ export async function POST(req: NextRequest) {
     if (seen.has(sourceKey)) { skipped.push({ title: p.title, reason: "Duplicate sourceKey in batch" }); continue; }
     seen.add(sourceKey);
 
-    const hasParsed = Array.isArray(p.questions) && p.questions.length > 0;
+    // `provided` = a questions array was sent at all (even empty). That makes
+    // it authoritative: on re-import we REPLACE the paper's questions with it,
+    // so sending [] prunes a paper's questions to zero (clears earlier noise).
+    const provided = Array.isArray(p.questions);
+    const hasParsed = provided && p.questions.length > 0;
     if (hasParsed) anyParsed = true;
     prepared.push({
       sourceKey, subjectId, year: Number(p.year), paperNumber: Number(p.paperNumber) || 1,
-      hasParsed, rawQuestions: hasParsed ? (p.questions as ParsedQuestion[]) : [],
+      provided, hasParsed, rawQuestions: hasParsed ? (p.questions as ParsedQuestion[]) : [],
       data: {
         title: String(p.title || `${p.subject} ${p.year} ${p.state ?? ""} K${p.paperNumber ?? 1}`).trim().slice(0, 200),
         subjectId,
@@ -111,7 +115,7 @@ export async function POST(req: NextRequest) {
     if (existingId) {
       updated++;
       toUpdatePapers.push({ id: existingId, data: pr.data });
-      if (pr.hasParsed) reimportPaperIds.push(existingId);
+      if (pr.provided) reimportPaperIds.push(existingId); // replace questions (even with none)
     } else {
       created++;
       toCreatePapers.push({ id: paperId, sourceKey: pr.sourceKey, ...pr.data });
