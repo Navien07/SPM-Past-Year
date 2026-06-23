@@ -116,6 +116,7 @@ export default async function Home() {
 
   const modules = [
     { href: "/practice", icon: "📝", title: "Practice & Instant Grading", desc: "Browse by topic or year, attempt questions, get rubric-based feedback in seconds." },
+    { href: "/syllabus", icon: "📚", title: "KSSM Syllabus", desc: "Browse every chapter by subject and form, and jump straight into practice." },
     { href: "/papers", icon: "📄", title: "Past Papers", desc: "Attempt a full SPM/trial paper end-to-end and get it marked instantly." },
     { href: "/exam", icon: "⏱️", title: "Timed Exam Mode", desc: "Sit a timed paper against the clock, then get a marked breakdown." },
     { href: "/assignments", icon: "📌", title: "My Assignments", desc: "See and complete the work set by your teacher." },

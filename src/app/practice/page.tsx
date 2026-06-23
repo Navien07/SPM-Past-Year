@@ -99,7 +99,10 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t(lang, "practice.title")}</h1>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold">{t(lang, "practice.title")}</h1>
+          <Link href="/syllabus" className="text-sm font-semibold text-brand-600 hover:underline">📚 {lang === "bm" ? "Sukatan" : "Syllabus"}</Link>
+        </div>
         <p className="text-sm text-slate-500">{t(lang, "practice.subtitle")}</p>
       </div>
 
