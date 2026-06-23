@@ -3,38 +3,42 @@
 import { useEffect, useState } from "react";
 
 // Drives the AI topic-tagger: loops POST /api/admin/tag-topics until every
-// question is linked to a KSSM topic, showing live progress.
+// question AND knowledge chunk is linked to a KSSM topic, with live progress.
 export default function TagTopicsButton() {
-  const [untagged, setUntagged] = useState<number | null>(null);
+  const [counts, setCounts] = useState<{ untagged: number; untaggedKnowledge: number } | null>(null);
   const [running, setRunning] = useState(false);
-  const [tagged, setTagged] = useState(0);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [status, setStatus] = useState("");
 
   async function refresh() {
     const r = await fetch("/api/admin/tag-topics");
-    if (r.ok) setUntagged((await r.json()).untagged);
+    if (r.ok) setCounts(await r.json());
   }
   useEffect(() => { refresh(); }, []);
 
+  async function loop(target: "questions" | "knowledge", label: string) {
+    let total = 0, guard = 0;
+    while (guard++ < 800) {
+      const res = await fetch("/api/admin/tag-topics", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target, limit: 90 }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatus(data.error || "Tagging failed."); return; }
+      total += data.tagged || 0;
+      setStatus(`${label}: tagged ${total}, ${data.remaining} remaining…`);
+      await refresh();
+      if (data.done || data.processed === 0) break;
+    }
+    return total;
+  }
+
   async function run() {
     setRunning(true);
-    setMsg(null);
-    setTagged(0);
-    let guard = 0;
+    setStatus("Starting…");
     try {
-      // Loop batches until nothing remains (cap iterations as a safety net).
-      while (guard++ < 500) {
-        const res = await fetch("/api/admin/tag-topics", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ limit: 90 }),
-        });
-        const data = await res.json();
-        if (!res.ok) { setMsg(data.error || "Tagging failed."); break; }
-        setTagged((t) => t + (data.tagged || 0));
-        setUntagged(data.remaining);
-        if (data.done || data.processed === 0) { setMsg("✓ All questions tagged."); break; }
-      }
+      await loop("questions", "Questions");
+      await loop("knowledge", "Textbooks");
+      setStatus("✓ All questions and textbooks tagged to KSSM topics.");
     } finally {
       setRunning(false);
       refresh();
@@ -47,16 +51,17 @@ export default function TagTopicsButton() {
         <div>
           <p className="font-semibold">AI topic tagging</p>
           <p className="text-xs text-slate-500">
-            {untagged === null ? "…" : `${untagged.toLocaleString("en-MY")} questions still need a KSSM topic`}
-            {running && ` · tagged ${tagged} so far`}
+            {counts === null
+              ? "…"
+              : `${counts.untagged.toLocaleString("en-MY")} questions + ${counts.untaggedKnowledge.toLocaleString("en-MY")} textbook chunks need a KSSM topic`}
           </p>
         </div>
-        <button onClick={run} disabled={running || untagged === 0} className="btn-primary cursor-pointer">
+        <button onClick={run} disabled={running || (counts?.untagged === 0 && counts?.untaggedKnowledge === 0)} className="btn-primary cursor-pointer">
           {running ? "Tagging…" : "Auto-tag topics (AI)"}
         </button>
       </div>
-      {msg && <p className="mt-2 text-sm text-emerald-700">{msg}</p>}
-      {running && <p className="mt-2 text-xs text-slate-400">Keep this tab open — it runs in batches and may take a few minutes for thousands of questions.</p>}
+      {status && <p className="mt-2 text-sm text-slate-600">{status}</p>}
+      {running && <p className="mt-2 text-xs text-slate-400">Keep this tab open — runs in batches; thousands of items take a few minutes.</p>}
     </div>
   );
 }
