@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import TagTopicsButton from "@/components/TagTopicsButton";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -54,6 +55,8 @@ export default async function ImportsPage() {
           return s.href ? <Link key={s.label} href={s.href}>{card}</Link> : <div key={s.label}>{card}</div>;
         })}
       </section>
+
+      <TagTopicsButton />
 
       <section>
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">Recent import runs</h2>

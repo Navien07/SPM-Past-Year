@@ -43,6 +43,35 @@ async function callClaudeJson<T>(system: string, user: string): Promise<T> {
   return extractJson<T>(text);
 }
 
+// Classify questions into a subject's KSSM topics. Given the topic list and a
+// batch of question stems, returns the chosen topic index per question (or -1
+// when none fits). Used by the bulk topic-tagger to label imported questions.
+export async function classifyQuestionTopics(
+  subjectName: string,
+  topics: { form: number; chapter: number; title: string }[],
+  questions: { stem: string }[],
+): Promise<number[]> {
+  if (!aiEnabled() || topics.length === 0 || questions.length === 0) return questions.map(() => -1);
+  const topicList = topics.map((t, i) => `${i}: [T${t.form} Bab ${t.chapter}] ${t.title}`).join("\n");
+  const qList = questions.map((q, i) => `${i}. ${q.stem.replace(/\s+/g, " ").slice(0, 400)}`).join("\n");
+  const system =
+    `You classify Malaysian SPM (KSSM) exam questions for the subject "${subjectName}" into their syllabus topic. ` +
+    `You are given a numbered list of topics and a numbered list of questions. For EACH question, choose the single best topic index. ` +
+    `If no topic clearly fits, use -1. Respond ONLY with a JSON array of integers, one per question, in order.`;
+  const user = `TOPICS:\n${topicList}\n\nQUESTIONS:\n${qList}\n\nReturn a JSON array of ${questions.length} integers.`;
+  try {
+    const arr = await callClaudeJson<number[]>(system, user);
+    if (!Array.isArray(arr)) return questions.map(() => -1);
+    return questions.map((_, i) => {
+      const v = Number(arr[i]);
+      return Number.isInteger(v) && v >= 0 && v < topics.length ? v : -1;
+    });
+  } catch {
+    return questions.map(() => -1);
+  }
+}
+
+
 function extractJson<T>(text: string): T {
   let s = text.trim();
   // Strip ```json ... ``` fences if present.
