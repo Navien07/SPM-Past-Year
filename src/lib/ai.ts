@@ -9,9 +9,10 @@ import type {
 } from "./types";
 
 const MODEL = process.env.SPM_AI_MODEL || "claude-sonnet-4-6";
-// Cheaper/faster model for bulk classification (topic tagging). Haiku has much
-// higher rate limits and ~1/3 the cost — ideal for tens of thousands of items.
-const TAG_MODEL = process.env.SPM_TAG_MODEL || "claude-haiku-4-5-20251001";
+// Model for bulk classification (topic tagging). Defaults to the proven main
+// model so it always works; set SPM_TAG_MODEL to a cheaper model your account
+// accepts (e.g. a Haiku id) for lower cost / higher rate limits.
+const TAG_MODEL = process.env.SPM_TAG_MODEL || MODEL;
 
 export function aiEnabled(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
