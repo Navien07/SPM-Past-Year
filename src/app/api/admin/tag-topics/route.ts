@@ -78,15 +78,17 @@ export async function POST(req: NextRequest) {
       try {
         picks = await classifyQuestionTopics(sub[0].subjectName, topics, sub.map((g) => ({ stem: g.text })));
       } catch (e: unknown) {
-        // Surface AI rate-limit / quota / auth failures clearly instead of
-        // silently tagging nothing — so the client stops and can retry later.
+        // Surface AI rate-limit / quota / params failures clearly (incl. the
+        // exact Anthropic message) instead of silently tagging nothing.
         const status = (e as { status?: number })?.status;
+        const detail = (e as { message?: string })?.message || String(e);
         const rateLimited = status === 429 || status === 529;
         return NextResponse.json(
           {
             error: rateLimited
               ? "AI rate limit / quota reached. Raise the Anthropic limit, then re-run — already-tagged items are saved and skipped."
               : `AI tagging failed (status ${status ?? "unknown"}). Already-tagged items are saved.`,
+            detail: detail.slice(0, 400),
             code: rateLimited ? "ai_rate_limited" : "ai_error",
             tagged, target,
           },

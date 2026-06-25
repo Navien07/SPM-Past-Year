@@ -62,9 +62,18 @@ export async function classifyQuestionTopics(
     `If no topic clearly fits, use -1. Respond ONLY with a JSON array of integers, one per question, in order.`;
   const user = `TOPICS:\n${topicList}\n\nQUESTIONS:\n${qList}\n\nReturn a JSON array of ${questions.length} integers.`;
   // Note: API errors (rate limit / quota / auth) propagate so the caller can
-  // surface them instead of silently tagging nothing. Only parse failures map
-  // to -1 (no topic chosen).
-  const arr = await callClaudeJson<number[]>(system, user, { fast: true, model: TAG_MODEL });
+  // surface them. If a custom SPM_TAG_MODEL fails, fall back to the proven MODEL
+  // so tagging never hard-blocks on a model/params quirk.
+  let arr: number[];
+  try {
+    arr = await callClaudeJson<number[]>(system, user, { fast: true, model: TAG_MODEL });
+  } catch (e) {
+    if (TAG_MODEL !== MODEL) {
+      arr = await callClaudeJson<number[]>(system, user, { fast: true, model: MODEL });
+    } else {
+      throw e;
+    }
+  }
   if (!Array.isArray(arr)) return questions.map(() => -1);
   return questions.map((_, i) => {
     const v = Number(arr[i]);
