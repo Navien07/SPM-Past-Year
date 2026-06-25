@@ -9,6 +9,9 @@ import type {
 } from "./types";
 
 const MODEL = process.env.SPM_AI_MODEL || "claude-sonnet-4-6";
+// Cheaper/faster model for bulk classification (topic tagging). Haiku has much
+// higher rate limits and ~1/3 the cost — ideal for tens of thousands of items.
+const TAG_MODEL = process.env.SPM_TAG_MODEL || "claude-haiku-4-5-20251001";
 
 export function aiEnabled(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
@@ -25,10 +28,11 @@ function client(): Anthropic {
  * Uses adaptive thinking for these reasoning-heavy tasks. Robust to the model
  * wrapping JSON in prose or code fences.
  */
-async function callClaudeJson<T>(system: string, user: string, opts?: { fast?: boolean }): Promise<T> {
+async function callClaudeJson<T>(system: string, user: string, opts?: { fast?: boolean; model?: string }): Promise<T> {
+  const model = opts?.model || MODEL;
   const params: Record<string, unknown> = opts?.fast
-    ? { model: MODEL, max_tokens: 4000, system, messages: [{ role: "user", content: user }] }
-    : { model: MODEL, max_tokens: 16000, thinking: { type: "adaptive" }, system, messages: [{ role: "user", content: user }] };
+    ? { model, max_tokens: 4000, system, messages: [{ role: "user", content: user }] }
+    : { model, max_tokens: 16000, thinking: { type: "adaptive" }, system, messages: [{ role: "user", content: user }] };
   const res = await client().messages.create(params as unknown as Anthropic.MessageCreateParamsNonStreaming);
 
   const text = res.content
@@ -56,16 +60,15 @@ export async function classifyQuestionTopics(
     `You are given a numbered list of topics and a numbered list of questions. For EACH question, choose the single best topic index. ` +
     `If no topic clearly fits, use -1. Respond ONLY with a JSON array of integers, one per question, in order.`;
   const user = `TOPICS:\n${topicList}\n\nQUESTIONS:\n${qList}\n\nReturn a JSON array of ${questions.length} integers.`;
-  try {
-    const arr = await callClaudeJson<number[]>(system, user, { fast: true });
-    if (!Array.isArray(arr)) return questions.map(() => -1);
-    return questions.map((_, i) => {
-      const v = Number(arr[i]);
-      return Number.isInteger(v) && v >= 0 && v < topics.length ? v : -1;
-    });
-  } catch {
-    return questions.map(() => -1);
-  }
+  // Note: API errors (rate limit / quota / auth) propagate so the caller can
+  // surface them instead of silently tagging nothing. Only parse failures map
+  // to -1 (no topic chosen).
+  const arr = await callClaudeJson<number[]>(system, user, { fast: true, model: TAG_MODEL });
+  if (!Array.isArray(arr)) return questions.map(() => -1);
+  return questions.map((_, i) => {
+    const v = Number(arr[i]);
+    return Number.isInteger(v) && v >= 0 && v < topics.length ? v : -1;
+  });
 }
 
 

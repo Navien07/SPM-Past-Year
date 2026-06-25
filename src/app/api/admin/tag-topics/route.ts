@@ -74,7 +74,25 @@ export async function POST(req: NextRequest) {
     }
     if (topics.length === 0) continue;
     for (const sub of chunk(group, 40)) {
-      const picks = await classifyQuestionTopics(sub[0].subjectName, topics, sub.map((g) => ({ stem: g.text })));
+      let picks: number[];
+      try {
+        picks = await classifyQuestionTopics(sub[0].subjectName, topics, sub.map((g) => ({ stem: g.text })));
+      } catch (e: unknown) {
+        // Surface AI rate-limit / quota / auth failures clearly instead of
+        // silently tagging nothing — so the client stops and can retry later.
+        const status = (e as { status?: number })?.status;
+        const rateLimited = status === 429 || status === 529;
+        return NextResponse.json(
+          {
+            error: rateLimited
+              ? "AI rate limit / quota reached. Raise the Anthropic limit, then re-run — already-tagged items are saved and skipped."
+              : `AI tagging failed (status ${status ?? "unknown"}). Already-tagged items are saved.`,
+            code: rateLimited ? "ai_rate_limited" : "ai_error",
+            tagged, target,
+          },
+          { status: 503 },
+        );
+      }
       for (let i = 0; i < sub.length; i++) {
         const idx = picks[i];
         if (idx < 0) continue;
