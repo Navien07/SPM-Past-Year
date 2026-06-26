@@ -18,6 +18,22 @@ export function aiEnabled(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
 }
 
+// Live credit/connectivity check: a minimal real call so the admin can tell
+// whether the key actually works (not just whether it's set). Cheap (~1 token).
+export async function aiHealthCheck(): Promise<{ ok: boolean; model: string; status?: number; detail?: string }> {
+  if (!aiEnabled()) return { ok: false, model: MODEL, detail: "ANTHROPIC_API_KEY not set on this deployment." };
+  try {
+    await client().messages.create({
+      model: MODEL, max_tokens: 8, messages: [{ role: "user", content: "ping" }],
+    } as Anthropic.MessageCreateParamsNonStreaming);
+    return { ok: true, model: MODEL };
+  } catch (e) {
+    const status = (e as { status?: number })?.status;
+    const detail = ((e as { message?: string })?.message || String(e)).slice(0, 300);
+    return { ok: false, model: MODEL, status, detail };
+  }
+}
+
 let _client: Anthropic | null = null;
 function client(): Anthropic {
   if (!_client) _client = new Anthropic();

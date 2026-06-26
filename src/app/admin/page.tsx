@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
 import { PILOT_MAX_STUDENTS } from "@/lib/constants";
+import AiStatusButton from "@/components/AiStatusButton";
 
 export const dynamic = "force-dynamic";
 
@@ -79,6 +80,8 @@ export default async function AdminOverview() {
           return k.href ? <Link key={k.label} href={k.href}>{card}</Link> : <div key={k.label}>{card}</div>;
         })}
       </section>
+
+      <AiStatusButton />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="card p-5">
