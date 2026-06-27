@@ -6,10 +6,17 @@ images were never captured, so diagram-dependent questions (lots of Kertas 1 &
 spec is how the scraper backfills them.
 
 ## App side (already done — no changes needed)
-- `Question.images` is a JSON array of image URLs.
-- The bulk import (`POST /api/admin/papers/bulk`) accepts `images: string[]` per
-  question, matched/created by `sourceKey` (idempotent).
-- The question page renders all `images` under the stem.
+- `Question.images` is a JSON array of image URLs; rendered under the stem.
+- **Use the surgical endpoints (NOT `/papers/bulk`).** Re-importing via
+  `/papers/bulk` REPLACES a paper's questions and, because our original import
+  set no per-question sourceKeys, it creates duplicates and wipes topic tags.
+  Instead:
+  - **`GET /api/admin/questions`** — cursor-paginated list to map questions to
+    PDF pages. Params: `subject` (code), `paper` (paperId), `withoutImages=1`,
+    `afterId`, `take`. Returns `{ items: [{ id, number, stem, paperSourceKey,
+    paperTitle, subject, hasImages }], nextCursor }`.
+  - **`POST /api/admin/set-images`** — attach images to existing rows BY ID, no
+    replace, tags untouched. Body: `{ items: [{ id, images: [url] }] }` (≤2000).
 - Run the **prod migration** once (Supabase SQL editor):
   ```sql
   ALTER TABLE "Question" ADD COLUMN IF NOT EXISTS "images" text NOT NULL DEFAULT '[]';
@@ -30,18 +37,19 @@ For each question that came from a PDF:
        {"content-type": "image/png", "upsert": "true"})
    url = supabase.storage.from_("question-images").get_public_url(path)
    ```
-3. **Push back via bulk import**, re-sending the question with its `images`
-   array (same `sourceKey` as the original import so it updates in place):
+3. **Map each question to its page**, then **attach images by id** (tags safe):
    ```python
-   requests.post(f"{BASE}/api/admin/papers/bulk",
+   # a) list questions for a subject (paginate with nextCursor)
+   r = requests.get(f"{BASE}/api/admin/questions",
+       params={"subject": "PHY", "withoutImages": 1, "take": 500},
+       headers={"Authorization": f"Bearer {IMPORT_TOKEN}"}).json()
+   # map r["items"] (id, number, stem, paperSourceKey) -> the PDF page you rendered
+
+   # b) attach images to existing rows BY ID — no re-import, tags preserved
+   requests.post(f"{BASE}/api/admin/set-images",
        headers={"Authorization": f"Bearer {IMPORT_TOKEN}"},
-       json={"papers": [{
-           "sourceKey": paperSourceKey, "subject": ..., "questions": [
-               {"sourceKey": qSourceKey, "stem": ..., "images": [url], ...}
-           ]
-       }]})
+       json={"items": [{"id": q_id, "images": [url]}]})
    ```
-   (Send the full question payload as in the original import; just add `images`.)
 
 ## Higher fidelity (Route B — cropped figures, later)
 - Extract embedded images from the PDF (`PyMuPDF` `page.get_images()` /
