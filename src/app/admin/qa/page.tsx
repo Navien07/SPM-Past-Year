@@ -93,6 +93,15 @@ export default function QAPage() {
     if (res.ok) { setDiagramMsg(`Held ${data.held} diagram-dependent questions.`); setDiagrams(null); load(); }
     else setDiagramMsg(data.error || "Failed.");
   }
+  async function reapprove() {
+    if (!confirm("Re-approve all held diagram questions that now have an image attached? They become visible to students again.")) return;
+    setHolding(true); setDiagramMsg("");
+    const res = await fetch("/api/admin/reapprove-with-images", { method: "POST" });
+    const data = await res.json();
+    setHolding(false);
+    if (res.ok) { setDiagramMsg(`Re-approved ${data.reapproved} questions that now have images.`); load(); }
+    else setDiagramMsg(data.error || "Failed.");
+  }
 
   async function runCleanup() {
     if (!confirm("Hide all questions matching the low-quality heuristics (OCR noise, boilerplate, very short stems)? They move to 'rejected' and can be restored from the rejected filter.")) return;
@@ -150,7 +159,10 @@ export default function QAPage() {
         </div>
         <button onClick={previewDiagrams} className="btn-ghost cursor-pointer px-3 py-1.5 text-xs">Preview</button>
         <button onClick={holdDiagrams} disabled={holding} className="cursor-pointer rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-60">
-          {holding ? "Holding…" : "Hold diagram-only"}
+          {holding ? "…" : "Hold diagram-only"}
+        </button>
+        <button onClick={reapprove} disabled={holding} className="cursor-pointer rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60" title="After backfill: re-approve held questions that now have an image">
+          {holding ? "…" : "Re-approve with images"}
         </button>
       </div>
 
