@@ -29,6 +29,7 @@ const ADMIN_LINKS = [
   { href: "/admin/papers", key: "nav.papers", icon: "folder" },
   { href: "/admin/knowledge", key: "nav.brain", icon: "brain" },
   { href: "/moderate", key: "nav.review", icon: "check" },
+  { href: "/admin/qa", key: "nav.qa", icon: "search" },
   { href: "/admin/activity", key: "nav.activity", icon: "activity" },
 ];
 

@@ -32,6 +32,7 @@ export const STRINGS: Dict = {
   "nav.papers": { en: "Papers", bm: "Kertas" },
   "nav.brain": { en: "Brain", bm: "Otak AI" },
   "nav.activity": { en: "Activity", bm: "Aktiviti" },
+  "nav.qa": { en: "QA", bm: "QA" },
   // common
   "common.subject": { en: "Subject", bm: "Subjek" },
   "common.topic": { en: "Topic", bm: "Topik" },

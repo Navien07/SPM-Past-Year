@@ -7,7 +7,7 @@ import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: string; q?: string }>;
+type SP = Promise<{ subject?: string; view?: string; topic?: string; year?: string; q?: string; page?: string }>;
 
 export default async function PracticePage({ searchParams }: { searchParams: SP }) {
   const student = await requireStudent();
@@ -51,18 +51,25 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
       })
     : [];
 
-  // The selected drill-down (topic or year) → question list.
+  // The selected drill-down (topic or year) → paginated question list.
+  // (A popular year can hold 1,000+ questions — never load them all at once.)
+  const PAGE_SIZE = 48;
+  const page = Math.max(1, Number(sp.page) || 1);
   const where: Record<string, unknown> = { subjectId, status: "approved" };
   if (sp.topic) where.topicId = sp.topic;
   if (sp.year) where.year = Number(sp.year);
-  const questions =
-    sp.topic || sp.year
-      ? await prisma.question.findMany({
+  const drilling = !!(sp.topic || sp.year);
+  const [questions, questionTotal] = drilling
+    ? await Promise.all([
+        prisma.question.findMany({
           where,
           orderBy: [{ paperNumber: "asc" }, { number: "asc" }],
           include: { topic: true, paper: { select: { paperType: true, state: true } } },
-        })
-      : [];
+          take: page * PAGE_SIZE,
+        }),
+        prisma.question.count({ where }),
+      ])
+    : [[], 0];
 
   // Progress tracker: which approved questions in this subject the student has
   // already attempted (done vs not done), tallied overall + per topic/year.
@@ -257,6 +264,15 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                 </Link>
               );
             })
+          )}
+          {drilling && questionTotal > questions.length && (
+            <Link
+              href={base({ ...(sp.topic ? { topic: sp.topic } : {}), ...(sp.year ? { year: sp.year } : {}), page: String(page + 1) })}
+              scroll={false}
+              className="card block p-3 text-center text-sm font-semibold text-brand-600 hover:border-brand-300"
+            >
+              {lang === "bm" ? "Tunjuk lagi" : "Show more"} ({questions.length} / {questionTotal})
+            </Link>
           )}
         </div>
       </div>

@@ -11,35 +11,39 @@ export async function GET(req: NextRequest) {
   if (!admin || (admin.role !== "admin" && admin.role !== "teacher")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const q = req.nextUrl.searchParams.get("q")?.trim();
+  const params = req.nextUrl.searchParams;
+  const q = params.get("q")?.trim();
+  const filter = params.get("filter") || "flagged"; // flagged | unlinked | linked | all
+  const subject = params.get("subject")?.trim();
 
-  const where: Record<string, unknown> = {
-    OR: [
-      { status: "pending" },
-      { reviewNote: { not: null } },
-      { topicId: null },
-    ],
-  };
+  const where: Record<string, unknown> = {};
+  if (filter === "unlinked") where.topicId = null;
+  else if (filter === "linked") where.topicId = { not: null };
+  else if (filter === "flagged") where.OR = [{ status: "pending" }, { reviewNote: { not: null } }, { topicId: null }];
+  // "all" → no status/topic constraint
+  if (subject) where.subject = { code: subject };
   if (q) where.stem = { contains: q, mode: "insensitive" };
 
-  const [counts, items] = await Promise.all([
+  const [counts, items, untaggedCount] = await Promise.all([
     prisma.question.groupBy({ by: ["status"], _count: true }),
     prisma.question.findMany({
-      where: q ? { stem: { contains: q, mode: "insensitive" } } : where,
+      where,
       orderBy: { createdAt: "desc" },
       take: 200,
       select: {
         id: true, stem: true, questionType: true, status: true, reviewNote: true,
-        marks: true, topicId: true, answer: true,
+        marks: true, topicId: true, answer: true, subjectId: true,
         subject: { select: { name: true, code: true } },
         topic: { select: { title: true, form: true, chapter: true } },
         paper: { select: { title: true } },
       },
     }),
+    prisma.question.count({ where: { topicId: null } }),
   ]);
 
   return NextResponse.json({
     counts: Object.fromEntries(counts.map((c) => [c.status, c._count])),
+    untagged: untaggedCount,
     items,
   });
 }
