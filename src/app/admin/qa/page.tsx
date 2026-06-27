@@ -73,6 +73,11 @@ export default function QAPage() {
   const [diagrams, setDiagrams] = useState<number | null>(null);
   const [holding, setHolding] = useState(false);
   const [diagramMsg, setDiagramMsg] = useState("");
+  const [coverage, setCoverage] = useState<{ subjects: { code: string; name: string; total: number; withImages: number; pct: number }[]; pct: number; withImages: number; total: number } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/image-coverage").then((r) => (r.ok ? r.json() : null)).then(setCoverage).catch(() => {});
+  }, []);
 
   async function previewDiagrams() {
     setDiagramMsg("");
@@ -148,6 +153,27 @@ export default function QAPage() {
           {holding ? "Holding…" : "Hold diagram-only"}
         </button>
       </div>
+
+      {/* Diagram/image backfill coverage */}
+      {coverage && (
+        <div className="card p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-semibold">Diagram/image coverage</p>
+            <span className="text-xs text-slate-500">{coverage.withImages.toLocaleString("en-MY")} / {coverage.total.toLocaleString("en-MY")} have images ({coverage.pct}%)</span>
+          </div>
+          <div className="space-y-2">
+            {coverage.subjects.map((s) => (
+              <div key={s.code} className="flex items-center gap-3">
+                <span className="w-36 truncate text-xs">{s.name}</span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full rounded-full bg-brand-500" style={{ width: `${s.pct}%` }} />
+                </div>
+                <span className="w-24 text-right text-[11px] text-slate-400">{s.withImages.toLocaleString("en-MY")}/{s.total.toLocaleString("en-MY")}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="card grid gap-3 p-4 sm:grid-cols-4">
