@@ -66,6 +66,7 @@ export interface ParsedQuestion {
   type?: string;
   stem?: string;
   options?: { key: string; text: string }[];
+  images?: string[]; // figure/diagram image URLs
   answer?: string;
   markingScheme?: string;
   marks?: number;

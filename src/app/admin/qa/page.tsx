@@ -70,6 +70,25 @@ export default function QAPage() {
     if (res.ok) setCleanup(await res.json());
   }
 
+  const [diagrams, setDiagrams] = useState<number | null>(null);
+  const [holding, setHolding] = useState(false);
+  const [diagramMsg, setDiagramMsg] = useState("");
+
+  async function previewDiagrams() {
+    setDiagramMsg("");
+    const res = await fetch("/api/admin/hold-diagrams");
+    if (res.ok) setDiagrams((await res.json()).count);
+  }
+  async function holdDiagrams() {
+    if (!confirm("Hold all questions that mention a diagram/figure/table but have no image attached? They move to 'pending' (hidden from students) until the image is backfilled.")) return;
+    setHolding(true); setDiagramMsg("");
+    const res = await fetch("/api/admin/hold-diagrams", { method: "POST" });
+    const data = await res.json();
+    setHolding(false);
+    if (res.ok) { setDiagramMsg(`Held ${data.held} diagram-dependent questions.`); setDiagrams(null); load(); }
+    else setDiagramMsg(data.error || "Failed.");
+  }
+
   async function runCleanup() {
     if (!confirm("Hide all questions matching the low-quality heuristics (OCR noise, boilerplate, very short stems)? They move to 'rejected' and can be restored from the rejected filter.")) return;
     setCleaning(true);
@@ -113,6 +132,20 @@ export default function QAPage() {
         <button onClick={previewCleanup} className="btn-ghost cursor-pointer px-3 py-1.5 text-xs">Preview</button>
         <button onClick={runCleanup} disabled={cleaning} className="cursor-pointer rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60">
           {cleaning ? "Hiding…" : "Hide low-quality"}
+        </button>
+      </div>
+
+      {/* Diagram-dependent triage */}
+      <div className="card flex flex-wrap items-center gap-3 p-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">Hold diagram-dependent questions</p>
+          <p className="text-xs text-slate-500">Questions that mention a diagram/figure/table/graph but have no image attached can&apos;t be answered. Hold them (move to pending, hidden from students) until images are backfilled.</p>
+          {diagrams != null && <p className="mt-1 text-xs font-medium text-amber-700">~{diagrams.toLocaleString("en-MY")} would be held.</p>}
+          {diagramMsg && <p className="mt-1 text-xs font-medium text-emerald-700">{diagramMsg}</p>}
+        </div>
+        <button onClick={previewDiagrams} className="btn-ghost cursor-pointer px-3 py-1.5 text-xs">Preview</button>
+        <button onClick={holdDiagrams} disabled={holding} className="cursor-pointer rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-60">
+          {holding ? "Holding…" : "Hold diagram-only"}
         </button>
       </div>
 

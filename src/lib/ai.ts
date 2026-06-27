@@ -271,6 +271,12 @@ export async function gradeAnswer(
 against the official marking scheme / rubric. Award marks per criterion, never exceed the max.
 Give specific, actionable feedback. Be encouraging but honest.
 
+IMPORTANT — never deduct marks for any of these; treat them as fully equivalent:
+- British vs American spelling (sulphur/sulfur, colour/color, ionise/ionize, neighbour/neighbor, metre/meter).
+- Bahasa Melayu vs English terms for the same concept (e.g. "tenaga kinetik" = "kinetic energy", "sulfur" = "belerang").
+- Minor spelling slips, capitalisation, or spacing where the scientific meaning is clearly correct.
+Mark on scientific correctness and meaning, not spelling or language choice.
+
 Return ONLY JSON of this shape:
 {
   "score": number, "maxScore": number, "band": string,

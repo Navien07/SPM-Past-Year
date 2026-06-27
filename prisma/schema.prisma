@@ -95,6 +95,7 @@ model Question {
   rubric        String? // JSON rubric for essays
   marks         Int      @default(1)
   explanation   String? // cached AI explanation of why the answer is correct
+  images        String   @default("[]") // JSON string[]: figure/diagram image URLs
   isKbat        Boolean  @default(false) // higher-order thinking (KBAT)
   subtopic      String?
   year          Int?

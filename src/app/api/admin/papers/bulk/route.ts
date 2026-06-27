@@ -126,6 +126,7 @@ export async function POST(req: NextRequest) {
       for (const raw of pr.rawQuestions) {
         const qType = normType(raw.type);
         const options = Array.isArray(raw.options) ? raw.options : [];
+        const images = Array.isArray(raw.images) ? raw.images.filter((u: unknown) => typeof u === "string") : [];
         const topicId = resolveTopic({ topicTitle: raw.topicTitle, form: raw.form, chapter: raw.chapter });
         const issues = questionIssues({
           questionType: qType, stem: String(raw.stem ?? ""), options,
@@ -137,6 +138,7 @@ export async function POST(req: NextRequest) {
           subjectId: pr.subjectId, topicId, paperId, paperNumber: pr.paperNumber,
           questionType: qType, number: raw.number ? String(raw.number) : null,
           stem: String(raw.stem ?? ""), options: JSON.stringify(options),
+          images: JSON.stringify(images),
           answer: raw.answer ? String(raw.answer) : null,
           markingScheme: raw.markingScheme ? String(raw.markingScheme) : null,
           marks: Number(raw.marks) || 1, isKbat: !!raw.isKbat,

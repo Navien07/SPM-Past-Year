@@ -110,6 +110,18 @@ export default async function QuestionPage({ params, searchParams }: { params: P
           {q.number ? `${q.number}. ` : ""}
           {q.stem}
         </h1>
+        {(() => {
+          let imgs: string[] = [];
+          try { imgs = JSON.parse(q.images || "[]"); } catch { imgs = []; }
+          return imgs.length > 0 ? (
+            <div className="mt-3 space-y-3">
+              {imgs.map((src, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={i} src={src} alt={`Figure ${i + 1} for this question`} className="max-h-[480px] w-auto rounded-xl border border-slate-200" />
+              ))}
+            </div>
+          ) : null;
+        })()}
         {q.paper && (
           <p className="mt-2 text-xs text-slate-400">{t(lang, "common.source")}: {q.paper.title}</p>
         )}

@@ -262,6 +262,7 @@ CREATE TABLE public."Question" (
     rubric text,
     marks integer DEFAULT 1 NOT NULL,
     explanation text,
+    images text DEFAULT '[]'::text NOT NULL,
     "isKbat" boolean DEFAULT false NOT NULL,
     subtopic text,
     year integer,
