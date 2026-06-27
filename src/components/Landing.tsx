@@ -4,6 +4,7 @@ import WaitlistForm from "./WaitlistForm";
 import Reveal from "./Reveal";
 import TiltCard from "./TiltCard";
 import CelebrateLink from "./CelebrateLink";
+import ProductTour from "./ProductTour";
 
 /* Inline icon set (Lucide-style, 24×24, currentColor), per design system:
    SVG icons, never emojis, consistent viewBox + sizing. */
@@ -180,6 +181,11 @@ export default function Landing({ taken, total }: { taken: number; total: number
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ───────── LIVE PRODUCT TOUR ───────── */}
+      <section aria-label="How SPM AI works">
+        <ProductTour />
       </section>
 
       {/* ───────── STATS BAND ───────── */}
