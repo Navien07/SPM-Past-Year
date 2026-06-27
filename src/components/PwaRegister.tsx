@@ -85,7 +85,7 @@ export default function PwaRegister() {
           body: JSON.stringify({ subscription: sub.toJSON(), userAgent: navigator.userAgent }),
         });
       }
-      registration.showNotification("SPM AI", { body: "✅ Peringatan dihidupkan. Jumpa lagi!", icon: "/icon-192.png" });
+      registration.showNotification("SPM AI", { body: "Peringatan dihidupkan. Jumpa lagi!", icon: "/icon-192.png" });
     } catch {
       /* ignore */
     }

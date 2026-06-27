@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireStudent } from "@/lib/student";
 import { examLabel, PAPER_TYPES } from "@/lib/constants";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -101,9 +102,9 @@ export default async function PapersPage({ searchParams }: { searchParams: SP })
       {/* Pagination */}
       {pages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          {page > 1 ? <Link href={qs({ page: String(page - 1) })} className="btn-ghost">← Prev</Link> : <span />}
+          {page > 1 ? <Link href={qs({ page: String(page - 1) })} className="btn-ghost inline-flex items-center gap-1.5"><Icon name="arrow" className="h-4 w-4 rotate-180" /> Prev</Link> : <span />}
           <span className="text-slate-500">Page {page} of {pages}</span>
-          {page < pages ? <Link href={qs({ page: String(page + 1) })} className="btn-ghost">Next →</Link> : <span />}
+          {page < pages ? <Link href={qs({ page: String(page + 1) })} className="btn-ghost inline-flex items-center gap-1.5">Next <Icon name="arrow" className="h-4 w-4" /></Link> : <span />}
         </div>
       )}
     </div>

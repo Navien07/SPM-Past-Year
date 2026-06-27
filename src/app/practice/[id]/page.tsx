@@ -8,6 +8,7 @@ import QuestionTools from "@/components/QuestionTools";
 import { requireStudent } from "@/lib/student";
 import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
+import Icon from "@/components/Icon";
 import type { McqOption } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -36,8 +37,8 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="space-y-5">
-      <Link href="/practice" className="text-sm text-brand-600 hover:underline">
-        ← {t(lang, "qd.back")}
+      <Link href="/practice" className="inline-flex items-center gap-1.5 text-sm text-brand-600 hover:underline">
+        <Icon name="arrow" className="h-4 w-4 rotate-180" /> {t(lang, "qd.back")}
       </Link>
 
       <div className="card p-5">
@@ -76,8 +77,8 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
       {/* Notes & formulas for this subject (from the knowledge base) */}
       {notes.length > 0 && (
         <details className="card p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-slate-700">
-            📘 {t(lang, "qd.notes")}, {q.subject.name}
+          <summary className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-slate-700">
+            <Icon name="book" className="h-4 w-4" /> {t(lang, "qd.notes")}, {q.subject.name}
           </summary>
           <div className="mt-3 space-y-3">
             {notes.map((n) => (

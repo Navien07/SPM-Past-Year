@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "./Icon";
 import { useLang } from "@/lib/useLang";
 import { t } from "@/lib/i18n";
 
@@ -53,11 +54,13 @@ export default function QuestionTools({
 
   return (
     <div className="flex flex-wrap gap-2">
-      <button onClick={toggleBookmark} disabled={busy} className="btn-ghost">
-        {bookmarked ? `★ ${t(lang, "qt.bookmarked")}` : `☆ ${t(lang, "qt.bookmark")}`}
+      <button onClick={toggleBookmark} disabled={busy} className="btn-ghost inline-flex items-center gap-1.5">
+        <Icon name="bookmark" className={`h-4 w-4 ${bookmarked ? "fill-current text-amber-500" : "text-slate-400"}`} />
+        {bookmarked ? t(lang, "qt.bookmarked") : t(lang, "qt.bookmark")}
       </button>
-      <button onClick={readAloud} className="btn-ghost">
-        {speaking ? `■ ${t(lang, "qt.stop")}` : `🔊 ${t(lang, "qt.read")}`}
+      <button onClick={readAloud} className="btn-ghost inline-flex items-center gap-1.5">
+        <Icon name="volume" className="h-4 w-4" />
+        {speaking ? t(lang, "qt.stop") : t(lang, "qt.read")}
       </button>
     </div>
   );

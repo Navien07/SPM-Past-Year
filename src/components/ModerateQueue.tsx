@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Icon from "./Icon";
 
 interface Topic { id: string; form: number; chapter: number; title: string }
 interface Subject { id: string; name: string; topics: Topic[] }
@@ -22,7 +23,7 @@ export default function ModerateQueue({ items, subjects }: { items: Item[]; subj
   if (items.length === 0) {
     return (
       <div className="card p-8 text-center">
-        <div className="text-4xl">✅</div>
+        <Icon name="check" className="mx-auto h-10 w-10 text-emerald-600" />
         <p className="mt-2 font-semibold">Queue clear</p>
         <p className="text-sm text-slate-500">No AI-categorized questions are awaiting review.</p>
       </div>
@@ -64,8 +65,18 @@ function ReviewCard({ item, subjects }: { item: Item; subjects: Subject[] }) {
 
   if (done) {
     return (
-      <div className={`card p-4 text-sm ${done === "approved" ? "border-emerald-300 bg-emerald-50" : "border-red-200 bg-red-50"}`}>
-        {done === "approved" ? "✅ Approved, now live for students." : "🗑️ Rejected, hidden from students."}
+      <div className={`card flex items-center gap-1.5 p-4 text-sm ${done === "approved" ? "border-emerald-300 bg-emerald-50" : "border-red-200 bg-red-50"}`}>
+        {done === "approved" ? (
+          <>
+            <Icon name="check" className="h-4 w-4 text-emerald-600" />
+            Approved, now live for students.
+          </>
+        ) : (
+          <>
+            <Icon name="trash" className="h-4 w-4 text-red-600" />
+            Rejected, hidden from students.
+          </>
+        )}
       </div>
     );
   }

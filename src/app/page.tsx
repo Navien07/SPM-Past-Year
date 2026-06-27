@@ -15,7 +15,7 @@ import { computeGameStats } from "@/lib/gamify";
 function SetupNeeded() {
   return (
     <div className="card mx-auto max-w-xl p-8 text-center">
-      <div className="text-4xl">🛠️</div>
+      <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-slate-500"><Icon name="bolt" className="h-7 w-7" /></div>
       <h1 className="mt-3 text-xl font-bold">Database not ready yet</h1>
       <p className="mt-2 text-sm text-slate-600">
         The app is deployed but the database tables haven&apos;t been created/seeded. Run the

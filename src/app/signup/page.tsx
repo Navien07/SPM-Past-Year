@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 interface Subject { id: string; name: string }
 
@@ -134,9 +135,9 @@ export default function SignupPage() {
                   type="button"
                   key={s.id}
                   onClick={() => toggle(s.id)}
-                  className={`badge border px-3 py-1.5 ${picked.has(s.id) ? "border-brand-300 bg-brand-50 text-brand-700" : "border-slate-200 bg-white text-slate-500"}`}
+                  className={`badge inline-flex items-center gap-1 border px-3 py-1.5 ${picked.has(s.id) ? "border-brand-300 bg-brand-50 text-brand-700" : "border-slate-200 bg-white text-slate-500"}`}
                 >
-                  {picked.has(s.id) ? "✓ " : ""}{s.name}
+                  {picked.has(s.id) && <Icon name="check" className="h-3.5 w-3.5" />}{s.name}
                 </button>
               ))}
             </div>

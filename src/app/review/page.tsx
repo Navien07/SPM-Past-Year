@@ -5,6 +5,7 @@ import { QUESTION_TYPE_LABEL, examLabel } from "@/lib/constants";
 import SmartPracticeButton from "@/components/SmartPracticeButton";
 import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ export default async function ReviewPage() {
   } catch {
     return (
       <div className="card mx-auto max-w-xl p-8 text-center">
-        <div className="text-4xl">🔁</div>
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-slate-500"><Icon name="repeat" className="h-7 w-7" /></div>
  <h1 className="mt-3 text-xl font-bold">Review isn&apos;t ready yet</h1>
         <p className="mt-2 text-sm text-slate-600">
           The review/bookmark tables aren&apos;t in the database yet. An admin needs to run the latest

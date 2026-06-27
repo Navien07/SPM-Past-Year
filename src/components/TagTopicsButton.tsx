@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Icon from "./Icon";
 
 // Drives the AI topic-tagger: loops POST /api/admin/tag-topics until every
 // question AND knowledge chunk is linked to a KSSM topic, with live progress.
@@ -8,6 +9,7 @@ export default function TagTopicsButton() {
   const [counts, setCounts] = useState<{ untagged: number; untaggedKnowledge: number } | null>(null);
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState("");
+  const [allDone, setAllDone] = useState(false);
 
   async function refresh() {
     const r = await fetch("/api/admin/tag-topics");
@@ -35,11 +37,13 @@ export default function TagTopicsButton() {
 
   async function run() {
     setRunning(true);
+    setAllDone(false);
     setStatus("Starting…");
     try {
       await loop("questions", "Questions");
       await loop("knowledge", "Textbooks");
-      setStatus("✓ All questions and textbooks tagged to KSSM topics.");
+      setStatus("All questions and textbooks tagged to KSSM topics.");
+      setAllDone(true);
     } finally {
       setRunning(false);
       refresh();
@@ -61,7 +65,12 @@ export default function TagTopicsButton() {
           {running ? "Tagging…" : "Auto-tag topics (AI)"}
         </button>
       </div>
-      {status && <p className="mt-2 text-sm text-slate-600">{status}</p>}
+      {status && (
+        <p className="mt-2 inline-flex items-center gap-1 text-sm text-slate-600">
+          {allDone && <Icon name="check" className="h-4 w-4 text-emerald-600" />}
+          {status}
+        </p>
+      )}
       {running && <p className="mt-2 text-xs text-slate-400">Keep this tab open, runs in batches; thousands of items take a few minutes.</p>}
     </div>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { McqOption } from "@/lib/types";
 import { useLang } from "@/lib/useLang";
 import { t } from "@/lib/i18n";
+import Icon from "@/components/Icon";
 
 interface Subject { id: string; name: string; _count: { questions: number } }
 interface ExamQ {
@@ -106,7 +107,7 @@ export default function ExamPage() {
     return (
       <div className="space-y-6">
         <div>
- <h1 className="font-display text-2xl font-black">{t(lang, "exam.title")} ⏱</h1>
+ <h1 className="font-display inline-flex items-center gap-2 text-2xl font-black">{t(lang, "exam.title")} <Icon name="clock" className="h-6 w-6" /></h1>
           <p className="text-sm text-slate-500">{t(lang, "exam.subtitle")}</p>
         </div>
         <div className="card grid gap-4 p-5 sm:grid-cols-2">

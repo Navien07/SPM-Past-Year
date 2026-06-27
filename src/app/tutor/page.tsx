@@ -5,6 +5,7 @@ import type { TutorRecommendation } from "@/lib/types";
 import AILoader from "@/components/AILoader";
 import { useLang } from "@/lib/useLang";
 import { t } from "@/lib/i18n";
+import Icon from "@/components/Icon";
 
 interface PerTopic {
   subject: string;
@@ -58,7 +59,7 @@ export default function TutorPage() {
             </div>
             <p className="text-slate-700">{rec.overview}</p>
             {rec.motivational && (
-              <p className="mt-3 rounded-xl bg-brand-50 p-3 text-sm font-medium text-brand-800">💪 {rec.motivational}</p>
+              <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-brand-50 p-3 text-sm font-medium text-brand-800"><Icon name="strength" className="h-4 w-4 shrink-0" /> {rec.motivational}</p>
             )}
           </div>
 

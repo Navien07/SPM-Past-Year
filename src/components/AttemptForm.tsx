@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "./Icon";
 import MicButton from "./MicButton";
 import FormattedText from "./FormattedText";
 import { celebrate } from "./Confetti";
@@ -176,9 +177,10 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
                     }),
                   )
                 }
-                className="btn-primary"
+                className="btn-primary inline-flex items-center gap-1.5"
               >
-                🧑‍🏫 {t(lang, "af.explainMistake")}
+                <Icon name="teacher" className="h-4 w-4" />
+                {t(lang, "af.explainMistake")}
               </button>
               <button
                 onClick={() => {

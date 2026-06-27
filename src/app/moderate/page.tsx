@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import ModerateQueue from "@/components/ModerateQueue";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export default async function ModeratePage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Review queue ✅</h1>
+        <h1 className="inline-flex items-center gap-2 text-2xl font-bold">Review queue <Icon name="check" className="h-6 w-6 text-emerald-600" /></h1>
         <p className="text-sm text-slate-500">
           High-confidence questions are auto-approved; these fell below the threshold. Verify the
           subject, form & topic, then approve or reject before they go live to students.

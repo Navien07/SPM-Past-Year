@@ -1,11 +1,12 @@
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 export const metadata = { title: "Privacy Policy & PDPA Notice, SPM AI" };
 
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 py-4">
-      <Link href="/" className="text-sm text-brand-600 hover:underline">← Back</Link>
+      <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-brand-600 hover:underline"><Icon name="arrow" className="h-4 w-4 rotate-180" /> Back</Link>
       <div>
         <h1 className="text-2xl font-bold">Privacy Policy &amp; PDPA Notice</h1>
         <p className="text-sm text-slate-500">SPM AI, pilot programme. Last updated: June 2026.</p>

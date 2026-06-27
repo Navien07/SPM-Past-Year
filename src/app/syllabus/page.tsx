@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -57,8 +58,8 @@ export default async function SyllabusPage({ searchParams }: { searchParams: SP 
                   </div>
                 )}
                 {tp._count.questions > 0 && (
-                  <Link href={`/practice?subject=${subjectId}&view=topic&topic=${tp.id}`} className="btn-ghost mt-3 inline-flex px-3 py-1.5 text-xs">
-                    {lang === "bm" ? "Berlatih" : "Practise"} →
+                  <Link href={`/practice?subject=${subjectId}&view=topic&topic=${tp.id}`} className="btn-ghost mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs">
+                    {lang === "bm" ? "Berlatih" : "Practise"} <Icon name="arrow" className="h-3.5 w-3.5" />
                   </Link>
                 )}
               </div>

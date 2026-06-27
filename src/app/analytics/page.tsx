@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireStudent } from "@/lib/student";
 import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -16,7 +17,7 @@ function fmtDuration(sec: number) {
 function AnalyticsError() {
   return (
     <div className="card mx-auto max-w-xl p-8 text-center">
-      <div className="text-4xl">⚠️</div>
+      <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-amber-50 text-amber-600"><Icon name="alert" className="h-7 w-7" /></div>
  <h1 className="mt-3 text-xl font-bold">Couldn&apos;t load your progress</h1>
       <p className="mt-2 text-sm text-slate-600">A database query failed. Try again in a moment.</p>
       <p className="mt-3 text-xs text-slate-500">
@@ -106,8 +107,8 @@ export default async function AnalyticsPage() {
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link href="/practice" className="btn-primary">{t(lang, "common.continue")}</Link>
-          <Link href="/tutor" className="btn-ghost">🧭 {t(lang, "analytics.aiAnalysis")}</Link>
-          <Link href="/report" className="btn-ghost">📄 {t(lang, "analytics.pdf")}</Link>
+          <Link href="/tutor" className="btn-ghost inline-flex items-center gap-1.5"><Icon name="compass" className="h-4 w-4" /> {t(lang, "analytics.aiAnalysis")}</Link>
+          <Link href="/report" className="btn-ghost inline-flex items-center gap-1.5"><Icon name="doc" className="h-4 w-4" /> {t(lang, "analytics.pdf")}</Link>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { QUESTION_TYPE_LABEL, examLabel, topicLabel } from "@/lib/constants";
 import { requireStudent } from "@/lib/student";
 import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -108,7 +109,7 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
       <div>
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">{t(lang, "practice.title")}</h1>
-          <Link href="/syllabus" className="text-sm font-semibold text-brand-600 hover:underline">📚 {lang === "bm" ? "Sukatan" : "Syllabus"}</Link>
+          <Link href="/syllabus" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:underline"><Icon name="book" className="h-4 w-4" /> {lang === "bm" ? "Sukatan" : "Syllabus"}</Link>
         </div>
         <p className="text-sm text-slate-500">{t(lang, "practice.subtitle")}</p>
       </div>
@@ -246,14 +247,14 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
                 <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300 hover:shadow-sm">
                   <div className="mb-1 flex flex-wrap items-center gap-2">
                     {done ? (
-                      <span className="badge bg-emerald-100 text-emerald-700">✓ {t(lang, "common.done")}</span>
+                      <span className="badge inline-flex items-center gap-1 bg-emerald-100 text-emerald-700"><Icon name="check" className="h-3.5 w-3.5" /> {t(lang, "common.done")}</span>
                     ) : (
                       <span className="badge bg-slate-100 text-slate-500">{t(lang, "common.notDone")}</span>
                     )}
                     <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
                     <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
                     <span className="badge bg-slate-100 text-slate-600">{q.marks} {t(lang, "common.marks")}</span>
-                    {isAi && <span className="badge bg-accent-100 text-accent-700">✨ AI</span>}
+                    {isAi && <span className="badge inline-flex items-center gap-1 bg-accent-100 text-accent-700"><Icon name="sparkles" className="h-3.5 w-3.5" /> AI</span>}
                     {q.isKbat && <span className="tag-kbat">KBAT</span>}
                   </div>
                   <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>

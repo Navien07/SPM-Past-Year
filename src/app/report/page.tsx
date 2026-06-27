@@ -12,7 +12,7 @@ function fmtDuration(sec: number) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-// Printable progress report → "Save as PDF" via the browser. Print CSS hides
+// Printable progress report, "Save as PDF" via the browser. Print CSS hides
 // the app chrome so it exports as a clean one/two-page document.
 export default async function ReportPage() {
   const student = await requireStudent();

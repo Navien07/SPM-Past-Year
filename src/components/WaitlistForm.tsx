@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "./Icon";
 import { MALAYSIA_STATES } from "@/lib/constants";
 
 // Public waitlist capture. Used on the landing page (and emphasised when the
@@ -44,7 +45,10 @@ export default function WaitlistForm({ full }: { full: boolean }) {
         <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-500 text-white">
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
         </div>
-        <h3 className="font-display mt-3 text-lg font-bold text-emerald-900">You&apos;re on the list! 🎉</h3>
+        <h3 className="font-display mt-3 inline-flex items-center justify-center gap-1.5 text-lg font-bold text-emerald-900">
+          You&apos;re on the list!
+          <Icon name="sparkles" className="h-5 w-5 text-emerald-500" />
+        </h3>
         <p className="mt-1 text-sm text-emerald-800">
           {message} We&apos;ll WhatsApp you the moment a spot opens up. Terima kasih!
         </p>

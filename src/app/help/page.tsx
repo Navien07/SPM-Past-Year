@@ -3,6 +3,7 @@ import { requireStudent } from "@/lib/student";
 import { getLang } from "@/lib/lang-server";
 import { t, type Lang } from "@/lib/i18n";
 import OpenChatButton from "@/components/OpenChatButton";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +11,8 @@ const GUIDES: { q: { en: string; bm: string }; a: { en: string; bm: string } }[]
   {
     q: { en: "How do I practise?", bm: "Bagaimana saya berlatih?" },
     a: {
-      en: "Go to Practice → pick a subject → browse By Topic or By Year → tap a question. Choose your MCQ option or type your answer, then Submit to get instant marks and feedback. A ✓ Done badge shows what you've already tried.",
-      bm: "Pergi ke Latihan → pilih subjek → cari Ikut Topik atau Ikut Tahun → ketik soalan. Pilih jawapan objektif atau taip jawapan anda, kemudian Hantar untuk markah & maklum balas serta-merta. Lencana ✓ Selesai menunjukkan apa yang telah anda cuba.",
+      en: "Go to Practice, pick a subject, browse By Topic or By Year, then tap a question. Choose your MCQ option or type your answer, then Submit to get instant marks and feedback. A Done badge shows what you've already tried.",
+      bm: "Pergi ke Latihan, pilih subjek, cari Ikut Topik atau Ikut Tahun, kemudian ketik soalan. Pilih jawapan objektif atau taip jawapan anda, kemudian Hantar untuk markah & maklum balas serta-merta. Lencana Selesai menunjukkan apa yang telah anda cuba.",
     },
   },
   {
@@ -24,29 +25,29 @@ const GUIDES: { q: { en: string; bm: string }; a: { en: string; bm: string } }[]
   {
     q: { en: "How do I use Cikgu AI (the chat)?", bm: "Bagaimana saya guna Cikgu AI (sembang)?" },
     a: {
-      en: "Tap the 💬 bubble (bottom-right) on any page. Ask it to explain a topic, give a hint, or check your reasoning, in Bahasa Melayu or English. On a question page it already knows which question you're viewing.",
-      bm: "Ketik gelembung 💬 (bawah kanan) di mana-mana halaman. Minta ia terangkan topik, beri petunjuk, atau semak penaakulan anda, dalam Bahasa Melayu atau English. Di halaman soalan, ia sudah tahu soalan yang anda lihat.",
+      en: "Tap the chat bubble (bottom-right) on any page. Ask it to explain a topic, give a hint, or check your reasoning, in Bahasa Melayu or English. On a question page it already knows which question you're viewing.",
+      bm: "Ketik gelembung sembang (bawah kanan) di mana-mana halaman. Minta ia terangkan topik, beri petunjuk, atau semak penaakulan anda, dalam Bahasa Melayu atau English. Di halaman soalan, ia sudah tahu soalan yang anda lihat.",
     },
   },
   {
     q: { en: "Can I send a screenshot to the AI?", bm: "Boleh saya hantar tangkap layar kepada AI?" },
     a: {
-      en: "Yes! In the chat, tap 📸 to capture your screen or 📎 to attach a photo of a question you're stuck on. Cikgu AI reads the image and explains it.",
-      bm: "Boleh! Dalam sembang, ketik 📸 untuk tangkap skrin atau 📎 untuk lampirkan gambar soalan yang anda buntu. Cikgu AI akan membaca imej dan menerangkannya.",
+      en: "Yes! In the chat, tap the camera button to capture your screen or the paperclip to attach a photo of a question you're stuck on. Cikgu AI reads the image and explains it.",
+      bm: "Boleh! Dalam sembang, ketik butang kamera untuk tangkap skrin atau klip kertas untuk lampirkan gambar soalan yang anda buntu. Cikgu AI akan membaca imej dan menerangkannya.",
     },
   },
   {
     q: { en: "What is Review (spaced repetition)?", bm: "Apa itu Ulang Kaji (pengulangan berjarak)?" },
     a: {
-      en: "Questions you get wrong come back in the Review tab on a smart schedule (1, 3, 7, 16, 35 days) until you master them. Tap ▶ Smart practice to jump to the best next question automatically.",
-      bm: "Soalan yang anda salah akan kembali di tab Ulang Kaji mengikut jadual pintar (1, 3, 7, 16, 35 hari) sehingga anda kuasainya. Ketik ▶ Latihan pintar untuk terus ke soalan terbaik seterusnya.",
+      en: "Questions you get wrong come back in the Review tab on a smart schedule (1, 3, 7, 16, 35 days) until you master them. Tap Smart practice to jump to the best next question automatically.",
+      bm: "Soalan yang anda salah akan kembali di tab Ulang Kaji mengikut jadual pintar (1, 3, 7, 16, 35 hari) sehingga anda kuasainya. Ketik Latihan pintar untuk terus ke soalan terbaik seterusnya.",
     },
   },
   {
     q: { en: "How do I create my own practice questions?", bm: "Bagaimana saya cipta soalan latihan sendiri?" },
     a: {
-      en: "Go to Generate → pick a subject, topic and type → the AI writes fresh SPM-style (and KBAT) questions. They're saved to Practice (labelled “Soalan AI”) so you can attempt and get them graded anytime.",
-      bm: "Pergi ke Jana → pilih subjek, topik dan jenis → AI menulis soalan gaya SPM (dan KBAT) yang baharu. Ia disimpan ke Latihan (berlabel “Soalan AI”) supaya anda boleh cuba dan dapatkan markah bila-bila masa.",
+      en: "Go to Generate, pick a subject, topic and type, and the AI writes fresh SPM-style (and KBAT) questions. They're saved to Practice (labelled “Soalan AI”) so you can attempt and get them graded anytime.",
+      bm: "Pergi ke Jana, pilih subjek, topik dan jenis, dan AI menulis soalan gaya SPM (dan KBAT) yang baharu. Ia disimpan ke Latihan (berlabel “Soalan AI”) supaya anda boleh cuba dan dapatkan markah bila-bila masa.",
     },
   },
   {
@@ -59,8 +60,8 @@ const GUIDES: { q: { en: string; bm: string }; a: { en: string; bm: string } }[]
   {
     q: { en: "How do I bookmark a tricky question?", bm: "Bagaimana saya tanda soalan yang sukar?" },
     a: {
-      en: "On a question page tap ☆ Bookmark. Find all your saved questions in the Review tab.",
-      bm: "Di halaman soalan, ketik ☆ Tanda buku. Cari semua soalan yang disimpan di tab Ulang Kaji.",
+      en: "On a question page tap Bookmark. Find all your saved questions in the Review tab.",
+      bm: "Di halaman soalan, ketik Tanda buku. Cari semua soalan yang disimpan di tab Ulang Kaji.",
     },
   },
   {
@@ -108,10 +109,10 @@ export default async function HelpPage() {
 
       {/* Quick links */}
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Link href="/practice" className="card p-4 text-center hover:border-brand-300"><div className="text-2xl">📝</div><div className="mt-1 text-sm font-semibold">{t(lang, "nav.practice")}</div></Link>
-        <Link href="/review" className="card p-4 text-center hover:border-brand-300"><div className="text-2xl">🔁</div><div className="mt-1 text-sm font-semibold">{t(lang, "nav.review")}</div></Link>
-        <Link href="/generate" className="card p-4 text-center hover:border-brand-300"><div className="text-2xl">✨</div><div className="mt-1 text-sm font-semibold">{t(lang, "nav.generate")}</div></Link>
-        <Link href="/tutor" className="card p-4 text-center hover:border-brand-300"><div className="text-2xl">🧭</div><div className="mt-1 text-sm font-semibold">{t(lang, "nav.tutor")}</div></Link>
+        <Link href="/practice" className="card p-4 text-center hover:border-brand-300"><Icon name="practice" className="mx-auto h-7 w-7 text-brand-600" /><div className="mt-1 text-sm font-semibold">{t(lang, "nav.practice")}</div></Link>
+        <Link href="/review" className="card p-4 text-center hover:border-brand-300"><Icon name="repeat" className="mx-auto h-7 w-7 text-brand-600" /><div className="mt-1 text-sm font-semibold">{t(lang, "nav.review")}</div></Link>
+        <Link href="/generate" className="card p-4 text-center hover:border-brand-300"><Icon name="sparkles" className="mx-auto h-7 w-7 text-brand-600" /><div className="mt-1 text-sm font-semibold">{t(lang, "nav.generate")}</div></Link>
+        <Link href="/tutor" className="card p-4 text-center hover:border-brand-300"><Icon name="compass" className="mx-auto h-7 w-7 text-brand-600" /><div className="mt-1 text-sm font-semibold">{t(lang, "nav.tutor")}</div></Link>
       </section>
 
       <p className="text-center text-xs text-slate-400">

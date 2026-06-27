@@ -1,5 +1,6 @@
 "use client";
 
+import Icon from "./Icon";
 import { useLang } from "@/lib/useLang";
 import { t } from "@/lib/i18n";
 
@@ -16,9 +17,10 @@ export default function ExplainButton({ label }: { label?: string }) {
           }),
         )
       }
-      className="btn-ghost"
+      className="btn-ghost inline-flex items-center gap-1.5"
     >
-      🧑‍🏫 {label ?? t(lang, "explain.label")}
+      <Icon name="teacher" className="h-4 w-4" />
+      {label ?? t(lang, "explain.label")}
     </button>
   );
 }

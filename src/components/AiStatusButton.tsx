@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "./Icon";
 
 // Admin: run a live AI key check (real ping) and show whether the live
 // Anthropic key actually works, catches "key set but out of credit".
@@ -29,8 +30,8 @@ export default function AiStatusButton() {
         <p className="text-xs text-slate-500">
           {state === "idle" && "Checks the live Anthropic key actually works (grading, tutor, Cikgu AI, generator)."}
           {state === "checking" && "Pinging Anthropic…"}
-          {state === "ok" && <span className="text-emerald-700">✅ AI is working. {detail}</span>}
-          {state === "fail" && <span className="text-red-600">❌ AI not working, {detail}</span>}
+          {state === "ok" && <span className="inline-flex items-center gap-1 text-emerald-700"><Icon name="check" className="h-4 w-4 text-emerald-600" />AI is working. {detail}</span>}
+          {state === "fail" && <span className="inline-flex items-center gap-1 text-red-600"><Icon name="x" className="h-4 w-4 text-red-600" />AI not working, {detail}</span>}
         </p>
       </div>
       <button onClick={check} disabled={state === "checking"} className="btn-ghost cursor-pointer">

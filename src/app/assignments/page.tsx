@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 interface Assignment {
   id: string; title: string; type: string; dueAt: string | null; scope: string | null;
@@ -28,7 +29,7 @@ export default function AssignmentsPage() {
         <p className="text-sm text-slate-400">Loading…</p>
       ) : items.length === 0 ? (
         <div className="card p-8 text-center text-slate-500">
-          No assignments right now. <Link href="/practice" className="font-semibold text-brand-600 hover:underline">Practise freely →</Link>
+          No assignments right now. <Link href="/practice" className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:underline">Practise freely <Icon name="arrow" className="h-3.5 w-3.5" /></Link>
         </div>
       ) : (
         <div className="space-y-3">
@@ -45,7 +46,7 @@ export default function AssignmentsPage() {
                       {a.dueAt ? <span className={overdue ? "font-semibold text-red-600" : ""}>Due {new Date(a.dueAt).toLocaleDateString("en-MY")}</span> : "No due date"}
                     </p>
                   </div>
-                  {pct >= 100 ? <span className="badge bg-emerald-100 text-emerald-700">✓ Done</span> : <span className="badge bg-amber-100 text-amber-800">{pct}%</span>}
+                  {pct >= 100 ? <span className="badge inline-flex items-center gap-1 bg-emerald-100 text-emerald-700"><Icon name="check" className="h-3.5 w-3.5" /> Done</span> : <span className="badge bg-amber-100 text-amber-800">{pct}%</span>}
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
                   <div className={`h-full ${pct >= 100 ? "bg-emerald-500" : "bg-brand-500"}`} style={{ width: `${pct}%` }} />

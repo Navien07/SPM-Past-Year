@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import type { McqOption } from "@/lib/types";
 import { useEffect } from "react";
+import Icon from "@/components/Icon";
 
 interface PaperQ {
   id: string; number: string | null; stem: string; questionType: string;
@@ -55,7 +56,7 @@ export default function PaperAttemptPage({ params }: { params: Promise<{ id: str
   if (phase === "loading") return <div className="card p-10 text-center text-slate-500">Loading paper…</div>;
   if (phase === "error") return (
     <div className="card mx-auto max-w-md p-8 text-center">
-      <div className="text-4xl">⚠️</div>
+      <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-amber-50 text-amber-600"><Icon name="alert" className="h-7 w-7" /></div>
       <p className="mt-2 font-semibold">{error}</p>
       <Link href="/papers" className="btn-primary mt-4 inline-flex">Back to papers</Link>
     </div>
