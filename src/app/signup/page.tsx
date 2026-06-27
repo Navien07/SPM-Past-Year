@@ -145,9 +145,14 @@ export default function SignupPage() {
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4" required />
             <span>
               I have read and agree to the{" "}
-              <Link href="/privacy" target="_blank" className="font-semibold text-brand-600 hover:underline">Privacy Policy &amp; PDPA notice</Link>.
-              I consent to SPM AI processing my personal data (incl. my WhatsApp number) under the
-              Personal Data Protection Act 2010 and to being added to the pilot WhatsApp feedback group.
+              <Link href="/privacy" target="_blank" className="font-semibold text-brand-600 hover:underline">Privacy Policy &amp; PDPA notice</Link>{" "}
+              and the <Link href="/terms" target="_blank" className="font-semibold text-brand-600 hover:underline">Terms of Use</Link>. Under the
+              Personal Data Protection Act 2010 (Malaysia), I consent to SPM AI <strong>collecting, storing and processing</strong> my
+              personal data and all my activity (answers, attempts, scores, time and usage), and to it being used to
+              <strong> analyse my learning, behaviour and performance</strong> (including learning analytics and psychometric/aptitude
+              analysis) to improve the service. I understand that all platform content and any insights or data derived from my
+              usage <strong>belong to SPM AI (all rights reserved)</strong>, and I agree to be added to the pilot WhatsApp group.
+              If I am under 18, I confirm my parent or guardian agrees to the above.
             </span>
           </label>
           {error && <p className="text-sm text-red-600">{error}</p>}
