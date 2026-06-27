@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import TagTopicsButton from "@/components/TagTopicsButton";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -38,10 +39,10 @@ export default async function ImportsPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Import runs 📥</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="download" className="h-6 w-6" /> Import runs</h1>
           <p className="text-sm text-slate-500">Live content totals and a log of every bulk import.</p>
         </div>
-        <Link href="/admin/papers/bulk" className="btn-ghost shrink-0">📦 Import papers</Link>
+        <Link href="/admin/papers/bulk" className="btn-ghost shrink-0 gap-2"><Icon name="package" className="h-4 w-4" /> Import papers</Link>
       </div>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-5">

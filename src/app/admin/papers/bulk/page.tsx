@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 const SAMPLE = `[
   {
@@ -93,13 +94,13 @@ export default function BulkUploadPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Bulk import papers 📦</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="package" className="h-6 w-6" /> Bulk import papers</h1>
           <p className="text-sm text-slate-500">
             Paste an array of papers (question text + marking scheme). They&apos;re created in one go,
             then the AI splits each into questions, tags topics and pairs the answers.
           </p>
         </div>
-        <Link href="/admin/papers" className="btn-ghost shrink-0">← Single upload</Link>
+        <Link href="/admin/papers" className="btn-ghost shrink-0 gap-2"><Icon name="arrow" className="h-4 w-4 rotate-180" /> Single upload</Link>
       </div>
 
       {msg && <div className="rounded-xl border border-brand-200 bg-brand-50 p-3 text-sm text-brand-800">{msg}</div>}

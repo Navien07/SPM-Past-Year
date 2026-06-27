@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Icon from "@/components/Icon";
 
 interface Subject { id: string; name: string }
 
@@ -40,15 +41,15 @@ export default function NewUserPage() {
     const data = await res.json().catch(() => ({}));
     setLoading(false);
     if (!res.ok) return setErr(data.error || "Failed to create account");
-    setMsg(`✓ ${form.role} account created for ${form.email}. Share the password with them.`);
+    setMsg(`${form.role} account created for ${form.email}. Share the password with them.`);
     setForm({ ...form, name: "", email: "", password: "", school: "", age: "", whatsapp: "" });
   }
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <Link href="/admin/students" className="text-sm text-brand-600 hover:underline">← Students</Link>
+      <Link href="/admin/students" className="inline-flex items-center gap-1 text-sm text-brand-600 hover:underline"><Icon name="arrow" className="h-4 w-4 rotate-180" /> Students</Link>
       <div>
-        <h1 className="text-2xl font-bold">Create an account 👤</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="user" className="h-6 w-6" /> Create an account</h1>
         <p className="text-sm text-slate-500">Add a student (or another admin). They sign in with this email & password.</p>
       </div>
       {msg && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{msg}</div>}
@@ -90,8 +91,8 @@ export default function NewUserPage() {
               <label className="label">Subjects</label>
               <div className="flex flex-wrap gap-2">
                 {subjects.map((s) => (
-                  <button type="button" key={s.id} onClick={() => toggle(s.id)} className={`badge border px-3 py-1.5 ${picked.has(s.id) ? "border-brand-300 bg-brand-50 text-brand-700" : "border-slate-200 bg-white text-slate-500"}`}>
-                    {picked.has(s.id) ? "✓ " : ""}{s.name}
+                  <button type="button" key={s.id} onClick={() => toggle(s.id)} className={`badge inline-flex items-center gap-1 border px-3 py-1.5 ${picked.has(s.id) ? "border-brand-300 bg-brand-50 text-brand-700" : "border-slate-200 bg-white text-slate-500"}`}>
+                    {picked.has(s.id) && <Icon name="check" className="h-3.5 w-3.5" />}{s.name}
                   </button>
                 ))}
               </div>

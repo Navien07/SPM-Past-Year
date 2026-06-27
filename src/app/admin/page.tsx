@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { aiEnabled } from "@/lib/ai";
 import { PILOT_MAX_STUDENTS } from "@/lib/constants";
 import AiStatusButton from "@/components/AiStatusButton";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ function rm(n: number) {
 function AdminError() {
   return (
     <div className="card mx-auto max-w-xl p-8 text-center">
-      <div className="text-4xl">⚠️</div>
+      <div className="flex justify-center text-amber-600"><Icon name="alert" className="h-10 w-10" /></div>
       <h1 className="mt-3 text-xl font-bold">Couldn&apos;t load the dashboard</h1>
       <p className="mt-2 text-sm text-slate-600">
         The database query failed. The most common cause on Vercel + Supabase is a
@@ -65,7 +66,7 @@ export default async function AdminOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Admin Overview 📈</h1>
+        <h1 className="text-2xl font-bold">Admin Overview</h1>
         <p className="text-sm text-slate-500">Students, revenue, content and moderation at a glance.</p>
       </div>
 
@@ -87,7 +88,7 @@ export default async function AdminOverview() {
         <section className="card p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-bold">Recent payments</h2>
-            <Link href="/admin/students" className="text-sm text-brand-600 hover:underline">All students →</Link>
+            <Link href="/admin/students" className="inline-flex items-center gap-1 text-sm text-brand-600 hover:underline">All students <Icon name="arrow" className="h-4 w-4" /></Link>
           </div>
           <div className="divide-y divide-slate-100">
             {recentPayments.length === 0 && <p className="text-sm text-slate-400">No payments yet.</p>}
@@ -109,20 +110,20 @@ export default async function AdminOverview() {
         <section className="card p-5">
           <h2 className="mb-3 font-bold">Quick actions</h2>
           <div className="space-y-2">
-            <Link href="/admin/papers" className="btn-ghost w-full justify-start">🗂️ Upload & categorize papers</Link>
-            <Link href="/admin/papers/bulk" className="btn-ghost w-full justify-start">📦 Bulk import papers</Link>
-            <Link href="/admin/qa" className="btn-ghost w-full justify-start">🔍 Content QA (flagged questions)</Link>
-            <Link href="/admin/imports" className="btn-ghost w-full justify-start">📥 Import runs & content totals</Link>
-            <Link href="/admin/coverage" className="btn-ghost w-full justify-start">🗺️ Syllabus coverage</Link>
-            <Link href="/moderate" className="btn-ghost w-full justify-start">
-              ✅ Review AI categorization {pendingMod > 0 && <span className="tag-kbat ml-2">{pendingMod} pending</span>}
+            <Link href="/admin/papers" className="btn-ghost w-full justify-start gap-2"><Icon name="folder" className="h-5 w-5" /> Upload & categorize papers</Link>
+            <Link href="/admin/papers/bulk" className="btn-ghost w-full justify-start gap-2"><Icon name="package" className="h-5 w-5" /> Bulk import papers</Link>
+            <Link href="/admin/qa" className="btn-ghost w-full justify-start gap-2"><Icon name="search" className="h-5 w-5" /> Content QA (flagged questions)</Link>
+            <Link href="/admin/imports" className="btn-ghost w-full justify-start gap-2"><Icon name="download" className="h-5 w-5" /> Import runs & content totals</Link>
+            <Link href="/admin/coverage" className="btn-ghost w-full justify-start gap-2"><Icon name="map" className="h-5 w-5" /> Syllabus coverage</Link>
+            <Link href="/moderate" className="btn-ghost w-full justify-start gap-2">
+              <Icon name="check" className="h-5 w-5 text-emerald-600" /> Review AI categorization {pendingMod > 0 && <span className="tag-kbat ml-2">{pendingMod} pending</span>}
             </Link>
-            <Link href="/admin/class" className="btn-ghost w-full justify-start">🏫 Class performance</Link>
-            <Link href="/admin/waitlist" className="btn-ghost w-full justify-start">📝 Waitlist</Link>
-            <Link href="/admin/notify" className="btn-ghost w-full justify-start">🔔 Send notification</Link>
-            <Link href="/admin/students" className="btn-ghost w-full justify-start">👥 View students & performance</Link>
-            <Link href="/admin/activity" className="btn-ghost w-full justify-start">🧾 Activity log (trace)</Link>
-            <Link href="/admin/account" className="btn-ghost w-full justify-start">🔐 Change my password</Link>
+            <Link href="/admin/class" className="btn-ghost w-full justify-start gap-2"><Icon name="teacher" className="h-5 w-5" /> Class performance</Link>
+            <Link href="/admin/waitlist" className="btn-ghost w-full justify-start gap-2"><Icon name="doc" className="h-5 w-5" /> Waitlist</Link>
+            <Link href="/admin/notify" className="btn-ghost w-full justify-start gap-2"><Icon name="bell" className="h-5 w-5" /> Send notification</Link>
+            <Link href="/admin/students" className="btn-ghost w-full justify-start gap-2"><Icon name="users" className="h-5 w-5" /> View students & performance</Link>
+            <Link href="/admin/activity" className="btn-ghost w-full justify-start gap-2"><Icon name="doc" className="h-5 w-5" /> Activity log (trace)</Link>
+            <Link href="/admin/account" className="btn-ghost w-full justify-start gap-2"><Icon name="lock" className="h-5 w-5" /> Change my password</Link>
           </div>
         </section>
       </div>

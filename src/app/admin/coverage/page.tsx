@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -32,10 +33,10 @@ export default async function CoveragePage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Syllabus coverage 🗺️</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="map" className="h-6 w-6" /> Syllabus coverage</h1>
           <p className="text-sm text-slate-500">Approved questions per KSSM topic. Empty topics are flagged red.</p>
         </div>
-        <Link href="/admin/imports" className="btn-ghost shrink-0">📥 Imports & tagging</Link>
+        <Link href="/admin/imports" className="btn-ghost shrink-0 gap-2"><Icon name="download" className="h-4 w-4" /> Imports & tagging</Link>
       </div>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">

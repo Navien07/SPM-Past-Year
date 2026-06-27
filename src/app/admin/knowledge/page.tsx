@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Icon from "@/components/Icon";
 
 interface Subject { id: string; name: string }
 interface Doc {
@@ -92,13 +93,13 @@ export default function KnowledgePage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Knowledge Base 🧠</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="brain" className="h-6 w-6" /> Knowledge Base</h1>
           <p className="text-sm text-slate-500">
             Ingest reference notes & summaries. Cikgu AI retrieves relevant snippets to ground its
             answers (it explains in its own words, it won&apos;t reproduce material verbatim).
           </p>
         </div>
-        <Link href="/admin/knowledge/bulk" className="btn-ghost shrink-0">📚 Bulk import</Link>
+        <Link href="/admin/knowledge/bulk" className="btn-ghost shrink-0 gap-2"><Icon name="book" className="h-4 w-4" /> Bulk import</Link>
       </div>
 
       {msg && <div className="rounded-xl border border-brand-200 bg-brand-50 p-3 text-sm text-brand-800">{msg}</div>}

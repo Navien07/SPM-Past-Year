@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "@/components/Icon";
 
 export default function AdminAccountPage() {
   const [cur, setCur] = useState("");
@@ -31,7 +32,7 @@ export default function AdminAccountPage() {
   return (
     <div className="mx-auto max-w-md space-y-4">
       <div>
-        <h1 className="text-2xl font-bold">Admin account 🔐</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="lock" className="h-6 w-6" /> Admin account</h1>
         <p className="text-sm text-slate-500">Change your administrator password.</p>
       </div>
       <form onSubmit={submit} className="card space-y-4 p-5">

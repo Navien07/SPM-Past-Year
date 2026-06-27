@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import AdminStudentTools from "@/components/AdminStudentTools";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +71,7 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
 
   return (
     <div className="space-y-6">
-      <Link href="/admin/students" className="text-sm text-brand-600 hover:underline">← All students</Link>
+      <Link href="/admin/students" className="inline-flex items-center gap-1 text-sm text-brand-600 hover:underline"><Icon name="arrow" className="h-4 w-4 rotate-180" /> All students</Link>
 
       <div className="card p-5">
         <h1 className="text-2xl font-bold">{student.name}</h1>
@@ -83,13 +84,13 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
             <a
               href={`https://wa.me/${student.whatsapp.replace(/[^0-9]/g, "")}`}
               target="_blank"
-              className="badge bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+              className="badge inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
             >
-              💬 {student.whatsapp}
+              <Icon name="chat" className="h-3.5 w-3.5" /> {student.whatsapp}
             </a>
           )}
-          <span className={`badge ${student.pdpaConsent ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-            {student.pdpaConsent ? "✓ PDPA consent" : "No consent on file"}
+          <span className={`badge inline-flex items-center gap-1 ${student.pdpaConsent ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+            {student.pdpaConsent ? <><Icon name="check" className="h-3.5 w-3.5" /> PDPA consent</> : "No consent on file"}
           </span>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Icon from "@/components/Icon";
 
 interface Row {
   id: string;
@@ -56,10 +57,10 @@ export default function WaitlistPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Waitlist 📝</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="doc" className="h-6 w-6" /> Waitlist</h1>
           <p className="text-sm text-slate-500">{rows.length} signups · {pending} not yet invited.</p>
         </div>
-        <button onClick={exportCsv} disabled={rows.length === 0} className="btn-ghost cursor-pointer">⬇ Export CSV</button>
+        <button onClick={exportCsv} disabled={rows.length === 0} className="btn-ghost cursor-pointer gap-2"><Icon name="download" className="h-4 w-4" /> Export CSV</button>
       </div>
 
       <div className="card overflow-x-auto">
@@ -89,9 +90,9 @@ export default function WaitlistPage() {
                 <td className="px-4 py-3">
                   <button
                     onClick={() => toggle(r)}
-                    className={`badge cursor-pointer ${r.invited ? "bg-accent-100 text-accent-700" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}
+                    className={`badge inline-flex cursor-pointer items-center gap-1 ${r.invited ? "bg-accent-100 text-accent-700" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}
                   >
-                    {r.invited ? "✓ Invited" : "Mark invited"}
+                    {r.invited ? <><Icon name="check" className="h-3.5 w-3.5" /> Invited</> : "Mark invited"}
                   </button>
                 </td>
               </tr>

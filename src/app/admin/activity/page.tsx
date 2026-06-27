@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export default async function ActivityPage() {
   } catch {
     return (
       <div className="card mx-auto max-w-xl p-8 text-center">
-        <div className="text-4xl">🧾</div>
+        <div className="flex justify-center text-slate-500"><Icon name="doc" className="h-10 w-10" /></div>
         <h1 className="mt-3 text-xl font-bold">Activity log not ready</h1>
         <p className="mt-2 text-sm text-slate-600">Run the latest <code className="rounded bg-slate-100 px-1">supabase_setup.sql</code> to create the ActivityLog table.</p>
       </div>
@@ -51,7 +52,7 @@ export default async function ActivityPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Activity log 🧾</h1>
+        <h1 className="text-2xl font-bold">Activity log</h1>
         <p className="text-sm text-slate-500">Latest 200 of {total.toLocaleString()} events. Every key user action is traced.</p>
       </div>
       <div className="card overflow-x-auto">
@@ -85,7 +86,7 @@ export default async function ActivityPage() {
           </tbody>
         </table>
       </div>
-      <Link href="/admin" className="text-sm text-brand-600 hover:underline">← Overview</Link>
+      <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-brand-600 hover:underline"><Icon name="arrow" className="h-4 w-4 rotate-180" /> Overview</Link>
     </div>
   );
 }

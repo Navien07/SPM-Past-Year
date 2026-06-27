@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "@/components/Icon";
 
 // Admin: broadcast a push notification to every subscribed device.
 export default function NotifyPage() {
@@ -27,15 +28,15 @@ export default function NotifyPage() {
   }
 
   const presets = [
-    { title: "Jom latih hari ini! 📚", body: "5 soalan sehari cukup untuk kekalkan streak anda." },
-    { title: "Kertas baharu ditambah ✨", body: "Soalan SPM baharu tersedia. Cuba sekarang!" },
-    { title: "SPM makin dekat ⏰", body: "Buat satu peperiksaan bermasa hari ini untuk uji diri." },
+    { title: "Jom latih hari ini!", body: "5 soalan sehari cukup untuk kekalkan streak anda." },
+    { title: "Kertas baharu ditambah", body: "Soalan SPM baharu tersedia. Cuba sekarang!" },
+    { title: "SPM makin dekat", body: "Buat satu peperiksaan bermasa hari ini untuk uji diri." },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Send notification 🔔</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="bell" className="h-6 w-6" /> Send notification</h1>
         <p className="text-sm text-slate-500">Push a message to every student who turned on notifications.</p>
       </div>
 

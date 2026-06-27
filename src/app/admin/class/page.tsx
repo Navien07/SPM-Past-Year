@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -44,7 +45,7 @@ export default async function ClassPage() {
   } catch {
     return (
       <div className="card mx-auto max-w-xl p-8 text-center">
-        <div className="text-4xl">⚠️</div>
+        <div className="flex justify-center text-amber-600"><Icon name="alert" className="h-10 w-10" /></div>
         <h1 className="mt-3 text-xl font-bold">Couldn&apos;t load the class view</h1>
         <p className="mt-2 text-sm text-slate-600">A database query failed. Try again in a moment.</p>
       </div>
@@ -64,7 +65,7 @@ export default async function ClassPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Class view 🏫</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="teacher" className="h-6 w-6" /> Class view</h1>
         <p className="text-sm text-slate-500">Cohort-wide performance across all pilot students.</p>
       </div>
 

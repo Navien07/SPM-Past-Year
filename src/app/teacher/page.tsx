@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import AssignmentManager from "@/components/AssignmentManager";
+import Icon from "@/components/Icon";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
@@ -27,7 +28,7 @@ export default async function TeacherPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Salam, {user?.name} 👩‍🏫</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="teacher" className="h-6 w-6" /> Salam, {user?.name}</h1>
         <p className="text-sm text-slate-500">Your class at a glance, and set work for the cohort.</p>
       </div>
 

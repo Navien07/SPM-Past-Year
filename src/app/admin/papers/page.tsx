@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PAPER_TYPES, PAPER_TYPE_LABEL, MALAYSIA_STATES } from "@/lib/constants";
+import Icon from "@/components/Icon";
 
 interface Subject {
   id: string;
@@ -168,13 +169,13 @@ export default function AdminPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Admin · Upload & Categorize 🗂️</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="folder" className="h-6 w-6" /> Admin · Upload & Categorize</h1>
           <p className="text-sm text-slate-500">
             Add past-year, trial, state and mock papers. The AI agent splits each paper into
             questions and tags them by topic, form, year and KBAT.
           </p>
         </div>
-        <Link href="/admin/papers/bulk" className="btn-ghost shrink-0">📦 Bulk import</Link>
+        <Link href="/admin/papers/bulk" className="btn-ghost shrink-0 gap-2"><Icon name="package" className="h-4 w-4" /> Bulk import</Link>
       </div>
 
       {msg && (
