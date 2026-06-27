@@ -1,6 +1,9 @@
 import Link from "next/link";
 import CountUp from "./CountUp";
 import WaitlistForm from "./WaitlistForm";
+import Reveal from "./Reveal";
+import TiltCard from "./TiltCard";
+import CelebrateLink from "./CelebrateLink";
 
 /* Inline icon set (Lucide-style, 24×24, currentColor) — per design system:
    SVG icons, never emojis, consistent viewBox + sizing. */
@@ -138,10 +141,10 @@ export default function Landing({ taken, total }: { taken: number; total: number
           </p>
 
           <div className="animate-fade-up mt-9 flex flex-col items-center justify-center gap-3 [animation-delay:.2s] sm:flex-row">
-            <Link href={primaryHref} className="group inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#FFD23F] px-7 py-4 text-base font-bold text-[#0B1020] shadow-lg shadow-[#FFD23F]/20 transition-all duration-200 hover:bg-[#ffdb5e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFD23F] sm:w-auto">
+            <CelebrateLink href={primaryHref} className="group inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#FFD23F] px-7 py-4 text-base font-bold text-[#0B1020] shadow-lg shadow-[#FFD23F]/20 transition-all duration-200 hover:bg-[#ffdb5e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFD23F] sm:w-auto">
               {primaryLabel}
               <Icon name="arrow" className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-            </Link>
+            </CelebrateLink>
             <Link href="/login" className="inline-flex w-full cursor-pointer items-center justify-center rounded-2xl border border-white/25 px-7 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto">
               Sign in
             </Link>
@@ -203,14 +206,17 @@ export default function Landing({ taken, total }: { taken: number; total: number
           <p className="mt-3 text-slate-600">One app for practice, marking, tutoring and review — built around how you actually study.</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
-            <div key={f.title} className="group card p-6 transition-all duration-200 hover:-translate-y-1 hover:border-[#2D5BFF]/40 hover:shadow-lg">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#2D5BFF]/10 text-[#2D5BFF] transition-colors duration-200 group-hover:bg-[#2D5BFF] group-hover:text-white">
-                <Icon name={f.icon} />
-              </div>
-              <h3 className="font-display mt-4 text-lg font-bold">{f.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{f.desc}</p>
-            </div>
+          {features.map((f, i) => (
+            <Reveal key={f.title} delay={i * 70}>
+              <TiltCard className="group card relative h-full overflow-hidden p-6 transition-colors duration-200 hover:border-[#2D5BFF]/40 hover:shadow-lg">
+                <div className="tilt-shine pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#2D5BFF]/10 text-[#2D5BFF] transition-colors duration-200 group-hover:bg-[#2D5BFF] group-hover:text-white">
+                  <Icon name={f.icon} />
+                </div>
+                <h3 className="font-display mt-4 text-lg font-bold">{f.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{f.desc}</p>
+              </TiltCard>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -319,9 +325,9 @@ export default function Landing({ taken, total }: { taken: number; total: number
       <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#2D5BFF] to-[#1e3a8a] p-10 text-center text-white sm:p-16">
         <h2 className="font-display text-3xl font-black sm:text-5xl">Your SPM starts today.</h2>
         <p className="mx-auto mt-4 max-w-lg text-blue-100">Free for the first {total} students. Tak rugi mencuba — and your future self will thank you.</p>
-        <Link href={primaryHref} className="mt-8 inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-base font-bold text-[#2D5BFF] transition-colors duration-200 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+        <CelebrateLink href={primaryHref} className="mt-8 inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-base font-bold text-[#2D5BFF] transition-colors duration-200 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
           {primaryLabel} <Icon name="arrow" className="h-5 w-5" />
-        </Link>
+        </CelebrateLink>
         <p className="mt-5 text-xs text-blue-200">
           By joining you agree to our <Link href="/privacy" className="underline hover:text-white">Privacy Policy &amp; PDPA notice</Link>.
         </p>

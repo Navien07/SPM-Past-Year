@@ -107,6 +107,19 @@ body {
   background-size: 22px 22px;
 }
 
+/* Scroll-reveal: hidden until in view, then eases up into place. */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
+.reveal.revealed { opacity: 1; transform: none; }
+
+/* 3D tilt card: perspective wrapper + smooth return. */
+.tilt { transform-style: preserve-3d; transition: transform .2s ease-out; will-change: transform; }
+.tilt-shine { background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.35), transparent 45%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .tilt { transform: none !important; }
+}
+
 /* Signature: highlighter swipe (the student's own tool) — ink text on a marker
    sweep so contrast stays high (≈11:1). box-decoration-break keeps it intact
    across line wraps. */
