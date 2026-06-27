@@ -3,32 +3,33 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import LangToggle from "./LangToggle";
+import Icon from "./Icon";
 import { t, type Lang } from "@/lib/i18n";
 
 type NavUser = { name: string; role: string } | null;
 
 const STUDENT_LINKS = [
-  { href: "/", key: "nav.home", icon: "🏠" },
-  { href: "/practice", key: "nav.practice", icon: "📝" },
-  { href: "/papers", key: "nav.papers", icon: "📄" },
-  { href: "/exam", key: "nav.exam", icon: "⏱️" },
-  { href: "/review", key: "nav.review", icon: "🔁" },
-  { href: "/tutor", key: "nav.tutor", icon: "🧭" },
-  { href: "/analytics", key: "nav.progress", icon: "📊" },
+  { href: "/", key: "nav.home", icon: "home" },
+  { href: "/practice", key: "nav.practice", icon: "practice" },
+  { href: "/syllabus", key: "nav.syllabus", icon: "syllabus" },
+  { href: "/papers", key: "nav.papers", icon: "papers" },
+  { href: "/exam", key: "nav.exam", icon: "exam" },
+  { href: "/review", key: "nav.review", icon: "review" },
+  { href: "/analytics", key: "nav.progress", icon: "progress" },
 ];
 
 const TEACHER_LINKS = [
-  { href: "/teacher", key: "nav.overview", icon: "👩‍🏫" },
+  { href: "/teacher", key: "nav.overview", icon: "class" },
 ];
 
 const ADMIN_LINKS = [
-  { href: "/admin", key: "nav.overview", icon: "📈" },
-  { href: "/admin/students", key: "nav.students", icon: "👥" },
-  { href: "/admin/class", key: "nav.class", icon: "🏫" },
-  { href: "/admin/papers", key: "nav.papers", icon: "🗂️" },
-  { href: "/admin/knowledge", key: "nav.brain", icon: "🧠" },
-  { href: "/moderate", key: "nav.review", icon: "✅" },
-  { href: "/admin/activity", key: "nav.activity", icon: "🧾" },
+  { href: "/admin", key: "nav.overview", icon: "progress" },
+  { href: "/admin/students", key: "nav.students", icon: "users" },
+  { href: "/admin/class", key: "nav.class", icon: "class" },
+  { href: "/admin/papers", key: "nav.papers", icon: "folder" },
+  { href: "/admin/knowledge", key: "nav.brain", icon: "brain" },
+  { href: "/moderate", key: "nav.review", icon: "check" },
+  { href: "/admin/activity", key: "nav.activity", icon: "activity" },
 ];
 
 export default function Nav({ user, lang = "bm" }: { user: NavUser; lang?: Lang }) {
@@ -75,7 +76,9 @@ export default function Nav({ user, lang = "bm" }: { user: NavUser; lang?: Lang 
             {user ? (
               <>
                 {user.role === "student" && (
-                  <Link href="/help" className="rounded-lg px-2 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100" title="Help Centre">❓ {t(lang, "nav.help")}</Link>
+                  <Link href="/help" className="hidden items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 sm:inline-flex" title="Help Centre">
+                    <Icon name="help" className="h-4 w-4" /> {t(lang, "nav.help")}
+                  </Link>
                 )}
                 <span className={`badge ${roleColor} hidden sm:inline-flex`}>{user.role}</span>
                 <span className="hidden text-sm text-slate-600 sm:inline">{user.name}</span>
@@ -96,8 +99,8 @@ export default function Nav({ user, lang = "bm" }: { user: NavUser; lang?: Lang 
           <div className="mx-auto grid max-w-6xl" style={{ gridTemplateColumns: `repeat(${links.length}, minmax(0, 1fr))` }}>
             {links.map((l) => (
               <Link key={l.href} href={l.href}
-                className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${isActive(l.href) ? "text-brand-700" : "text-slate-500"}`}>
-                <span className="text-base leading-none">{l.icon}</span>
+                className={`flex flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors duration-150 ${isActive(l.href) ? "text-brand-700" : "text-slate-500"}`}>
+                <Icon name={l.icon} className="h-[18px] w-[18px]" />
                 {t(lang, l.key)}
               </Link>
             ))}

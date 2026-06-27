@@ -21,6 +21,7 @@ export const STRINGS: Dict = {
   "nav.tutor": { en: "Tutor", bm: "Tutor" },
   "nav.progress": { en: "Progress", bm: "Kemajuan" },
   "nav.report": { en: "Report", bm: "Laporan" },
+  "nav.syllabus": { en: "Syllabus", bm: "Sukatan" },
   "nav.help": { en: "Help", bm: "Bantuan" },
   "nav.signout": { en: "Sign out", bm: "Log keluar" },
   "nav.signin": { en: "Sign in", bm: "Log masuk" },
@@ -73,8 +74,8 @@ export const STRINGS: Dict = {
   // home dashboard
   "home.hello": { en: "Hi", bm: "Salam" },
   "home.heroDesc": {
-    en: "Your AI-powered SPM revision hub. Every past-year, trial and state paper — sorted by subject, topic and year — with instant grading, a personal tutor and unlimited KBAT practice.",
-    bm: "Hab ulang kaji SPM berkuasa AI anda. Setiap kertas sebenar, percubaan dan negeri — disusun ikut subjek, topik dan tahun — dengan pemarkahan serta-merta, tutor peribadi dan latihan KBAT tanpa had.",
+    en: "Your AI-powered SPM revision hub. Every past-year, trial and state paper, sorted by subject, topic and year, with instant grading, a personal tutor and unlimited KBAT practice.",
+    bm: "Hab ulang kaji SPM berkuasa AI anda. Setiap kertas sebenar, percubaan dan negeri, disusun ikut subjek, topik dan tahun, dengan pemarkahan serta-merta, tutor peribadi dan latihan KBAT tanpa had.",
   },
   "home.smartPractice": { en: "Smart practice", bm: "Latihan pintar" },
   "home.browse": { en: "Browse papers", bm: "Lihat kertas" },

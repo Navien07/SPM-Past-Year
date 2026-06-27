@@ -8,6 +8,7 @@ import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
 import SmartPracticeButton from "@/components/SmartPracticeButton";
 import Landing from "@/components/Landing";
+import Icon from "@/components/Icon";
 
 function SetupNeeded() {
   return (
@@ -115,15 +116,15 @@ export default async function Home() {
   ];
 
   const modules = [
-    { href: "/practice", icon: "📝", title: "Practice & Instant Grading", desc: "Browse by topic or year, attempt questions, get rubric-based feedback in seconds." },
-    { href: "/syllabus", icon: "📚", title: "KSSM Syllabus", desc: "Browse every chapter by subject and form, and jump straight into practice." },
-    { href: "/papers", icon: "📄", title: "Past Papers", desc: "Attempt a full SPM/trial paper end-to-end and get it marked instantly." },
-    { href: "/exam", icon: "⏱️", title: "Timed Exam Mode", desc: "Sit a timed paper against the clock, then get a marked breakdown." },
-    { href: "/assignments", icon: "📌", title: "My Assignments", desc: "See and complete the work set by your teacher." },
-    { href: "/generate", icon: "✨", title: "AI Question Generator", desc: "Create fresh KBAT questions in the style of real SPM papers, per topic." },
-    { href: "/tutor", icon: "🧭", title: "AI Tutor", desc: "Find your weak subjects & topics and get a personalised focus plan." },
-    { href: "/analytics", icon: "📊", title: "Progress Analytics", desc: "Track mastery, time spent and improvement over time." },
-    { href: "/mock", icon: "🧪", title: "Mock Paper Builder", desc: "Auto-assemble mock papers from the question bank with varied patterns." },
+    { href: "/practice", icon: "practice", title: "Practice & Instant Grading", desc: "Browse by topic or year, attempt questions, get rubric-based feedback in seconds." },
+    { href: "/syllabus", icon: "syllabus", title: "KSSM Syllabus", desc: "Browse every chapter by subject and form, and jump straight into practice." },
+    { href: "/papers", icon: "papers", title: "Past Papers", desc: "Attempt a full SPM or trial paper end to end and get it marked instantly." },
+    { href: "/exam", icon: "exam", title: "Timed Exam Mode", desc: "Sit a timed paper against the clock, then get a marked breakdown." },
+    { href: "/assignments", icon: "assignments", title: "My Assignments", desc: "See and complete the work set by your teacher." },
+    { href: "/generate", icon: "generate", title: "AI Question Generator", desc: "Create fresh KBAT questions in the style of real SPM papers, per topic." },
+    { href: "/tutor", icon: "tutor", title: "AI Tutor", desc: "Find your weak subjects and topics and get a personalised focus plan." },
+    { href: "/analytics", icon: "progress", title: "Progress Analytics", desc: "Track mastery, time spent and improvement over time." },
+    { href: "/mock", icon: "mock", title: "Mock Paper Builder", desc: "Auto-assemble mock papers from the question bank with varied patterns." },
   ];
 
   return (
@@ -133,25 +134,27 @@ export default async function Home() {
           <div className="mb-2 flex items-center gap-2">
             <span className="badge inline-flex items-center gap-1.5 bg-white/20 text-white">
               <span className={`inline-block h-2 w-2 rounded-full ${aiEnabled() ? "bg-accent-400" : "bg-slate-300"}`} />
-              {aiEnabled() ? "AI live" : "AI offline — set ANTHROPIC_API_KEY"}
+              {aiEnabled() ? "AI live" : "AI offline (set ANTHROPIC_API_KEY)"}
             </span>
           </div>
-          <h1 className="text-2xl font-bold sm:text-3xl">{t(lang, "home.hello")}, {student.name} 👋</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">{t(lang, "home.hello")}, {student.name}</h1>
           <p className="mt-2 max-w-xl text-brand-50">{t(lang, "home.heroDesc")}</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <SmartPracticeButton className="btn bg-white text-brand-700 hover:bg-brand-50" label={`▶ ${t(lang, "home.smartPractice")}`} />
+            <SmartPracticeButton className="btn bg-white text-brand-700 hover:bg-brand-50" label={t(lang, "home.smartPractice")} />
             <Link href="/practice" className="btn border border-white/40 text-white hover:bg-white/10">
               {t(lang, "home.browse")}
             </Link>
           </div>
-          <p className="mt-3 text-xs text-brand-100">💬 {t(lang, "home.chatHint")}</p>
+          <p className="mt-3 text-xs text-brand-100">{t(lang, "home.chatHint")}</p>
         </div>
       </section>
 
       {/* Streak + daily goal */}
       <div className="card flex items-center justify-between gap-4 p-4">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">{streakData.streak > 0 ? "🔥" : "✨"}</span>
+          <span className={`grid h-11 w-11 place-items-center rounded-xl ${streakData.streak > 0 ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-400"}`}>
+            <Icon name="flame" className="h-5 w-5" />
+          </span>
           <div>
             <div className="font-bold">{streakData.streak}{t(lang, "home.streakSuffix")}</div>
             <div className="text-xs text-slate-500">{t(lang, "home.streakSub")}</div>
@@ -161,7 +164,7 @@ export default async function Home() {
           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t(lang, "home.todayGoal")}</div>
           <div className="font-bold">
             {Math.min(streakData.doneToday, DAILY_GOAL)} / {DAILY_GOAL}
-            {streakData.doneToday >= DAILY_GOAL && <span className="ml-1">✅</span>}
+            {streakData.doneToday >= DAILY_GOAL && <Icon name="check" className="ml-1 inline h-4 w-4 text-emerald-600" />}
           </div>
           <div className="mt-1 h-1.5 w-28 overflow-hidden rounded-full bg-slate-100">
             <div className="h-full bg-emerald-500" style={{ width: `${Math.min(100, (streakData.doneToday / DAILY_GOAL) * 100)}%` }} />
@@ -180,7 +183,7 @@ export default async function Home() {
               {resume.subjectName}{resume.topicTitle ? ` · ${resume.topicTitle}` : ""}
             </div>
           </div>
-          <span className="btn-primary shrink-0">{t(lang, "home.resumeBtn")} →</span>
+          <span className="btn-primary shrink-0">{t(lang, "home.resumeBtn")} <Icon name="arrow" className="h-4 w-4" /></span>
         </Link>
       )}
 
@@ -197,8 +200,10 @@ export default async function Home() {
         <h2 className="mb-3 text-lg font-bold">{t(lang, "home.modules")}</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((m) => (
-            <Link key={m.href} href={m.href} className="card group p-5 transition hover:border-brand-300 hover:shadow-md">
-              <div className="text-2xl">{m.icon}</div>
+            <Link key={m.href} href={m.href} className="card group p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md">
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600 transition-colors duration-200 group-hover:bg-brand-600 group-hover:text-white">
+                <Icon name={m.icon} className="h-5 w-5" />
+              </div>
               <h3 className="mt-3 font-semibold group-hover:text-brand-700">{m.title}</h3>
               <p className="mt-1 text-sm text-slate-500">{m.desc}</p>
             </Link>
