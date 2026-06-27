@@ -1,6 +1,7 @@
 // Exercises the queries behind each key flow to catch runtime errors.
 import { PrismaClient } from "@prisma/client";
 import { computeGameStats } from "../src/lib/gamify";
+import { subjectReadiness, overallReadiness } from "../src/lib/readiness";
 const prisma = new PrismaClient();
 
 async function main() {
@@ -44,6 +45,23 @@ async function main() {
   // Coverage
   const cov = await prisma.topic.findMany({ include: { _count: { select: { questions: { where: { status: "approved" } } } } } });
   out.push(`coverage: ${cov.length} topics, empty=${cov.filter((c) => c._count.questions === 0).length}`);
+
+  // Readiness: per-subject mastery + coverage + grade forecast
+  const rAttempts = await prisma.attempt.findMany({ where: { studentId: stId }, include: { question: { include: { subject: true } } } });
+  const enrol = await prisma.enrollment.findMany({ where: { studentId: stId }, select: { subjectId: true } });
+  const bySub = new Map<string, { name: string; sum: number; n: number; topics: Set<string> }>();
+  for (const a of rAttempts) {
+    const cur = bySub.get(a.question.subjectId) ?? { name: a.question.subject.name, sum: 0, n: 0, topics: new Set<string>() };
+    cur.sum += a.maxScore ? (a.score / a.maxScore) * 100 : 0; cur.n += 1; if (a.question.topicId) cur.topics.add(a.question.topicId);
+    bySub.set(a.question.subjectId, cur);
+  }
+  const rList = [...bySub.values()].map((s) => subjectReadiness({ name: s.name, mastery: s.n ? s.sum / s.n : 0, topicsDone: s.topics.size, topicsTotal: Math.max(s.topics.size, 1), attempts: s.n }));
+  const ov = overallReadiness(rList, enrol.length);
+  out.push(`readiness: overall=${ov.score}% grade=${ov.grade} subjects=${ov.started}/${ov.total}`);
+
+  // Flashcards: answer-bearing deck per subject
+  const fc = await prisma.question.findMany({ where: { subjectId: sid, status: "approved", OR: [{ answer: { not: null } }, { markingScheme: { not: null } }] }, orderBy: [{ isKbat: "desc" }, { year: "desc" }], take: 30, include: { topic: true } });
+  out.push(`flashcards: ${fc.length} cards (withAnswer=${fc.filter((q) => q.answer).length})`);
 
   console.log("FLOW SMOKE TEST — all queries ran:\n  " + out.join("\n  "));
   await prisma.$disconnect();
