@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import MicButton from "./MicButton";
+import FormattedText from "./FormattedText";
 
 interface Attachment {
   dataUrl: string; // data:image/...;base64,XXXX
@@ -226,7 +227,9 @@ export default function ChatWidget() {
                       ))}
                     </div>
                   )}
-                  <p className="whitespace-pre-wrap">{m.text}</p>
+                  {m.role === "assistant"
+                    ? <FormattedText text={m.text} className="text-sm leading-relaxed" />
+                    : <p className="whitespace-pre-wrap">{m.text}</p>}
                   {m.role === "assistant" && m.byAi === false && (
                     <p className="mt-1 text-[10px] text-slate-400">offline mode</p>
                   )}

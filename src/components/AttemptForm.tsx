@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import MicButton from "./MicButton";
+import FormattedText from "./FormattedText";
 import { useLang } from "@/lib/useLang";
 import { t } from "@/lib/i18n";
 import type { GradeResult, McqOption } from "@/lib/types";
@@ -118,7 +119,7 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
           </div>
 
           <div className="space-y-4 p-4">
-            <p className="text-sm text-slate-700">{grade.summary}</p>
+            <FormattedText text={grade.summary} className="text-sm text-slate-700" />
 
             {grade.criteria?.length > 0 && (
               <div className="space-y-2">
