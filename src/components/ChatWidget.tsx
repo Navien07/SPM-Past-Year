@@ -40,9 +40,10 @@ export default function ChatWidget() {
 
   useEffect(() => {
     function onOpen(e: Event) {
-      const detail = (e as CustomEvent).detail as { prompt?: string } | undefined;
+      const detail = (e as CustomEvent).detail as { prompt?: string; image?: string } | undefined;
       setOpen(true);
       if (detail?.prompt) setInput(detail.prompt);
+      if (detail?.image) setPending((p) => [...p, { dataUrl: detail.image as string, name: "working.png" }]);
     }
     window.addEventListener(OPEN_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_EVENT, onOpen);

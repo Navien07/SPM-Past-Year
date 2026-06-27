@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { QUESTION_TYPE_LABEL, examLabel, topicLabel } from "@/lib/constants";
 import AttemptForm from "@/components/AttemptForm";
+import WorkingPad from "@/components/WorkingPad";
 import ExplainButton from "@/components/ExplainButton";
 import QuestionTools from "@/components/QuestionTools";
 import { requireStudent } from "@/lib/student";
@@ -147,6 +148,9 @@ export default async function QuestionPage({ params, searchParams }: { params: P
           </div>
         </details>
       )}
+
+      {/* Handwriting / sketch working space (structured & essay questions) */}
+      {q.questionType !== "mcq" && <WorkingPad />}
 
       <AttemptForm
         questionId={q.id}
