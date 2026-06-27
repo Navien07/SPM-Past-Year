@@ -72,7 +72,10 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
 
   return (
     <div className="space-y-6">
-      <Link href="/admin/students" className="inline-flex items-center gap-1 text-sm text-brand-600 hover:underline"><Icon name="arrow" className="h-4 w-4 rotate-180" /> All students</Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link href="/admin/students" className="inline-flex items-center gap-1 text-sm text-brand-600 hover:underline"><Icon name="arrow" className="h-4 w-4 rotate-180" /> All students</Link>
+        <Link href={`/admin/students/${student.id}/insights`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:underline"><Icon name="progress" className="h-4 w-4" /> Behavioural profile</Link>
+      </div>
 
       <div className="card p-5">
         <h1 className="text-2xl font-bold">{student.name}</h1>
