@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import AdminStudentTools from "@/components/AdminStudentTools";
+import AccessControl from "@/components/AccessControl";
 import Icon from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
@@ -102,6 +103,13 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
           ))}
         </div>
       </div>
+
+      <AccessControl
+        studentId={student.id}
+        accessType={student.accessType}
+        accessUntil={student.accessUntil ? student.accessUntil.toISOString() : null}
+        trialEndsAt={student.trialEndsAt ? student.trialEndsAt.toISOString() : null}
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="card p-5">

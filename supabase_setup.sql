@@ -220,6 +220,10 @@ CREATE TABLE public."Payment" (
     method text,
     status text DEFAULT 'paid'::text NOT NULL,
     description text,
+    gateway text,
+    "gatewayRef" text,
+    plan text,
+    "periodEnd" timestamp(3) without time zone,
     "paidAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -304,6 +308,10 @@ CREATE TABLE public."Student" (
     whatsapp text,
     "pdpaConsent" boolean DEFAULT false NOT NULL,
     "consentAt" timestamp(3) without time zone,
+    "accessType" text DEFAULT 'pilot'::text NOT NULL,
+    plan text,
+    "trialEndsAt" timestamp(3) without time zone,
+    "accessUntil" timestamp(3) without time zone,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 

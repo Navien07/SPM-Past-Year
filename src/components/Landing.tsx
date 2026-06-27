@@ -250,6 +250,50 @@ export default function Landing({ taken, total }: { taken: number; total: number
         </div>
       </section>
 
+      {/* ───────── PRICING ───────── */}
+      <section aria-label="Pricing">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-3xl font-black sm:text-4xl">Simple, student-friendly pricing</h2>
+          <p className="mt-3 text-slate-600">Start with a <strong>7-day free trial</strong>. No card needed to try. Cancel anytime.</p>
+        </div>
+        <div className="mx-auto mt-10 grid max-w-3xl gap-5 sm:grid-cols-2">
+          <div className="card relative border-[#2D5BFF]/30 p-7 ring-2 ring-[#2D5BFF]/15">
+            <span className="absolute -top-3 left-7 rounded-full bg-[#2D5BFF] px-3 py-1 text-xs font-bold text-white">Best value · save ~17%</span>
+            <h3 className="font-display text-xl font-bold">Full SPM year</h3>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="font-display text-4xl font-black">RM399</span>
+              <span className="text-slate-500">/year</span>
+            </div>
+            <p className="mt-2 text-sm text-slate-600">Everything, all year. Best for serious SPM prep through to the exam.</p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-700">
+              {["Unlimited practice & past papers", "AI grading, tutor & explanations", "Exam-readiness & progress analytics", "Flashcards, streaks & gamification"].map((x) => (
+                <li key={x} className="flex items-start gap-2"><Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> {x}</li>
+              ))}
+            </ul>
+            <CelebrateLink href={primaryHref} className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#2D5BFF] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#1e3a8a]">
+              Start 7-day free trial
+            </CelebrateLink>
+          </div>
+          <div className="card p-7">
+            <h3 className="font-display text-xl font-bold">Monthly</h3>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="font-display text-4xl font-black">RM39.90</span>
+              <span className="text-slate-500">/month</span>
+            </div>
+            <p className="mt-2 text-sm text-slate-600">Full access, billed monthly. Flexible — cancel whenever.</p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-700">
+              {["Everything in the annual plan", "Billed month to month", "Cancel anytime"].map((x) => (
+                <li key={x} className="flex items-start gap-2"><Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> {x}</li>
+              ))}
+            </ul>
+            <Link href={primaryHref} className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-200 px-6 py-3.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+              Start 7-day free trial
+            </Link>
+          </div>
+        </div>
+        <p className="mt-5 text-center text-xs text-slate-400">Secure payment via Billplz (FPX online banking &amp; e-wallets). Sponsored free access available for underprivileged students, contact us.</p>
+      </section>
+
       {/* ───────── HOW IT WORKS ───────── */}
       <section>
         <div className="mx-auto max-w-2xl text-center">

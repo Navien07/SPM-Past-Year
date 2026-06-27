@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import { setSession } from "@/lib/auth";
 import { PILOT_MAX_STUDENTS } from "@/lib/constants";
+import { PILOT_MODE, TRIAL_DAYS } from "@/lib/access";
 import { rateLimit } from "@/lib/ratelimit";
 import { logActivity, clientIp } from "@/lib/activity";
 
@@ -63,6 +64,9 @@ export async function POST(req: NextRequest) {
       whatsapp: cleanWa,
       pdpaConsent: true,
       consentAt: new Date(),
+      // Pilot cohort gets free access; afterwards new users get a 7-day trial.
+      accessType: PILOT_MODE ? "pilot" : "trial",
+      trialEndsAt: PILOT_MODE ? null : new Date(Date.now() + TRIAL_DAYS * 86400000),
     },
   });
   const user = await prisma.user.create({

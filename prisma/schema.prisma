@@ -168,6 +168,11 @@ model Student {
   whatsapp    String? // phone / WhatsApp number for the pilot feedback group
   pdpaConsent Boolean   @default(false) // agreed to PDPA / privacy policy
   consentAt   DateTime?
+  // Access & billing
+  accessType  String    @default("pilot") // pilot | trial | paid | sponsored
+  plan        String? // monthly | annual (when paid)
+  trialEndsAt DateTime? // end of the 7-day free trial
+  accessUntil DateTime? // paid access expiry (null = unlimited for pilot/sponsored)
   createdAt   DateTime  @default(now())
 
   attempts    Attempt[]
@@ -219,6 +224,10 @@ model Payment {
   method      String? // fpx | card | ewallet | cash
   status      String   @default("paid") // paid | pending | failed | refunded
   description String?
+  gateway     String? // billplz | stripe | manual
+  gatewayRef  String? // gateway bill/charge id
+  plan        String? // monthly | annual
+  periodEnd   DateTime? // access granted until
   paidAt      DateTime @default(now())
 
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
