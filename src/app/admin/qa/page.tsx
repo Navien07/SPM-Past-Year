@@ -171,7 +171,10 @@ export default function QAPage() {
         <div className="card p-4">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-semibold">Diagram/image coverage</p>
-            <span className="text-xs text-slate-500">{coverage.withImages.toLocaleString("en-MY")} / {coverage.total.toLocaleString("en-MY")} have images ({coverage.pct}%)</span>
+            <span className="flex items-center gap-3 text-xs">
+              <a href="/admin/qa/images" className="font-semibold text-brand-600 hover:underline">Spot-check crops →</a>
+              <span className="text-slate-500">{coverage.withImages.toLocaleString("en-MY")} / {coverage.total.toLocaleString("en-MY")} have images ({coverage.pct}%)</span>
+            </span>
           </div>
           <div className="space-y-2">
             {coverage.subjects.map((s) => (

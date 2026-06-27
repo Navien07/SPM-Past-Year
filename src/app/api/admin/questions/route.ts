@@ -18,11 +18,13 @@ export async function GET(req: NextRequest) {
   const subject = url.searchParams.get("subject") || undefined; // subject code
   const paper = url.searchParams.get("paper") || undefined; // paperId
   const withoutImages = url.searchParams.get("withoutImages") === "1";
+  const withImages = url.searchParams.get("withImages") === "1";
 
   const where: Record<string, unknown> = {};
   if (subject) where.subject = { code: subject };
   if (paper) where.paperId = paper;
   if (withoutImages) where.images = "[]";
+  if (withImages) where.NOT = { images: "[]" };
 
   const rows = await prisma.question.findMany({
     where,
@@ -40,16 +42,21 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  const items = rows.map((q) => ({
-    id: q.id,
-    number: q.number,
-    stem: q.stem.slice(0, 240),
-    paperId: q.paperId,
-    paperSourceKey: q.paper?.sourceKey ?? null,
-    paperTitle: q.paper?.title ?? null,
-    subject: q.subject.code,
-    hasImages: q.images !== "[]" && q.images !== "",
-  }));
+  const items = rows.map((q) => {
+    let images: string[] = [];
+    try { images = JSON.parse(q.images || "[]"); } catch { images = []; }
+    return {
+      id: q.id,
+      number: q.number,
+      stem: q.stem.slice(0, 240),
+      paperId: q.paperId,
+      paperSourceKey: q.paper?.sourceKey ?? null,
+      paperTitle: q.paper?.title ?? null,
+      subject: q.subject.code,
+      hasImages: images.length > 0,
+      images,
+    };
+  });
 
   return NextResponse.json({ items, nextCursor: rows.length === take ? rows[rows.length - 1].id : null });
 }
