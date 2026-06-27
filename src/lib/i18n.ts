@@ -127,6 +127,13 @@ export const STRINGS: Dict = {
   "readiness.accuracy": { en: "accuracy", bm: "ketepatan" },
   "readiness.covered": { en: "covered", bm: "diliputi" },
 
+  // flashcards
+  "flash.title": { en: "Flashcards", bm: "Kad Imbas" },
+  "flash.sub": { en: "Flip through key questions and lock in the answers.", bm: "Imbas soalan penting dan kukuhkan jawapan." },
+  "flash.cards": { en: "cards", bm: "kad" },
+  "flash.empty": { en: "No flashcards for this subject yet. Try practising first.", bm: "Tiada kad imbas untuk subjek ini lagi. Cuba berlatih dahulu." },
+  "nav.flashcards": { en: "Flashcards", bm: "Kad Imbas" },
+
   // help
   "help.title": { en: "Help Centre", bm: "Pusat Bantuan" },
   "help.subtitle": { en: "How to use SPM AI, and an AI assistant ready for any question.", bm: "Cara guna SPM AI, serta pembantu AI sedia membantu sebarang soalan." },

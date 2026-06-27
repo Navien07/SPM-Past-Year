@@ -127,6 +127,7 @@ export default async function Home() {
     { href: "/syllabus", icon: "syllabus", title: "KSSM Syllabus", desc: "Browse every chapter by subject and form, and jump straight into practice." },
     { href: "/papers", icon: "papers", title: "Past Papers", desc: "Attempt a full SPM or trial paper end to end and get it marked instantly." },
     { href: "/exam", icon: "exam", title: "Timed Exam Mode", desc: "Sit a timed paper against the clock, then get a marked breakdown." },
+    { href: "/flashcards", icon: "bolt", title: "Flashcards", desc: "Flip through key questions and lock in the answers, with spaced review." },
     { href: "/assignments", icon: "assignments", title: "My Assignments", desc: "See and complete the work set by your teacher." },
     { href: "/generate", icon: "generate", title: "AI Question Generator", desc: "Create fresh KBAT questions in the style of real SPM papers, per topic." },
     { href: "/tutor", icon: "tutor", title: "AI Tutor", desc: "Find your weak subjects and topics and get a personalised focus plan." },
