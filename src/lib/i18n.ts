@@ -207,6 +207,8 @@ export const STRINGS: Dict = {
   "af.improve": { en: "To improve", bm: "Perlu diperbaiki" },
   "af.model": { en: "Model answer", bm: "Jawapan model" },
   "af.explainMistake": { en: "Explain my mistake", bm: "Terangkan kesilapan saya" },
+  "af.why": { en: "Why is this the answer?", bm: "Kenapa ini jawapannya?" },
+  "af.whyLoading": { en: "Thinking…", bm: "Sedang berfikir…" },
   "qt.bookmark": { en: "Bookmark", bm: "Tanda buku" },
   "qt.bookmarked": { en: "Bookmarked", bm: "Ditanda" },
   "qt.read": { en: "Read aloud", bm: "Baca kuat" },

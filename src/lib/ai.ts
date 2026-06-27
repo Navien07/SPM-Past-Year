@@ -61,6 +61,44 @@ async function callClaudeJson<T>(system: string, user: string, opts?: { fast?: b
   return extractJson<T>(text);
 }
 
+// Generate a short, student-friendly explanation of why the correct answer is
+// right (and, for MCQ, why the common wrong options are wrong). Returns plain
+// markdown text. Cheap + cached once per question by the caller.
+export async function explainAnswer(input: {
+  stem: string;
+  options: { key: string; text: string }[];
+  answer: string | null;
+  markingScheme: string | null;
+  subjectName: string;
+  lang: "en" | "bm";
+}): Promise<{ text: string; byAi: boolean }> {
+  if (!aiEnabled()) return { text: "", byAi: false };
+  const isMcq = input.options.length > 0;
+  const optionsText = isMcq
+    ? "Options:\n" + input.options.map((o) => `${o.key}. ${o.text}`).join("\n")
+    : "";
+  const system = `You are a patient Malaysian SPM teacher. Explain, in ${input.lang === "bm" ? "Bahasa Melayu" : "clear simple English"}, WHY the correct answer is correct for this ${input.subjectName} question. ${
+    isMcq ? "Briefly say why the other options are wrong too." : "Outline the key marking points a student must include."
+  } Keep it under 120 words. Use short sentences. No preamble, start straight with the explanation.`;
+  const user = `Question: ${input.stem}\n${optionsText}\nCorrect answer: ${input.answer ?? "(see marking scheme)"}\n${input.markingScheme ? `Marking scheme: ${input.markingScheme}` : ""}`;
+  try {
+    const res = await client().messages.create({
+      model: MODEL,
+      max_tokens: 600,
+      system,
+      messages: [{ role: "user", content: user }],
+    } as unknown as Anthropic.MessageCreateParamsNonStreaming);
+    const text = res.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("\n")
+      .trim();
+    return { text, byAi: true };
+  } catch {
+    return { text: "", byAi: false };
+  }
+}
+
 // Classify questions into a subject's KSSM topics. Given the topic list and a
 // batch of question stems, returns the chosen topic index per question (or -1
 // when none fits). Used by the bulk topic-tagger to label imported questions.

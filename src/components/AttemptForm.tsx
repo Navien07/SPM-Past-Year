@@ -25,6 +25,28 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
   const [byAi, setByAi] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [startedAt] = useState(() => Date.now());
+  const [why, setWhy] = useState<string | null>(null);
+  const [whyLoading, setWhyLoading] = useState(false);
+  const [whyError, setWhyError] = useState<string | null>(null);
+
+  async function loadWhy() {
+    if (why || whyLoading) return;
+    setWhyLoading(true);
+    setWhyError(null);
+    try {
+      const res = await fetch(`/api/questions/${questionId}/explain`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok || !data.explanation) {
+        setWhyError(data.error || "Couldn't load an explanation.");
+      } else {
+        setWhy(data.explanation);
+      }
+    } catch {
+      setWhyError("Network error, please try again.");
+    } finally {
+      setWhyLoading(false);
+    }
+  }
 
   async function submit() {
     if (!answer.trim()) return;
@@ -165,6 +187,28 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
                 <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{grade.modelAnswer}</p>
               </div>
             )}
+
+            {/* Why is this the answer? (lazy-loaded, cached per question) */}
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              {why ? (
+                <div>
+                  <h4 className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-brand-600">
+                    <Icon name="brain" className="h-4 w-4" /> {t(lang, "af.why")}
+                  </h4>
+                  <FormattedText text={why} className="text-sm text-slate-700" />
+                </div>
+              ) : (
+                <button
+                  onClick={loadWhy}
+                  disabled={whyLoading}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:underline disabled:opacity-60"
+                >
+                  <Icon name="brain" className="h-4 w-4" />
+                  {whyLoading ? t(lang, "af.whyLoading") : t(lang, "af.why")}
+                </button>
+              )}
+              {whyError && <p className="mt-1 text-xs text-amber-600">{whyError}</p>}
+            </div>
 
             <div className="flex flex-wrap gap-2">
               <button

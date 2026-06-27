@@ -94,6 +94,7 @@ model Question {
   markingScheme String? // marking notes for structured/essay
   rubric        String? // JSON rubric for essays
   marks         Int      @default(1)
+  explanation   String? // cached AI explanation of why the answer is correct
   isKbat        Boolean  @default(false) // higher-order thinking (KBAT)
   subtopic      String?
   year          Int?

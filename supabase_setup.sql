@@ -257,6 +257,7 @@ CREATE TABLE public."Question" (
     "markingScheme" text,
     rubric text,
     marks integer DEFAULT 1 NOT NULL,
+    explanation text,
     "isKbat" boolean DEFAULT false NOT NULL,
     subtopic text,
     year integer,

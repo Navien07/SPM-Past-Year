@@ -75,13 +75,22 @@ export default function ChatWidget() {
     setCapturing(true);
     try {
       const md = navigator.mediaDevices as MediaDevices & {
-        getDisplayMedia?: (c?: MediaStreamConstraints) => Promise<MediaStream>;
+        getDisplayMedia?: (c?: Record<string, unknown>) => Promise<MediaStream>;
       };
       if (!md?.getDisplayMedia) {
         alert("Screen capture isn't supported in this browser. Use the attach button to add an image instead.");
         return;
       }
-      const stream = await md.getDisplayMedia({ video: true });
+      // preferCurrentTab makes Chrome auto-select this tab (so it grabs the app
+      // the student is looking at); selfBrowserSurface keeps our own tab in the
+      // list for browsers that ignore preferCurrentTab.
+      const stream = await md.getDisplayMedia({
+        video: { displaySurface: "browser" },
+        preferCurrentTab: true,
+        selfBrowserSurface: "include",
+        surfaceSwitching: "exclude",
+        audio: false,
+      });
       const video = document.createElement("video");
       video.srcObject = stream;
       await video.play();

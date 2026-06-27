@@ -21,6 +21,9 @@ export default function QAPage() {
   const [subject, setSubject] = useState("");
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
+  const [cleanup, setCleanup] = useState<{ estimate: number; boilerplate: number; short: number } | null>(null);
+  const [cleaning, setCleaning] = useState(false);
+  const [cleanupMsg, setCleanupMsg] = useState("");
 
   useEffect(() => {
     fetch("/api/taxonomy").then((r) => r.json()).then(setSubjects).catch(() => {});
@@ -61,6 +64,28 @@ export default function QAPage() {
 
   const topicsFor = (subjectId: string) => subjects.find((s) => s.id === subjectId)?.topics ?? [];
 
+  async function previewCleanup() {
+    setCleanupMsg("");
+    const res = await fetch("/api/admin/cleanup-quality");
+    if (res.ok) setCleanup(await res.json());
+  }
+
+  async function runCleanup() {
+    if (!confirm("Hide all questions matching the low-quality heuristics (OCR noise, boilerplate, very short stems)? They move to 'rejected' and can be restored from the rejected filter.")) return;
+    setCleaning(true);
+    setCleanupMsg("");
+    const res = await fetch("/api/admin/cleanup-quality", { method: "POST" });
+    const data = await res.json();
+    setCleaning(false);
+    if (res.ok) {
+      setCleanupMsg(`Hid ${data.hidden} questions (${data.byPhrase} boilerplate, ${data.short} too short).`);
+      setCleanup(null);
+      load();
+    } else {
+      setCleanupMsg(data.error || "Cleanup failed.");
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div>
@@ -73,6 +98,22 @@ export default function QAPage() {
         <span className="badge bg-amber-100 text-amber-800">{counts.pending ?? 0} pending</span>
         <span className="badge bg-red-100 text-red-700">{counts.rejected ?? 0} rejected</span>
         <span className="badge bg-slate-100 text-slate-600">{untagged.toLocaleString("en-MY")} unlinked</span>
+      </div>
+
+      {/* Data-quality cleanup */}
+      <div className="card flex flex-wrap items-center gap-3 p-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">Hide low-quality questions</p>
+          <p className="text-xs text-slate-500">Move OCR noise, boilerplate (&quot;Tulis nama&quot;, examiner-use, blank pages) and very short stems to rejected, so students never see them.</p>
+          {cleanup && (
+            <p className="mt-1 text-xs font-medium text-amber-700">~{cleanup.estimate.toLocaleString("en-MY")} would be hidden ({cleanup.boilerplate} boilerplate, {cleanup.short} too short).</p>
+          )}
+          {cleanupMsg && <p className="mt-1 text-xs font-medium text-emerald-700">{cleanupMsg}</p>}
+        </div>
+        <button onClick={previewCleanup} className="btn-ghost cursor-pointer px-3 py-1.5 text-xs">Preview</button>
+        <button onClick={runCleanup} disabled={cleaning} className="cursor-pointer rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60">
+          {cleaning ? "Hiding…" : "Hide low-quality"}
+        </button>
       </div>
 
       {/* Filters */}
