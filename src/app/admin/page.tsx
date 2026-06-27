@@ -122,6 +122,7 @@ export default async function AdminOverview() {
             <Link href="/admin/waitlist" className="btn-ghost w-full justify-start gap-2"><Icon name="doc" className="h-5 w-5" /> Waitlist</Link>
             <Link href="/admin/notify" className="btn-ghost w-full justify-start gap-2"><Icon name="bell" className="h-5 w-5" /> Send notification</Link>
             <Link href="/admin/students" className="btn-ghost w-full justify-start gap-2"><Icon name="users" className="h-5 w-5" /> View students & performance</Link>
+            <Link href="/admin/insights" className="btn-ghost w-full justify-start gap-2"><Icon name="progress" className="h-5 w-5" /> Student insights & behaviour</Link>
             <Link href="/admin/activity" className="btn-ghost w-full justify-start gap-2"><Icon name="doc" className="h-5 w-5" /> Activity log (trace)</Link>
             <Link href="/admin/account" className="btn-ghost w-full justify-start gap-2"><Icon name="lock" className="h-5 w-5" /> Change my password</Link>
           </div>
