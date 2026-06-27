@@ -45,11 +45,21 @@ function client(): Anthropic {
  * Uses adaptive thinking for these reasoning-heavy tasks. Robust to the model
  * wrapping JSON in prose or code fences.
  */
+// Wrap a system prompt as a cacheable block. Prompt caching is a prefix match,
+// so a stable system prompt is read from cache (~0.1x cost) on repeat calls
+// within the 5-minute TTL. Caching only kicks in once the prefix clears the
+// model's minimum (~2K tokens for Sonnet), so this is a no-op on tiny prompts
+// and a real saving on the large ones (chat with KB context, generation).
+function cachedSystem(text: string): Anthropic.TextBlockParam[] {
+  return [{ type: "text", text, cache_control: { type: "ephemeral" } }];
+}
+
 async function callClaudeJson<T>(system: string, user: string, opts?: { fast?: boolean; model?: string }): Promise<T> {
   const model = opts?.model || MODEL;
+  const sys = cachedSystem(system);
   const params: Record<string, unknown> = opts?.fast
-    ? { model, max_tokens: 4000, system, messages: [{ role: "user", content: user }] }
-    : { model, max_tokens: 16000, thinking: { type: "adaptive" }, system, messages: [{ role: "user", content: user }] };
+    ? { model, max_tokens: 4000, system: sys, messages: [{ role: "user", content: user }] }
+    : { model, max_tokens: 16000, thinking: { type: "adaptive" }, system: sys, messages: [{ role: "user", content: user }] };
   const res = await client().messages.create(params as unknown as Anthropic.MessageCreateParamsNonStreaming);
 
   const text = res.content
@@ -85,7 +95,7 @@ export async function explainAnswer(input: {
     const res = await client().messages.create({
       model: MODEL,
       max_tokens: 600,
-      system,
+      system: cachedSystem(system),
       messages: [{ role: "user", content: user }],
     } as unknown as Anthropic.MessageCreateParamsNonStreaming);
     const text = res.content
@@ -474,11 +484,23 @@ ${input.context ? `\nCURRENT CONTEXT:\n${input.context}` : ""}`;
     return { role: t.role, content: t.text };
   });
 
+  // Multi-turn cache: a breakpoint on the last prior turn lets each new message
+  // reuse the cached conversation prefix instead of re-billing the whole thread.
+  if (messages.length > 1) {
+    const last = messages[messages.length - 2];
+    const blocks: Anthropic.ContentBlockParam[] =
+      typeof last.content === "string" ? [{ type: "text", text: last.content }] : last.content;
+    if (blocks.length > 0) {
+      blocks[blocks.length - 1] = { ...blocks[blocks.length - 1], cache_control: { type: "ephemeral" } } as Anthropic.ContentBlockParam;
+      messages[messages.length - 2] = { ...last, content: blocks };
+    }
+  }
+
   const baseParams = {
     model: MODEL,
     max_tokens: 4096,
     thinking: { type: "adaptive" as const },
-    system,
+    system: cachedSystem(system),
     messages,
   };
   // Web search is a fallback source (KB stays primary). Enabled unless turned
