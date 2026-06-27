@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { QUESTION_TYPE_LABEL, examLabel, topicLabel } from "@/lib/constants";
 import { requireStudent } from "@/lib/student";
 import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
@@ -51,26 +50,6 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
         orderBy: { year: "desc" },
       })
     : [];
-
-  // The selected drill-down (topic or year) → paginated question list.
-  // (A popular year can hold 1,000+ questions, never load them all at once.)
-  const PAGE_SIZE = 48;
-  const page = Math.max(1, Number(sp.page) || 1);
-  const where: Record<string, unknown> = { subjectId, status: "approved" };
-  if (sp.topic) where.topicId = sp.topic;
-  if (sp.year) where.year = Number(sp.year);
-  const drilling = !!(sp.topic || sp.year);
-  const [questions, questionTotal] = drilling
-    ? await Promise.all([
-        prisma.question.findMany({
-          where,
-          orderBy: [{ paperNumber: "asc" }, { number: "asc" }],
-          include: { topic: true, paper: { select: { paperType: true, state: true } } },
-          take: page * PAGE_SIZE,
-        }),
-        prisma.question.count({ where }),
-      ])
-    : [[], 0];
 
   // Progress tracker: which approved questions in this subject the student has
   // already attempted (done vs not done), tallied overall + per topic/year.
@@ -186,96 +165,71 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
         </Link>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-        {/* Left: topic/year list */}
-        <div className="space-y-2">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
-            {subject?.name} · {view === "topic" ? t(lang, "practice.topics") : t(lang, "practice.years")}
-          </h2>
-          {view === "topic"
-            ? topics.map((t) => (
-                <Link
-                  key={t.id}
-                  href={base({ topic: t.id })}
-                  className={`card flex items-center justify-between p-3 text-sm hover:border-brand-300 ${
-                    sp.topic === t.id ? "border-brand-400 ring-1 ring-brand-200" : ""
-                  }`}
-                >
-                  <span>
-                    <span className="text-xs text-slate-400">Tingkatan {t.form} · Bab {t.chapter}</span>
-                    <br />
-                    {t.title}
-                  </span>
-                  <span className="badge bg-slate-100 text-slate-600">
-                    {attemptedByTopic.get(t.id)?.size ?? 0}/{t._count.questions}
-                  </span>
-                </Link>
-              ))
-            : years.map((y) => (
-                <Link
-                  key={String(y.year)}
-                  href={base({ year: String(y.year) })}
-                  className={`card flex items-center justify-between p-3 text-sm hover:border-brand-300 ${
-                    sp.year === String(y.year) ? "border-brand-400 ring-1 ring-brand-200" : ""
-                  }`}
-                >
-                  <span className="font-semibold">{y.year}</span>
-                  <span className="badge bg-slate-100 text-slate-600">
-                    {(y.year != null ? attemptedByYear.get(y.year)?.size : 0) ?? 0}/{y._count}
-                  </span>
-                </Link>
-              ))}
-          {view === "topic" && topics.length === 0 && (
-            <p className="text-sm text-slate-400">{t(lang, "practice.noTopics")}</p>
-          )}
-        </div>
-
-        {/* Right: questions */}
-        <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "practice.questions")}</h2>
-          {questions.length === 0 ? (
-            <div className="card p-6 text-center text-sm text-slate-400">
-              {view === "topic" ? t(lang, "practice.selectTopic") : t(lang, "practice.selectYear")}
-            </div>
-          ) : (
-            questions.map((q) => {
-              const done = attemptedSet.has(q.id);
-              const isAi = q.source === "ai_generated";
-              const tLabel = topicLabel({ chapter: q.topic?.chapter, form: q.topic?.form });
-              const exam = isAi ? "Soalan AI dijana" : examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year });
+      {/* Topic / year list — each opens its own question page */}
+      <div className="space-y-2">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
+          {subject?.name} · {view === "topic" ? t(lang, "practice.topics") : t(lang, "practice.years")}
+        </h2>
+        {view === "topic"
+          ? topics.map((tp) => {
+              const total = tp._count.questions;
+              const dn = attemptedByTopic.get(tp.id)?.size ?? 0;
+              const p = total ? Math.round((dn / total) * 100) : 0;
               return (
-                <Link key={q.id} href={`/practice/${q.id}`} className="card block p-4 hover:border-brand-300 hover:shadow-sm">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    {done ? (
-                      <span className="badge inline-flex items-center gap-1 bg-emerald-100 text-emerald-700"><Icon name="check" className="h-3.5 w-3.5" /> {t(lang, "common.done")}</span>
-                    ) : (
-                      <span className="badge bg-slate-100 text-slate-500">{t(lang, "common.notDone")}</span>
-                    )}
-                    <span className="badge bg-slate-100 text-slate-600">{QUESTION_TYPE_LABEL[q.questionType] ?? q.questionType}</span>
-                    <span className="badge bg-slate-100 text-slate-600">Kertas {q.paperNumber}</span>
-                    <span className="badge bg-slate-100 text-slate-600">{q.marks} {t(lang, "common.marks")}</span>
-                    {isAi && <span className="badge inline-flex items-center gap-1 bg-accent-100 text-accent-700"><Icon name="sparkles" className="h-3.5 w-3.5" /> AI</span>}
-                    {q.isKbat && <span className="tag-kbat">KBAT</span>}
+                <Link
+                  key={tp.id}
+                  href={`/practice/list?subject=${subjectId}&topic=${tp.id}&view=topic`}
+                  className="card block p-3 text-sm hover:border-brand-300 hover:shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="min-w-0">
+                      <span className="text-xs text-slate-400">Tingkatan {tp.form} · Bab {tp.chapter}</span>
+                      <br />
+                      <span className="font-medium">{tp.title}</span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="badge bg-slate-100 text-slate-600">{dn}/{total}</span>
+                      <Icon name="arrow" className="h-4 w-4 text-slate-300" />
+                    </span>
                   </div>
-                  <p className="line-clamp-2 text-sm text-slate-700">{q.stem}</p>
-                  {/* Label: Bab 3 · Tingkatan 4 · SPM 2025 */}
-                  <p className="mt-1 text-xs font-medium text-slate-500">
-                    {[q.topic?.title, tLabel, exam].filter(Boolean).join("  ·  ")}
-                  </p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${p}%` }} />
+                    </div>
+                    <span className="w-9 text-right text-xs font-semibold text-slate-400">{p}%</span>
+                  </div>
                 </Link>
               );
             })
-          )}
-          {drilling && questionTotal > questions.length && (
-            <Link
-              href={base({ ...(sp.topic ? { topic: sp.topic } : {}), ...(sp.year ? { year: sp.year } : {}), page: String(page + 1) })}
-              scroll={false}
-              className="card block p-3 text-center text-sm font-semibold text-brand-600 hover:border-brand-300"
-            >
-              {lang === "bm" ? "Tunjuk lagi" : "Show more"} ({questions.length} / {questionTotal})
-            </Link>
-          )}
-        </div>
+          : years.map((y) => {
+              const total = y._count;
+              const dn = (y.year != null ? attemptedByYear.get(y.year)?.size : 0) ?? 0;
+              const p = total ? Math.round((dn / total) * 100) : 0;
+              return (
+                <Link
+                  key={String(y.year)}
+                  href={`/practice/list?subject=${subjectId}&year=${y.year}&view=year`}
+                  className="card block p-3 text-sm hover:border-brand-300 hover:shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-semibold">{y.year}</span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="badge bg-slate-100 text-slate-600">{dn}/{total}</span>
+                      <Icon name="arrow" className="h-4 w-4 text-slate-300" />
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${p}%` }} />
+                    </div>
+                    <span className="w-9 text-right text-xs font-semibold text-slate-400">{p}%</span>
+                  </div>
+                </Link>
+              );
+            })}
+        {view === "topic" && topics.length === 0 && (
+          <p className="text-sm text-slate-400">{t(lang, "practice.noTopics")}</p>
+        )}
       </div>
     </div>
   );
