@@ -78,11 +78,15 @@ export default async function Home() {
         orderBy: { createdAt: "desc" },
         include: { question: { include: { subject: true, topic: true } } },
       }),
-      prisma.attempt.aggregate({ where: { studentId: student.id }, _sum: { score: true } }),
+      // Best score per question (dedupes reattempts so XP/level reflect genuine
+      // progress, not repeated grinding of the same easy question).
+      prisma.attempt.groupBy({ by: ["questionId"], where: { studentId: student.id }, _max: { score: true } }),
       prisma.attempt.findMany({ where: { studentId: student.id }, select: { question: { select: { subjectId: true } } }, distinct: ["questionId"], take: 3000 }),
     ]);
     data = { enrolled, questions, kbat, attempts };
     const subjectsPractised = new Set(practised.map((a) => a.question.subjectId)).size;
+    const bestTotalScore = scoreAgg.reduce((a, g) => a + (g._max.score ?? 0), 0);
+    const distinctDone = scoreAgg.length;
 
     // Streak + daily goal from attempt activity.
     const dayKey = (d: Date) => d.toISOString().slice(0, 10);
@@ -100,7 +104,7 @@ export default async function Home() {
 
     // "Continue where you left off", most recent attempt's subject/topic.
     streakData = { streak, doneToday };
-    game = computeGameStats({ totalScore: scoreAgg._sum.score ?? 0, attempts, streak, subjectsPractised });
+    game = computeGameStats({ totalScore: bestTotalScore, attempts: distinctDone, streak, subjectsPractised });
     if (last) {
       resume = {
         subjectId: last.question.subjectId,

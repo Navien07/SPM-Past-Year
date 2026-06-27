@@ -143,6 +143,11 @@ export default async function QuestionListPage({ searchParams }: { searchParams:
         </Link>
         <h1 className="font-display mt-2 text-2xl font-bold">{heading}</h1>
         {sub && <p className="text-sm text-slate-500">{sub}</p>}
+        {sp.topic && (
+          <Link href={`/flashcards?subject=${subjectId}&topic=${sp.topic}`} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700 hover:underline">
+            <Icon name="bolt" className="h-4 w-4" /> {t(lang, "flash.title")}
+          </Link>
+        )}
       </div>
 
       {/* Progress for this topic/year */}

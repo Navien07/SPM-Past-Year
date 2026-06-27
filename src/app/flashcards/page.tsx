@@ -9,7 +9,7 @@ import FlashcardDeck, { type Flashcard } from "@/components/FlashcardDeck";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-type SP = Promise<{ subject?: string }>;
+type SP = Promise<{ subject?: string; topic?: string }>;
 
 function parseOptions(raw: string): { key: string; text: string }[] {
   try {
@@ -33,6 +33,18 @@ export default async function FlashcardsPage({ searchParams }: { searchParams: S
   const studyable = subjects.filter((s) => s._count.questions > 0);
   const subjectId = sp.subject || studyable[0]?.id;
   const subject = studyable.find((s) => s.id === subjectId);
+  const topic = sp.topic ? await prisma.topic.findUnique({ where: { id: sp.topic }, select: { id: true, title: true, form: true, chapter: true, subjectId: true } }) : null;
+  // Only honour the topic filter when it belongs to the chosen subject.
+  const topicId = topic && topic.subjectId === subjectId ? topic.id : null;
+
+  // Topics in this subject that actually have answer-bearing cards (for the picker).
+  const topicChips = subjectId
+    ? await prisma.topic.findMany({
+        where: { subjectId, questions: { some: { status: "approved", OR: [{ answer: { not: null } }, { markingScheme: { not: null } }] } } },
+        orderBy: [{ form: "asc" }, { chapter: "asc" }],
+        select: { id: true, title: true, form: true, chapter: true },
+      })
+    : [];
 
   // Build a 30-card deck: prefer questions that carry a model answer or marking
   // scheme so the back of the card has something to learn from.
@@ -41,6 +53,7 @@ export default async function FlashcardsPage({ searchParams }: { searchParams: S
         where: {
           subjectId,
           status: "approved",
+          ...(topicId ? { topicId } : {}),
           OR: [{ answer: { not: null } }, { markingScheme: { not: null } }],
         },
         orderBy: [{ isKbat: "desc" }, { year: "desc" }],
@@ -82,6 +95,27 @@ export default async function FlashcardsPage({ searchParams }: { searchParams: S
         ))}
       </div>
 
+      {/* Topic picker for the chosen subject */}
+      {topicChips.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/flashcards?subject=${subjectId}`}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${!topicId ? "bg-slate-800 text-white" : "border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"}`}
+          >
+            {lang === "bm" ? "Semua topik" : "All topics"}
+          </Link>
+          {topicChips.map((tp) => (
+            <Link
+              key={tp.id}
+              href={`/flashcards?subject=${subjectId}&topic=${tp.id}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${topicId === tp.id ? "bg-slate-800 text-white" : "border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"}`}
+            >
+              T{tp.form} Bab {tp.chapter}: {tp.title}
+            </Link>
+          ))}
+        </div>
+      )}
+
       {cards.length === 0 ? (
         <div className="card p-8 text-center">
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-slate-500">
@@ -95,9 +129,9 @@ export default async function FlashcardsPage({ searchParams }: { searchParams: S
       ) : (
         <>
           <p className="text-xs text-slate-400">
-            {subject?.name} · {cards.length} {t(lang, "flash.cards")}
+            {subject?.name}{topic && topicId ? ` · ${topic.title}` : ""} · {cards.length} {t(lang, "flash.cards")}
           </p>
-          <FlashcardDeck key={subjectId} cards={cards} />
+          <FlashcardDeck key={`${subjectId}-${topicId ?? "all"}`} cards={cards} />
         </>
       )}
     </div>

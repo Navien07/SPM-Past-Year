@@ -64,14 +64,27 @@ export default async function AnalyticsPage() {
 
   const totalTime = sessions.reduce((a, s) => a + s.durationSec, 0) + attempts.reduce((a, x) => a + x.timeSpentSec, 0);
   const totalAttempts = attempts.length;
-  const distinctDone = new Set(attempts.map((a) => a.questionId)).size;
+
+  // Best attempt per question: mastery, average and readiness should reflect
+  // genuine progress, so a reattempt only counts once (its best score) and
+  // re-grinding an easy question can't inflate the picture. (attempts are
+  // ordered oldest-first, so >= keeps the latest among equal-best scores.)
+  const bestByQ = new Map<string, (typeof attempts)[number]>();
+  for (const a of attempts) {
+    const prev = bestByQ.get(a.questionId);
+    const pct = a.maxScore ? a.score / a.maxScore : 0;
+    const prevPct = prev && prev.maxScore ? prev.score / prev.maxScore : -1;
+    if (!prev || pct >= prevPct) bestByQ.set(a.questionId, a);
+  }
+  const best = [...bestByQ.values()];
+  const distinctDone = best.length;
   const avgPct =
-    totalAttempts === 0
+    distinctDone === 0
       ? 0
-      : Math.round((attempts.reduce((a, x) => a + (x.maxScore ? x.score / x.maxScore : 0), 0) / totalAttempts) * 100);
+      : Math.round((best.reduce((a, x) => a + (x.maxScore ? x.score / x.maxScore : 0), 0) / distinctDone) * 100);
 
   const bySubject = new Map<string, { name: string; sum: number; n: number }>();
-  for (const a of attempts) {
+  for (const a of best) {
     const name = a.question.subject.name;
     const cur = bySubject.get(name) ?? { name, sum: 0, n: 0 };
     cur.sum += a.maxScore ? (a.score / a.maxScore) * 100 : 0;
@@ -83,7 +96,7 @@ export default async function AnalyticsPage() {
 
   // Per-subject exam readiness (mastery + topic coverage + practice volume).
   const bySubjectId = new Map<string, { name: string; sum: number; n: number; topics: Set<string> }>();
-  for (const a of attempts) {
+  for (const a of best) {
     const id = a.question.subjectId;
     const cur = bySubjectId.get(id) ?? { name: a.question.subject.name, sum: 0, n: 0, topics: new Set<string>() };
     cur.sum += a.maxScore ? (a.score / a.maxScore) * 100 : 0;
