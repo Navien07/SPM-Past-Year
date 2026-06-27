@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 type SP = Promise<{ subject?: string; year?: string; type?: string; page?: string }>;
 
 // Browse real past/trial/state papers with filters (subject, year, type) and
-// pagination — there are thousands, so never load them all.
+// pagination, there are thousands, so never load them all.
 export default async function PapersPage({ searchParams }: { searchParams: SP }) {
   await requireStudent();
   const sp = await searchParams;

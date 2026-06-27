@@ -70,7 +70,7 @@ export default async function ActivityPage() {
               <tr key={l.id} className="hover:bg-slate-50">
                 <td className="whitespace-nowrap px-4 py-2 text-slate-500">{timeAgo(l.createdAt)}</td>
                 <td className="px-4 py-2">
-                  <span className="font-medium">{l.name ?? "—"}</span>
+                  <span className="font-medium">{l.name ?? "-"}</span>
                   {l.role && <span className="ml-1 text-xs text-slate-400">({l.role})</span>}
                 </td>
                 <td className="px-4 py-2">

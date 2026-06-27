@@ -1,4 +1,4 @@
-export const metadata = { title: "Offline — SPM AI" };
+export const metadata = { title: "Offline, SPM AI" };
 
 export default function OfflinePage() {
   return (

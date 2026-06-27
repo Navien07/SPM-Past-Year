@@ -19,7 +19,7 @@ export default function SmartPracticeButton({ className = "btn-primary", label =
       if (data.questionId) {
         router.push(`/practice/${data.questionId}`);
       } else {
-        setMsg("You've attempted everything available — generate fresh AI questions!");
+        setMsg("You've attempted everything available, generate fresh AI questions!");
       }
     } finally {
       setLoading(false);

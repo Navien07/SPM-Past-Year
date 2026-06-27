@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LANG_COOKIE, type Lang } from "@/lib/i18n";
 
 // Flips the UI language (BM ⇄ English). Writes the cookie then does a full
-// reload — that re-renders Server Components AND re-mounts client components
+// reload, that re-renders Server Components AND re-mounts client components
 // (which read the language on mount), so the whole UI switches at once.
 export default function LangToggle({ lang }: { lang: Lang }) {
   const [busy, setBusy] = useState(false);

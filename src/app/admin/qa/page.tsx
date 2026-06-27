@@ -111,7 +111,7 @@ export default function QAPage() {
               </div>
               <p className="line-clamp-2 text-sm text-slate-700">{it.stem || <em className="text-red-500">(empty stem)</em>}</p>
               {it.reviewNote && <p className="mt-1 text-xs font-medium text-red-600">{it.reviewNote}</p>}
-              <p className="mt-1 text-xs text-slate-400">{it.paper?.title ?? "—"} · answer: {it.answer ?? "—"}</p>
+              <p className="mt-1 text-xs text-slate-400">{it.paper?.title ?? "-"} · answer: {it.answer ?? "-"}</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <select
                   value={it.topicId ?? ""}

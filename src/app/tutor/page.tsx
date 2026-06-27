@@ -38,7 +38,7 @@ export default function TutorPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{t(lang, "tutor.title")} 🧭</h1>
+ <h1 className="text-2xl font-bold">{t(lang, "tutor.title")}</h1>
           <p className="text-sm text-slate-500">{t(lang, "tutor.subtitle")}</p>
         </div>
         <button onClick={load} className="btn-ghost" disabled={loading}>
@@ -64,7 +64,7 @@ export default function TutorPage() {
 
           {rec.weakSubjects?.length > 0 && (
             <section>
-              <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.focusSubjects")}</h2>
+ <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.focusSubjects")}</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {rec.weakSubjects.map((w, i) => (
                   <div key={i} className="card p-4">
@@ -81,7 +81,7 @@ export default function TutorPage() {
 
           {rec.weakTopics?.length > 0 && (
             <section>
-              <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.topicsToRevise")}</h2>
+ <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.topicsToRevise")}</h2>
               <div className="space-y-2">
                 {rec.weakTopics.map((t, i) => (
                   <div key={i} className="card p-3">
@@ -97,7 +97,7 @@ export default function TutorPage() {
 
           {rec.focusPlan?.length > 0 && (
             <section>
-              <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.focusPlan")}</h2>
+ <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.focusPlan")}</h2>
               <ol className="space-y-2">
                 {rec.focusPlan.map((p, i) => (
                   <li key={i} className="card flex gap-3 p-4">
@@ -116,7 +116,7 @@ export default function TutorPage() {
 
           {perTopic.length > 0 && (
             <section>
-              <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.perTopic")}</h2>
+ <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "tutor.perTopic")}</h2>
               <div className="card divide-y divide-slate-100">
                 {perTopic.map((p, i) => (
                   <div key={i} className="flex items-center gap-3 p-3">

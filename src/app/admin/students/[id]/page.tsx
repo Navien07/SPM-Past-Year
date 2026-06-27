@@ -76,7 +76,7 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
         <h1 className="text-2xl font-bold">{student.name}</h1>
         <p className="text-sm text-slate-500">{student.email} · Tingkatan {student.form}</p>
         <p className="mt-0.5 text-sm text-slate-500">
-          {[student.school, student.state, student.age ? `${student.age} yrs` : null].filter(Boolean).join(" · ") || "—"}
+          {[student.school, student.state, student.age ? `${student.age} yrs` : null].filter(Boolean).join(" · ") || "-"}
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
           {student.whatsapp && (
@@ -168,7 +168,7 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
           {recentActivity.length === 0 && <p className="text-sm text-slate-400">No activity logged yet.</p>}
           {recentActivity.map((a) => (
             <div key={a.id} className="flex items-center justify-between py-1.5 text-sm">
-              <span>{a.action}{a.detail ? <span className="text-slate-400"> — {a.detail}</span> : null}</span>
+              <span>{a.action}{a.detail ? <span className="text-slate-400">, {a.detail}</span> : null}</span>
               <span className="text-xs text-slate-400">{timeAgo(a.createdAt)}</span>
             </div>
           ))}

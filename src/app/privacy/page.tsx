@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Privacy Policy & PDPA Notice — SPM AI" };
+export const metadata = { title: "Privacy Policy & PDPA Notice, SPM AI" };
 
 export default function PrivacyPage() {
   return (
@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Back</Link>
       <div>
         <h1 className="text-2xl font-bold">Privacy Policy &amp; PDPA Notice</h1>
-        <p className="text-sm text-slate-500">SPM AI — pilot programme. Last updated: June 2026.</p>
+        <p className="text-sm text-slate-500">SPM AI, pilot programme. Last updated: June 2026.</p>
       </div>
 
       <div className="card space-y-5 p-6 text-sm leading-relaxed text-slate-700">
@@ -33,8 +33,8 @@ export default function PrivacyPage() {
           <ul className="list-inside list-disc space-y-1">
             <li>To run your account and provide AI grading, tutoring and practice.</li>
             <li>To personalise your revision (weak topics, spaced repetition, recommendations).</li>
-            <li><strong>To analyse your learning, behaviour and performance</strong> — including learning analytics,
-              usage patterns, and psychometric/aptitude analysis — to understand how students learn and to improve
+            <li><strong>To analyse your learning, behaviour and performance</strong>, including learning analytics,
+              usage patterns, and psychometric/aptitude analysis, to understand how students learn and to improve
               the service and our models.</li>
             <li>To produce aggregated and anonymised research, insights and statistics.</li>
             <li>To contact you with pilot updates and gather feedback via the WhatsApp group.</li>

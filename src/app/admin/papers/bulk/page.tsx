@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const SAMPLE = `[
   {
-    "title": "Sejarah Kertas 1 — Percubaan MRSM 2024",
+    "title": "Sejarah Kertas 1, Percubaan MRSM 2024",
     "subject": "SEJ",
     "paperType": "trial",
     "year": 2024,
@@ -80,7 +80,7 @@ export default function BulkUploadPage() {
       try {
         await fetch(`/api/papers/${id}/categorize`, { method: "POST" });
       } catch {
-        /* keep going — one failure shouldn't stop the batch */
+        /* keep going, one failure shouldn't stop the batch */
       }
       done += 1;
       setCatProgress({ done, total: ids.length });

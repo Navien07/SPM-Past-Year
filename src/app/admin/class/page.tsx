@@ -10,7 +10,7 @@ function fmtDuration(sec: number) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-// Teacher / class view: cohort-wide performance across all pilot students —
+// Teacher / class view: cohort-wide performance across all pilot students
 // averages, mastery by subject, a leaderboard and who needs help.
 export default async function ClassPage() {
   let students: Awaited<ReturnType<typeof loadStudents>> = [];
@@ -139,7 +139,7 @@ export default async function ClassPage() {
                     <Link href={`/admin/students/${s.id}`} className="font-medium text-brand-700 hover:underline">{s.name}</Link>
                     <div className="text-xs text-slate-400">{s.email}</div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{s.school ?? "—"}</td>
+                  <td className="px-4 py-3 text-slate-600">{s.school ?? "-"}</td>
                   <td className="px-4 py-3">{s.attempts}</td>
                   <td className="px-4 py-3">
                     <span className={`badge ${s.avg >= 70 ? "bg-emerald-100 text-emerald-700" : s.avg >= 40 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{s.avg}%</span>

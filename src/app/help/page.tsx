@@ -24,8 +24,8 @@ const GUIDES: { q: { en: string; bm: string }; a: { en: string; bm: string } }[]
   {
     q: { en: "How do I use Cikgu AI (the chat)?", bm: "Bagaimana saya guna Cikgu AI (sembang)?" },
     a: {
-      en: "Tap the 💬 bubble (bottom-right) on any page. Ask it to explain a topic, give a hint, or check your reasoning — in Bahasa Melayu or English. On a question page it already knows which question you're viewing.",
-      bm: "Ketik gelembung 💬 (bawah kanan) di mana-mana halaman. Minta ia terangkan topik, beri petunjuk, atau semak penaakulan anda — dalam Bahasa Melayu atau English. Di halaman soalan, ia sudah tahu soalan yang anda lihat.",
+      en: "Tap the 💬 bubble (bottom-right) on any page. Ask it to explain a topic, give a hint, or check your reasoning, in Bahasa Melayu or English. On a question page it already knows which question you're viewing.",
+      bm: "Ketik gelembung 💬 (bawah kanan) di mana-mana halaman. Minta ia terangkan topik, beri petunjuk, atau semak penaakulan anda, dalam Bahasa Melayu atau English. Di halaman soalan, ia sudah tahu soalan yang anda lihat.",
     },
   },
   {
@@ -64,7 +64,7 @@ const GUIDES: { q: { en: string; bm: string }; a: { en: string; bm: string } }[]
     },
   },
   {
-    q: { en: "I forgot my password — what do I do?", bm: "Saya lupa kata laluan — apa patut saya buat?" },
+    q: { en: "I forgot my password, what do I do?", bm: "Saya lupa kata laluan, apa patut saya buat?" },
     a: {
       en: "Use “Forgot password?” on the sign-in page, or ask your admin/teacher to reset it for you from the admin panel.",
       bm: "Guna “Lupa kata laluan?” di halaman log masuk, atau minta admin/cikgu anda set semula untuk anda dari panel admin.",
@@ -78,14 +78,14 @@ export default async function HelpPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t(lang, "help.title")} ❓</h1>
+ <h1 className="text-2xl font-bold">{t(lang, "help.title")}</h1>
         <p className="text-sm text-slate-500">{t(lang, "help.subtitle")}</p>
       </div>
 
       {/* Ask the AI */}
       <section className="card overflow-hidden">
         <div className="bg-gradient-to-br from-brand-600 to-accent-600 p-6 text-white">
-          <h2 className="text-lg font-bold">{t(lang, "help.askTitle")} 💬</h2>
+ <h2 className="text-lg font-bold">{t(lang, "help.askTitle")}</h2>
           <p className="mt-1 text-sm text-white/80">{t(lang, "help.askDesc")}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <OpenChatButton label={t(lang, "help.openChat")} className="btn bg-white text-brand-700 hover:bg-brand-50" />
@@ -97,7 +97,7 @@ export default async function HelpPage() {
 
       {/* Guides */}
       <section className="space-y-2">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "help.guides")}</h2>
+ <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "help.guides")}</h2>
         {GUIDES.map((g) => (
           <details key={g.q.en} className="card p-4">
             <summary className="cursor-pointer font-semibold text-slate-800">{g.q[lang]}</summary>

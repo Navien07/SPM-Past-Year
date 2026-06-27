@@ -64,7 +64,7 @@ export default function AssignmentManager() {
         <div>
           <label className="label">Attach a paper (optional)</label>
           <select value={paperId} onChange={(e) => setPaperId(e.target.value)} className="input">
-            <option value="">— general / by topic —</option>
+            <option value="">general / by topic</option>
             {papers.map((p) => <option key={p.id} value={p.id}>{p.title} ({p._count.questions})</option>)}
           </select>
         </div>

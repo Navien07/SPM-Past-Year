@@ -28,7 +28,7 @@ export default async function TeacherPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Salam, {user?.name} 👩‍🏫</h1>
-        <p className="text-sm text-slate-500">Your class at a glance — and set work for the cohort.</p>
+        <p className="text-sm text-slate-500">Your class at a glance, and set work for the cohort.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-3">

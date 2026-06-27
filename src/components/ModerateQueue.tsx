@@ -65,7 +65,7 @@ function ReviewCard({ item, subjects }: { item: Item; subjects: Subject[] }) {
   if (done) {
     return (
       <div className={`card p-4 text-sm ${done === "approved" ? "border-emerald-300 bg-emerald-50" : "border-red-200 bg-red-50"}`}>
-        {done === "approved" ? "✅ Approved — now live for students." : "🗑️ Rejected — hidden from students."}
+        {done === "approved" ? "✅ Approved, now live for students." : "🗑️ Rejected, hidden from students."}
       </div>
     );
   }
@@ -94,7 +94,7 @@ function ReviewCard({ item, subjects }: { item: Item; subjects: Subject[] }) {
         <div>
           <label className="label">Topic (form · chapter)</label>
           <select className="input" value={topicId} onChange={(e) => setTopicId(e.target.value)}>
-            <option value="">— unassigned —</option>
+            <option value="">unassigned</option>
             {topics.map((t) => <option key={t.id} value={t.id}>T{t.form} · Bab {t.chapter} · {t.title}</option>)}
           </select>
         </div>

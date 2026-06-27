@@ -18,7 +18,7 @@ export default function AdminStudentTools({ studentId }: { studentId: string }) 
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    setMsg(res.ok ? "✓ Password updated — share it with the student." : data.error || "Failed");
+    setMsg(res.ok ? "✓ Password updated, share it with the student." : data.error || "Failed");
     if (res.ok) setPw("");
   }
 

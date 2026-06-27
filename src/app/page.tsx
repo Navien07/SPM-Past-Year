@@ -46,7 +46,7 @@ export default async function Home() {
     try {
       taken = await prisma.student.count();
     } catch {
-      /* DB not ready — show landing with 0 */
+      /* DB not ready, show landing with 0 */
     }
     return <Landing taken={taken} total={PILOT_MAX_STUDENTS} />;
   }
@@ -98,7 +98,7 @@ export default async function Home() {
     const todayKey = dayKey(new Date());
     const doneToday = recent.filter((a) => dayKey(a.createdAt) === todayKey).length;
 
-    // "Continue where you left off" — most recent attempt's subject/topic.
+    // "Continue where you left off", most recent attempt's subject/topic.
     streakData = { streak, doneToday };
     game = computeGameStats({ totalScore: scoreAgg._sum.score ?? 0, attempts, streak, subjectsPractised });
     if (last) {

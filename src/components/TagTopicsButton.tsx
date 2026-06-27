@@ -62,7 +62,7 @@ export default function TagTopicsButton() {
         </button>
       </div>
       {status && <p className="mt-2 text-sm text-slate-600">{status}</p>}
-      {running && <p className="mt-2 text-xs text-slate-400">Keep this tab open — runs in batches; thousands of items take a few minutes.</p>}
+      {running && <p className="mt-2 text-xs text-slate-400">Keep this tab open, runs in batches; thousands of items take a few minutes.</p>}
     </div>
   );
 }

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 // Syllabus coverage: how many approved questions each subject/form/topic has,
-// and which KSSM topics are still empty — so we can see the whole syllabus is
+// and which KSSM topics are still empty, so we can see the whole syllabus is
 // covered after a content load.
 export default async function CoveragePage() {
   const subjects = await prisma.subject.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, code: true } });

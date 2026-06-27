@@ -22,9 +22,9 @@ function resolveSiteUrl(): string {
 }
 const SITE_URL = resolveSiteUrl();
 
-const TITLE = "SPM AI — Malaysia's first AI-powered SPM platform";
+const TITLE = "SPM AI, Malaysia's first AI-powered SPM platform";
 const DESCRIPTION =
-  "Every past-year, trial & state paper — auto-graded with the SPM marking scheme, explained by an AI tutor, and turned into a plan made for you. Free for the first 200 Malaysian students.";
+  "Every past-year, trial & state paper, auto-graded with the SPM marking scheme, explained by an AI tutor, and turned into a plan made for you. Free for the first 200 Malaysian students.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: "/",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "SPM AI — Skor A+ dengan cikgu AI" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "SPM AI, Skor A+ dengan cikgu AI" }],
   },
   twitter: {
     card: "summary_large_image",

@@ -31,7 +31,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
       prisma.knowledgeDoc.findMany({ where: { subjectId: q.subjectId }, take: 3, orderBy: { createdAt: "desc" }, select: { id: true, title: true, content: true } }),
     ]);
   } catch {
-    /* bookmark/notes are optional — never block the question */
+    /* bookmark/notes are optional, never block the question */
   }
 
   return (
@@ -57,10 +57,10 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
               ? "Soalan AI dijana"
               : examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year }),
           ].filter(Boolean).join(" · ")}
-          {q.topic ? ` — ${q.topic.title}` : ""}
+          {q.topic ? `, ${q.topic.title}` : ""}
           {q.subtopic ? ` (${q.subtopic})` : ""}
         </p>
-        <h1 className="whitespace-pre-wrap text-lg font-semibold leading-relaxed">
+ <h1 className="whitespace-pre-wrap text-lg font-semibold leading-relaxed">
           {q.number ? `${q.number}. ` : ""}
           {q.stem}
         </h1>
@@ -77,7 +77,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
       {notes.length > 0 && (
         <details className="card p-4">
           <summary className="cursor-pointer text-sm font-semibold text-slate-700">
-            📘 {t(lang, "qd.notes")} — {q.subject.name}
+            📘 {t(lang, "qd.notes")}, {q.subject.name}
           </summary>
           <div className="mt-3 space-y-3">
             {notes.map((n) => (

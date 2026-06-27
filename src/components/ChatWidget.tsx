@@ -151,7 +151,7 @@ export default function ChatWidget() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "Network error — please try again." },
+        { role: "assistant", text: "Network error, please try again." },
       ]);
     } finally {
       setLoading(false);
@@ -192,7 +192,7 @@ export default function ChatWidget() {
             {messages.length === 0 && (
               <div className="space-y-3 text-sm text-slate-500">
                 <p>👋 Hi! I&apos;m <strong>Cikgu AI</strong>. I can explain topics, walk through a question, show how to score full marks, or read a screenshot you&apos;re stuck on.</p>
-                <p className="text-xs">Tap <span className="font-semibold">📸</span> to grab a screenshot, or <span className="font-semibold">📎</span> to attach an image — I&apos;ll read it and help.</p>
+                <p className="text-xs">Tap <span className="font-semibold">📸</span> to grab a screenshot, or <span className="font-semibold">📎</span> to attach an image, I&apos;ll read it and help.</p>
                 <div className="flex flex-wrap gap-2">
                   {[
                     "Explain this topic simply",

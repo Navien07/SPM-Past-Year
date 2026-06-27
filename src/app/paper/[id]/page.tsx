@@ -91,7 +91,7 @@ export default function PaperAttemptPage({ params }: { params: Promise<{ id: str
                 <span className={`mr-2 inline-grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold text-white ${ok ? "bg-emerald-500" : "bg-amber-500"}`}>{i + 1}</span>
                 <span className="text-sm text-slate-700">{q.stem.slice(0, 90)}…</span>
               </div>
-              <span className="shrink-0 text-sm font-bold">{r ? `${r.score}/${r.maxScore}` : "—"}</span>
+              <span className="shrink-0 text-sm font-bold">{r ? `${r.score}/${r.maxScore}` : "-"}</span>
             </Link>
           );
         })}

@@ -52,7 +52,7 @@ export default async function PracticePage({ searchParams }: { searchParams: SP 
     : [];
 
   // The selected drill-down (topic or year) → paginated question list.
-  // (A popular year can hold 1,000+ questions — never load them all at once.)
+  // (A popular year can hold 1,000+ questions, never load them all at once.)
   const PAGE_SIZE = 48;
   const page = Math.max(1, Number(sp.page) || 1);
   const where: Record<string, unknown> = { subjectId, status: "approved" };

@@ -64,7 +64,7 @@ export default function GeneratePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t(lang, "generate.title")} ✨</h1>
+ <h1 className="text-2xl font-bold">{t(lang, "generate.title")}</h1>
         <p className="text-sm text-slate-500">{t(lang, "generate.subtitle")}</p>
       </div>
 
@@ -128,7 +128,7 @@ export default function GeneratePage() {
       {items.length > 0 && (
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
+ <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
               {items.length} {t(lang, "generate.generated")}
             </h2>
             <span className={`badge ${byAi ? "bg-accent-100 text-accent-700" : "bg-slate-200 text-slate-600"}`}>

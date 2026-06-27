@@ -17,7 +17,7 @@ function AnalyticsError() {
   return (
     <div className="card mx-auto max-w-xl p-8 text-center">
       <div className="text-4xl">⚠️</div>
-      <h1 className="mt-3 text-xl font-bold">Couldn&apos;t load your progress</h1>
+ <h1 className="mt-3 text-xl font-bold">Couldn&apos;t load your progress</h1>
       <p className="mt-2 text-sm text-slate-600">A database query failed. Try again in a moment.</p>
       <p className="mt-3 text-xs text-slate-500">
         Persisting? Open <a href="/api/health" className="font-semibold text-brand-600 hover:underline">/api/health</a> for a diagnosis.
@@ -89,13 +89,13 @@ export default async function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t(lang, "analytics.title")} 📊</h1>
+ <h1 className="text-2xl font-bold">{t(lang, "analytics.title")}</h1>
         <p className="text-sm text-slate-500">{student.name}&apos;s learning analytics.</p>
       </div>
 
       {/* Summary of where you are */}
       <div className="card p-5">
-        <h2 className="mb-2 font-bold">{t(lang, "analytics.summary")}</h2>
+ <h2 className="mb-2 font-bold">{t(lang, "analytics.summary")}</h2>
         <p className="text-sm text-slate-700">
           You&apos;ve attempted <strong>{distinctDone}</strong> of <strong>{totalApprovedInEnrolled}</strong> questions
           across your enrolled subjects, covering <strong>{topicsDone}</strong> of <strong>{topicsTotal}</strong> topics
@@ -128,7 +128,7 @@ export default async function AnalyticsPage() {
       ) : (
         <>
           <section>
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "analytics.mastery")}</h2>
+ <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "analytics.mastery")}</h2>
             <div className="card space-y-3 p-4">
               {subjectMastery.map((s) => (
                 <div key={s.name} className="flex items-center gap-3">
@@ -143,7 +143,7 @@ export default async function AnalyticsPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "analytics.trend")}</h2>
+ <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "analytics.trend")}</h2>
             <div className="card flex items-end gap-2 overflow-x-auto p-4" style={{ height: 160 }}>
               {trend.map((t, i) => (
                 <div key={i} className="flex flex-col items-center gap-1">

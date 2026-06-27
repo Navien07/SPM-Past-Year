@@ -81,7 +81,7 @@ export default function NewUserPage() {
               <div><label className="label">Age</label><input className="input" type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} /></div>
               <div className="col-span-2"><label className="label">State</label>
                 <select className="input" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })}>
-                  <option value="">—</option>{STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  <option value="">-</option>{STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
             </div>

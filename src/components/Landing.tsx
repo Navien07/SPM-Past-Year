@@ -5,7 +5,7 @@ import Reveal from "./Reveal";
 import TiltCard from "./TiltCard";
 import CelebrateLink from "./CelebrateLink";
 
-/* Inline icon set (Lucide-style, 24×24, currentColor) — per design system:
+/* Inline icon set (Lucide-style, 24×24, currentColor), per design system:
    SVG icons, never emojis, consistent viewBox + sizing. */
 function Icon({ name, className = "h-6 w-6" }: { name: string; className?: string }) {
   const p = {
@@ -74,12 +74,12 @@ export default function Landing({ taken, total }: { taken: number; total: number
   const full = left <= 0;
 
   const features = [
-    { icon: "bolt", title: "Instant AI grading", desc: "Essay, structured & MCQ marked against the real SPM marking scheme in seconds — with what you got right and exactly how to score more." },
+    { icon: "bolt", title: "Instant AI grading", desc: "Essay, structured & MCQ marked against the real SPM marking scheme in seconds, with what you got right and exactly how to score more." },
     { icon: "compass", title: "Personal AI tutor", desc: "Cikgu AI finds your weak topics and builds a day-by-day focus plan made for you, not the class." },
-    { icon: "chat", title: "Snap & ask", desc: "Stuck on a question? Snap a screenshot — Cikgu AI reads it and explains step by step, in BM or English." },
+    { icon: "chat", title: "Snap & ask", desc: "Stuck on a question? Snap a screenshot, Cikgu AI reads it and explains step by step, in BM or English." },
     { icon: "repeat", title: "Smart review", desc: "Wrong answers come back on a spaced schedule until they're locked in for good." },
-    { icon: "sparkles", title: "Unlimited KBAT", desc: "Fresh, exam-style higher-order questions for any topic — practise as much as you want." },
-    { icon: "clock", title: "Timed exam mode", desc: "Sit a full paper against the clock, then get an instant marked breakdown — real exam pressure, zero risk." },
+    { icon: "sparkles", title: "Unlimited KBAT", desc: "Fresh, exam-style higher-order questions for any topic, practise as much as you want." },
+    { icon: "clock", title: "Timed exam mode", desc: "Sit a full paper against the clock, then get an instant marked breakdown, real exam pressure, zero risk." },
   ];
 
   const grades = [
@@ -92,16 +92,16 @@ export default function Landing({ taken, total }: { taken: number; total: number
   ];
 
   const steps = [
-    { t: "Daftar percuma", d: "Pick your subjects and set a password — 30 saat, that's it." },
-    { t: "Latih kertas sebenar", d: "SPM, Percubaan, MRSM, SBP & State papers — by topic or by year." },
+    { t: "Daftar percuma", d: "Pick your subjects and set a password, 30 saat, that's it." },
+    { t: "Latih kertas sebenar", d: "SPM, Percubaan, MRSM, SBP & State papers, by topic or by year." },
     { t: "Naik gred, cepat", d: "Instant feedback, an AI tutor and smart review carry you to an A+." },
   ];
 
   const faqs = [
-    { q: "Betul ke ini percuma?", a: `Ya — 100% free for the first ${total} students in the pilot. No card, no catch. We're building this for Malaysian students.` },
-    { q: "Which subjects are covered?", a: "All 12 SPM subjects — Bahasa Melayu, English, Matematik, Add Maths, Fizik, Kimia, Biologi, Sejarah, Pendidikan Islam, Pendidikan Moral, Ekonomi & Prinsip Perakaunan." },
+    { q: "Betul ke ini percuma?", a: `Ya, 100% free for the first ${total} students in the pilot. No card, no catch. We're building this for Malaysian students.` },
+    { q: "Which subjects are covered?", a: "All 12 SPM subjects, Bahasa Melayu, English, Matematik, Add Maths, Fizik, Kimia, Biologi, Sejarah, Pendidikan Islam, Pendidikan Moral, Ekonomi & Prinsip Perakaunan." },
     { q: "BM ke English?", a: "Both. Switch the whole interface between Bahasa Melayu and English anytime, and Cikgu AI replies in whichever you use." },
-    { q: "Is my data safe?", a: "Yes. We follow Malaysia's PDPA 2010. Your data is only used to run your account — read the full Privacy Policy & PDPA notice anytime." },
+    { q: "Is my data safe?", a: "Yes. We follow Malaysia's PDPA 2010. Your data is only used to run your account, read the full Privacy Policy & PDPA notice anytime." },
   ];
 
   const primaryHref = full ? "#waitlist" : "/signup";
@@ -114,7 +114,7 @@ export default function Landing({ taken, total }: { taken: number; total: number
         {/* aurora wash + answer-sheet dot grid */}
         <div className="bg-aurora pointer-events-none absolute inset-0 opacity-40" />
         <div className="dot-grid pointer-events-none absolute inset-0 opacity-60" />
-        {/* OMR answer bubbles — the subject's own artifact */}
+        {/* OMR answer bubbles, the subject's own artifact */}
         <svg className="animate-floaty pointer-events-none absolute -right-6 top-10 hidden h-44 w-44 text-white/10 sm:block" viewBox="0 0 120 120" aria-hidden="true">
           {[0, 1, 2, 3].map((r) =>
             [0, 1, 2, 3].map((c) => (
@@ -131,12 +131,12 @@ export default function Landing({ taken, total }: { taken: number; total: number
           </span>
 
           <h1 className="font-display animate-fade-up mt-6 text-4xl font-black leading-[1.05] sm:text-6xl">
-            Skor <span className="hl">A+</span> SPM anda —
+            Skor <span className="hl">A+</span> SPM anda
             <br className="hidden sm:block" /> dengan <span className="text-shine">cikgu AI</span> dalam poket.
           </h1>
 
           <p className="animate-fade-up mx-auto mt-6 max-w-xl text-lg leading-relaxed text-slate-300 [animation-delay:.1s]">
-            Every past-year, trial, MRSM & state paper — auto-graded, explained, and turned into a plan
+            Every past-year, trial, MRSM & state paper, auto-graded, explained, and turned into a plan
             built just for you. Free for the first <strong className="text-white">{total} Malaysian students</strong>.
           </p>
 
@@ -153,7 +153,7 @@ export default function Landing({ taken, total }: { taken: number; total: number
           {/* live spots meter */}
           <div className="animate-fade-up mx-auto mt-10 max-w-sm rounded-2xl bg-white/10 p-4 text-left ring-1 ring-white/20 backdrop-blur [animation-delay:.3s]">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-semibold">{full ? "Pilot penuh — sertai senarai" : `Free for the first ${total}`}</span>
+              <span className="font-semibold">{full ? "Pilot penuh, sertai senarai" : `Free for the first ${total}`}</span>
               <span className="font-bold text-[#FFD23F]">{full ? "0 left" : `${left} spots left`}</span>
             </div>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/15">
@@ -203,7 +203,7 @@ export default function Landing({ taken, total }: { taken: number; total: number
       <section>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl font-black sm:text-4xl">Everything you need to <span className="hl">nail SPM</span></h2>
-          <p className="mt-3 text-slate-600">One app for practice, marking, tutoring and review — built around how you actually study.</p>
+          <p className="mt-3 text-slate-600">One app for practice, marking, tutoring and review, built around how you actually study.</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
@@ -226,9 +226,9 @@ export default function Landing({ taken, total }: { taken: number; total: number
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
             <span className="badge bg-[#34D399]/15 text-[#0f766e]">The whole point</span>
-            <h2 className="font-display mt-3 text-3xl font-black sm:text-4xl">From <span className="hl-coral">G</span> to <span className="hl">A+</span> — one topic at a time.</h2>
+            <h2 className="font-display mt-3 text-3xl font-black sm:text-4xl">From <span className="hl-coral">G</span> to <span className="hl">A+</span>, one topic at a time.</h2>
             <p className="mt-4 leading-relaxed text-slate-600">
-              Most students don&apos;t fail because they&apos;re not smart — they fail because no one shows them
+              Most students don&apos;t fail because they&apos;re not smart, they fail because no one shows them
               exactly what to fix. SPM AI marks every answer, names your weak spots, and keeps drilling
               them until the grade moves.
             </p>
@@ -271,18 +271,18 @@ export default function Landing({ taken, total }: { taken: number; total: number
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-[#34D399]/20 px-3 py-1 text-xs font-bold text-[#6ee7b7]">
-              <Icon name="flag" className="h-4 w-4" /> {full ? "Pilot is full" : "Free pilot — limited spots"}
+              <Icon name="flag" className="h-4 w-4" /> {full ? "Pilot is full" : "Free pilot, limited spots"}
             </span>
             <h2 className="font-display mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              {full ? <>Spots are gone — <span className="hl">jump the queue.</span></> : <>Join the first <span className="hl">{total} students</span> in Malaysia.</>}
+              {full ? <>Spots are gone, <span className="hl">jump the queue.</span></> : <>Join the first <span className="hl">{total} students</span> in Malaysia.</>}
             </h2>
             <p className="mt-4 leading-relaxed text-slate-300">
               {full
                 ? "The pilot filled up fast. Drop your details and we'll WhatsApp you the moment the next batch opens."
-                : "Get an unfair advantage this SPM season. Free during the pilot — we just ask for your honest feedback."}
+                : "Get an unfair advantage this SPM season. Free during the pilot, we just ask for your honest feedback."}
             </p>
             <ul className="mt-6 space-y-2.5 text-sm text-slate-200">
-              {["All 12 subjects, every paper type", "AI marking + a personal tutor", "Works on your phone — install it like an app"].map((b) => (
+              {["All 12 subjects, every paper type", "AI marking + a personal tutor", "Works on your phone, install it like an app"].map((b) => (
                 <li key={b} className="flex items-center gap-2.5">
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#34D399] text-[#0B1020]"><Icon name="check" className="h-3.5 w-3.5" /></span>
                   {b}
@@ -324,7 +324,7 @@ export default function Landing({ taken, total }: { taken: number; total: number
       {/* ───────── FINAL CTA ───────── */}
       <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#2D5BFF] to-[#1e3a8a] p-10 text-center text-white sm:p-16">
         <h2 className="font-display text-3xl font-black sm:text-5xl">Your SPM starts today.</h2>
-        <p className="mx-auto mt-4 max-w-lg text-blue-100">Free for the first {total} students. Tak rugi mencuba — and your future self will thank you.</p>
+        <p className="mx-auto mt-4 max-w-lg text-blue-100">Free for the first {total} students. Tak rugi mencuba, and your future self will thank you.</p>
         <CelebrateLink href={primaryHref} className="mt-8 inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-base font-bold text-[#2D5BFF] transition-colors duration-200 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
           {primaryLabel} <Icon name="arrow" className="h-5 w-5" />
         </CelebrateLink>

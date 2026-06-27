@@ -32,7 +32,7 @@ export default async function ReviewPage() {
     return (
       <div className="card mx-auto max-w-xl p-8 text-center">
         <div className="text-4xl">🔁</div>
-        <h1 className="mt-3 text-xl font-bold">Review isn&apos;t ready yet</h1>
+ <h1 className="mt-3 text-xl font-bold">Review isn&apos;t ready yet</h1>
         <p className="mt-2 text-sm text-slate-600">
           The review/bookmark tables aren&apos;t in the database yet. An admin needs to run the latest
           <code className="mx-1 rounded bg-slate-100 px-1">supabase_setup.sql</code>. Once done, answer a
@@ -64,7 +64,7 @@ export default async function ReviewPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">{t(lang, "review.title")} 🔁</h1>
+ <h1 className="text-2xl font-bold">{t(lang, "review.title")}</h1>
           <p className="text-sm text-slate-500">{t(lang, "review.subtitle")}</p>
         </div>
         <SmartPracticeButton />
@@ -86,7 +86,7 @@ export default async function ReviewPage() {
       </div>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "review.dueForReview")}</h2>
+ <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t(lang, "review.dueForReview")}</h2>
         {due.length === 0 ? (
           <div className="card p-6 text-center text-sm text-slate-400">
             {t(lang, "review.nothingDue")}
@@ -98,7 +98,7 @@ export default async function ReviewPage() {
 
       {bookmarks.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">⭐ {t(lang, "review.bookmarks")}</h2>
+ <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500"> {t(lang, "review.bookmarks")}</h2>
           {bookmarks.map((b) => <Row key={b.id} q={b.question} />)}
         </section>
       )}

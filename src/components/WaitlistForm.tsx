@@ -34,7 +34,7 @@ export default function WaitlistForm({ full }: { full: boolean }) {
       setMessage(data.position ? `You're #${data.position} on the list.` : "");
     } catch {
       setStatus("error");
-      setMessage("Network error — please try again.");
+      setMessage("Network error, please try again.");
     }
   }
 
@@ -70,7 +70,7 @@ export default function WaitlistForm({ full }: { full: boolean }) {
         <div>
           <label htmlFor="wl-state" className="label">State <span className="font-normal normal-case text-slate-400">(optional)</span></label>
           <select id="wl-state" value={form.state} onChange={(e) => set("state", e.target.value)} className="input">
-            <option value="">— pilih —</option>
+            <option value="">pilih</option>
             {MALAYSIA_STATES.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}

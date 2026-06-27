@@ -82,9 +82,9 @@ export default function WaitlistPage() {
               <tr key={r.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium">{r.name}</td>
                 <td className="px-4 py-3 text-slate-600">{r.email}</td>
-                <td className="px-4 py-3 text-slate-600">{r.whatsapp ?? "—"}</td>
-                <td className="px-4 py-3 text-slate-600">{r.school ?? "—"}</td>
-                <td className="px-4 py-3 text-slate-600">{r.state ?? "—"}</td>
+                <td className="px-4 py-3 text-slate-600">{r.whatsapp ?? "-"}</td>
+                <td className="px-4 py-3 text-slate-600">{r.school ?? "-"}</td>
+                <td className="px-4 py-3 text-slate-600">{r.state ?? "-"}</td>
                 <td className="px-4 py-3 text-xs text-slate-400">{new Date(r.createdAt).toLocaleDateString("en-MY")}</td>
                 <td className="px-4 py-3">
                   <button

@@ -95,7 +95,7 @@ export default function KnowledgePage() {
           <h1 className="text-2xl font-bold">Knowledge Base 🧠</h1>
           <p className="text-sm text-slate-500">
             Ingest reference notes & summaries. Cikgu AI retrieves relevant snippets to ground its
-            answers (it explains in its own words — it won&apos;t reproduce material verbatim).
+            answers (it explains in its own words, it won&apos;t reproduce material verbatim).
           </p>
         </div>
         <Link href="/admin/knowledge/bulk" className="btn-ghost shrink-0">📚 Bulk import</Link>
@@ -106,19 +106,19 @@ export default function KnowledgePage() {
       <form onSubmit={submit} className="card grid gap-4 p-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="label">Title</label>
-          <input className="input" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Photosynthesis — key concepts" />
+          <input className="input" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Photosynthesis, key concepts" />
         </div>
         <div>
           <label className="label">Subject (optional)</label>
           <select className="input" value={form.subjectId} onChange={(e) => setForm({ ...form, subjectId: e.target.value })}>
-            <option value="">— any —</option>
+            <option value="">any</option>
             {subjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </div>
         <div>
           <label className="label">Form (optional)</label>
           <select className="input" value={form.form} onChange={(e) => setForm({ ...form, form: e.target.value })}>
-            <option value="">— any —</option>
+            <option value="">any</option>
             <option value="4">Tingkatan 4</option>
             <option value="5">Tingkatan 5</option>
           </select>
@@ -136,7 +136,7 @@ export default function KnowledgePage() {
           <input className="input" value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} placeholder="e.g. Buku Teks KSSM Tingkatan 4" />
         </div>
         <div className="sm:col-span-2">
-          <label className="label">Upload PDF (textbook / notes — text auto-extracted)</label>
+          <label className="label">Upload PDF (textbook / notes, text auto-extracted)</label>
           <input
             type="file"
             accept="application/pdf"
@@ -149,7 +149,7 @@ export default function KnowledgePage() {
           </p>
         </div>
         <div className="sm:col-span-2">
-          <label className="label">…or paste content {file ? "(ignored — PDF selected)" : ""}</label>
+          <label className="label">…or paste content {file ? "(ignored, PDF selected)" : ""}</label>
           <textarea className="input resize-y" rows={5} disabled={!!file} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Paste notes / summary text…" />
         </div>
         <div className="sm:col-span-2">

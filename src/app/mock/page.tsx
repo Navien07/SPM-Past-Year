@@ -64,7 +64,7 @@ export default function MockPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t(lang, "mock.title")} 🧪</h1>
+ <h1 className="text-2xl font-bold">{t(lang, "mock.title")}</h1>
         <p className="text-sm text-slate-500">{t(lang, "mock.subtitle")}</p>
       </div>
 
@@ -112,7 +112,7 @@ export default function MockPage() {
         <section className="space-y-3">
           <div className="card flex items-center justify-between p-4">
             <div>
-              <h2 className="font-bold">{title}</h2>
+ <h2 className="font-bold">{title}</h2>
               <p className="text-sm text-slate-500">
                 {questions.length} {t(lang, "mock.questions")} · {totalMarks} {t(lang, "common.marks")}
               </p>

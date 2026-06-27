@@ -9,7 +9,7 @@ export const DEFAULT_LANG: Lang = "bm"; // Malaysia-first
 
 type Dict = Record<string, { en: string; bm: string }>;
 
-// Keep keys grouped by area. Only UI chrome lives here — SPM question content
+// Keep keys grouped by area. Only UI chrome lives here, SPM question content
 // is already bilingual in the data itself.
 export const STRINGS: Dict = {
   // nav
@@ -59,7 +59,7 @@ export const STRINGS: Dict = {
   "practice.noTopics": { en: "No topics yet.", bm: "Tiada topik lagi." },
   // exam
   "exam.title": { en: "Timed Exam Mode", bm: "Mod Peperiksaan Bermasa" },
-  "exam.subtitle": { en: "Sit a real, timed paper. The clock counts down — answer everything, then submit for instant marking.", bm: "Duduki kertas sebenar bermasa. Jam mengira detik — jawab semua, kemudian hantar untuk pemarkahan segera." },
+  "exam.subtitle": { en: "Sit a real, timed paper. The clock counts down, answer everything, then submit for instant marking.", bm: "Duduki kertas sebenar bermasa. Jam mengira detik, jawab semua, kemudian hantar untuk pemarkahan segera." },
   "exam.duration": { en: "Duration (minutes)", bm: "Tempoh (minit)" },
   "exam.start": { en: "Start exam", bm: "Mula peperiksaan" },
   "exam.submit": { en: "Submit exam", bm: "Hantar peperiksaan" },
@@ -80,7 +80,7 @@ export const STRINGS: Dict = {
   },
   "home.smartPractice": { en: "Smart practice", bm: "Latihan pintar" },
   "home.browse": { en: "Browse papers", bm: "Lihat kertas" },
-  "home.chatHint": { en: "Tap the chat bubble anytime to ask Cikgu AI — attach a screenshot and it explains exactly what you're stuck on.", bm: "Ketik gelembung sembang bila-bila masa untuk tanya Cikgu AI — lampirkan tangkap layar dan ia akan terangkan apa yang anda tak faham." },
+  "home.chatHint": { en: "Tap the chat bubble anytime to ask Cikgu AI, attach a screenshot and it explains exactly what you're stuck on.", bm: "Ketik gelembung sembang bila-bila masa untuk tanya Cikgu AI, lampirkan tangkap layar dan ia akan terangkan apa yang anda tak faham." },
   "home.streakSuffix": { en: "-day streak", bm: " hari berturut" },
   "home.streakSub": { en: "Practise daily to keep it alive", bm: "Berlatih setiap hari untuk kekalkannya" },
   "home.todayGoal": { en: "Today's goal", bm: "Sasaran hari ini" },
@@ -100,7 +100,7 @@ export const STRINGS: Dict = {
   "review.bookmarks": { en: "Bookmarked", bm: "Ditanda" },
   "review.dueForReview": { en: "Due for review", bm: "Untuk diulang kaji" },
   "review.bookmarksHeading": { en: "Bookmarks", bm: "Tanda buku" },
-  "review.nothingDue": { en: "Nothing due — great job! Wrong answers reappear here automatically.", bm: "Tiada apa untuk diulang — syabas! Jawapan salah akan muncul di sini secara automatik." },
+  "review.nothingDue": { en: "Nothing due, great job! Wrong answers reappear here automatically.", bm: "Tiada apa untuk diulang, syabas! Jawapan salah akan muncul di sini secara automatik." },
   "review.allCaught": { en: "All caught up! Nothing due right now.", bm: "Semua selesai! Tiada apa-apa untuk diulang sekarang." },
 
   // analytics
@@ -119,9 +119,9 @@ export const STRINGS: Dict = {
 
   // help
   "help.title": { en: "Help Centre", bm: "Pusat Bantuan" },
-  "help.subtitle": { en: "How to use SPM AI — and an AI assistant ready for any question.", bm: "Cara guna SPM AI — serta pembantu AI sedia membantu sebarang soalan." },
+  "help.subtitle": { en: "How to use SPM AI, and an AI assistant ready for any question.", bm: "Cara guna SPM AI, serta pembantu AI sedia membantu sebarang soalan." },
   "help.askTitle": { en: "Ask Cikgu AI anything", bm: "Tanya Cikgu AI apa sahaja" },
-  "help.askDesc": { en: "Stuck on a topic, a question, or how the app works? Ask in BM or English — attach a screenshot if it helps.", bm: "Buntu pada topik, soalan, atau cara guna app? Tanya dalam BM atau English — lampirkan tangkap layar jika perlu." },
+  "help.askDesc": { en: "Stuck on a topic, a question, or how the app works? Ask in BM or English, attach a screenshot if it helps.", bm: "Buntu pada topik, soalan, atau cara guna app? Tanya dalam BM atau English, lampirkan tangkap layar jika perlu." },
   "help.openChat": { en: "Open Cikgu AI", bm: "Buka Cikgu AI" },
   "help.howUse": { en: "How do I use this app?", bm: "Macam mana guna app ini?" },
   "help.revise": { en: "Help me revise", bm: "Bantu saya ulang kaji" },
@@ -150,7 +150,7 @@ export const STRINGS: Dict = {
 
   // generate
   "generate.title": { en: "AI Question Generator", bm: "Penjana Soalan AI" },
-  "generate.subtitle": { en: "Create fresh practice questions in the style of real SPM past papers — including KBAT.", bm: "Cipta soalan latihan baharu dalam gaya kertas SPM sebenar — termasuk KBAT." },
+  "generate.subtitle": { en: "Create fresh practice questions in the style of real SPM past papers, including KBAT.", bm: "Cipta soalan latihan baharu dalam gaya kertas SPM sebenar, termasuk KBAT." },
   "generate.howMany": { en: "How many", bm: "Berapa banyak" },
   "generate.kbat": { en: "KBAT (higher-order thinking)", bm: "KBAT (kemahiran berfikir aras tinggi)" },
   "generate.btn": { en: "Generate questions", bm: "Jana soalan" },

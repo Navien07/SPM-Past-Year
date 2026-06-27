@@ -115,7 +115,7 @@ export default function PwaRegister() {
       <img src="/icon.svg" alt="SPM AI" className="h-10 w-10 rounded-xl" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold">Install SPM AI</p>
-        <p className="text-xs text-slate-500">Add to your home screen — practise offline-ready, like an app.</p>
+        <p className="text-xs text-slate-500">Add to your home screen, practise offline-ready, like an app.</p>
       </div>
       <div className="flex flex-col gap-1">
         <button onClick={install} className="btn-primary cursor-pointer px-3 py-1.5 text-xs">Install</button>

@@ -106,7 +106,7 @@ export default function ExamPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="font-display text-2xl font-black">{t(lang, "exam.title")} ⏱️</h1>
+ <h1 className="font-display text-2xl font-black">{t(lang, "exam.title")} ⏱</h1>
           <p className="text-sm text-slate-500">{t(lang, "exam.subtitle")}</p>
         </div>
         <div className="card grid gap-4 p-5 sm:grid-cols-2">
@@ -184,7 +184,7 @@ export default function ExamPage() {
                   </div>
                   <p className="mt-1 line-clamp-1 text-sm text-slate-700">{q.stem}</p>
                 </div>
-                <span className="shrink-0 text-sm font-bold">{r ? `${r.score}/${r.maxScore}` : "—"}</span>
+                <span className="shrink-0 text-sm font-bold">{r ? `${r.score}/${r.maxScore}` : "-"}</span>
               </Link>
             );
           })}

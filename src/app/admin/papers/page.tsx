@@ -156,7 +156,7 @@ export default function AdminPage() {
       setMsg(data.error || "Categorization failed");
     } else {
       setMsg(
-        `Categorized ${data.created} question(s) ${data.byAi ? "with AI" : "(offline heuristic)"} — ` +
+        `Categorized ${data.created} question(s) ${data.byAi ? "with AI" : "(offline heuristic)"}, ` +
           `${data.autoApproved ?? 0} auto-approved (≥${Math.round((data.threshold ?? 0.85) * 100)}% confidence), ` +
           `${data.pending ?? 0} sent to the Review queue.`,
       );
@@ -188,7 +188,7 @@ export default function AdminPage() {
           <input
             className="input"
             required
-            placeholder="e.g. Sejarah Kertas 2 — Percubaan SPM 2025 (Kedah)"
+            placeholder="e.g. Sejarah Kertas 2, Percubaan SPM 2025 (Kedah)"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
@@ -223,13 +223,13 @@ export default function AdminPage() {
           <select className="input" value={form.paperNumber} onChange={(e) => setForm({ ...form, paperNumber: Number(e.target.value) })}>
             <option value={1}>Kertas 1</option>
             <option value={2}>Kertas 2</option>
-            <option value={3}>Kertas 3 (amali — sains)</option>
+            <option value={3}>Kertas 3 (amali, sains)</option>
           </select>
         </div>
         <div className="sm:col-span-2">
           <label className="label">State / body (for state & trial papers)</label>
           <select className="input" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })}>
-            <option value="">— none —</option>
+            <option value="">none</option>
             {MALAYSIA_STATES.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
@@ -244,13 +244,13 @@ export default function AdminPage() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           <p className="mt-1 text-xs text-slate-400">
-            Drop in the paper PDF — text is extracted (scanned PDFs are auto-OCR&apos;d by AI) and every
+            Drop in the paper PDF, text is extracted (scanned PDFs are auto-OCR&apos;d by AI) and every
             question is categorized by subject, topic, form & year automatically. Large files (&gt;4 MB)
             upload directly to Supabase Storage.{file ? ` Selected: ${file.name} (${(file.size / 1e6).toFixed(1)} MB)` : ""}
           </p>
         </div>
         <div className="sm:col-span-2">
-          <label className="label">…or paste paper text {file ? "(ignored — PDF selected)" : ""}</label>
+          <label className="label">…or paste paper text {file ? "(ignored, PDF selected)" : ""}</label>
           <textarea
             className="input resize-y font-mono text-xs"
             rows={6}

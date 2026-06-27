@@ -76,7 +76,7 @@ export default function SignupPage() {
       <div className="card overflow-hidden">
         <div className="bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white">
           <div className="text-lg font-bold">Create your SPM AI account</div>
-          <div className="text-xs text-brand-100">Free pilot — practise every SPM, trial, MRSM, SPP & state paper.</div>
+          <div className="text-xs text-brand-100">Free pilot, practise every SPM, trial, MRSM, SPP & state paper.</div>
         </div>
         <form onSubmit={submit} className="space-y-4 p-6">
           <div>
@@ -95,7 +95,7 @@ export default function SignupPage() {
             <div>
               <label className="label">State</label>
               <select className="input" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} required>
-                <option value="">— select —</option>
+                <option value="">select</option>
                 {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>

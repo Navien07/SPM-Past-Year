@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Terms of Use — SPM AI" };
+export const metadata = { title: "Terms of Use, SPM AI" };
 
 export default function TermsPage() {
   return (

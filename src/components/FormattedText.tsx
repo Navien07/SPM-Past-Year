@@ -2,7 +2,7 @@ import React from "react";
 
 // Lightweight, dependency-free markdown renderer for AI text (chat, tutor,
 // feedback) and knowledge notes. Handles headings, bullet/numbered lists,
-// bold/italic/code and paragraphs — rendered as React nodes (no innerHTML).
+// bold/italic/code and paragraphs, rendered as React nodes (no innerHTML).
 
 function renderInline(text: string, keyBase: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
