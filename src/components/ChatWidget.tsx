@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import MicButton from "./MicButton";
 import FormattedText from "./FormattedText";
+import Icon from "./Icon";
 
 interface Attachment {
   dataUrl: string; // data:image/...;base64,XXXX
@@ -77,7 +78,7 @@ export default function ChatWidget() {
         getDisplayMedia?: (c?: MediaStreamConstraints) => Promise<MediaStream>;
       };
       if (!md?.getDisplayMedia) {
-        alert("Screen capture isn't supported in this browser. Use the 📎 button to attach an image instead.");
+        alert("Screen capture isn't supported in this browser. Use the attach button to add an image instead.");
         return;
       }
       const stream = await md.getDisplayMedia({ video: true });
@@ -164,9 +165,9 @@ export default function ChatWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Open Cikgu AI chat"
-        className="fixed bottom-20 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand-600 to-accent-500 text-2xl text-white shadow-lg transition hover:opacity-90 sm:bottom-6"
+        className="fixed bottom-20 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand-600 to-accent-500 text-white shadow-lg transition hover:opacity-90 sm:bottom-6"
       >
-        {open ? "✕" : "💬"}
+        <Icon name={open ? "close" : "chat"} className="h-6 w-6" />
       </button>
 
       {open && (
@@ -174,7 +175,7 @@ export default function ChatWidget() {
           {/* Header */}
           <div className="flex items-center justify-between bg-gradient-to-r from-brand-600 to-accent-600 px-4 py-3 text-white">
             <div className="flex items-center gap-2">
-              <span className="text-lg">🧑‍🏫</span>
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-white/20"><Icon name="teacher" className="h-5 w-5" /></span>
               <div className="leading-tight">
                 <div className="flex items-center gap-1.5 text-sm font-bold">Cikgu AI <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent-300" /></div>
                 <div className="text-[11px] text-white/80">
@@ -183,7 +184,7 @@ export default function ChatWidget() {
               </div>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close" className="text-white/80 hover:text-white">
-              ✕
+              <Icon name="close" className="h-5 w-5" />
             </button>
           </div>
 
@@ -191,8 +192,8 @@ export default function ChatWidget() {
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-3">
             {messages.length === 0 && (
               <div className="space-y-3 text-sm text-slate-500">
-                <p>👋 Hi! I&apos;m <strong>Cikgu AI</strong>. I can explain topics, walk through a question, show how to score full marks, or read a screenshot you&apos;re stuck on.</p>
-                <p className="text-xs">Tap <span className="font-semibold">📸</span> to grab a screenshot, or <span className="font-semibold">📎</span> to attach an image, I&apos;ll read it and help.</p>
+                <p>Hi! I&apos;m <strong>Cikgu AI</strong>. I can explain topics, walk through a question, show how to score full marks, or read a screenshot you&apos;re stuck on.</p>
+                <p className="text-xs">Tap the camera to grab a screenshot, or the clip to attach an image, I&apos;ll read it and help.</p>
                 <div className="flex flex-wrap gap-2">
                   {[
                     "Explain this topic simply",
@@ -254,9 +255,10 @@ export default function ChatWidget() {
                   <img src={att.dataUrl} alt={att.name} className="h-14 w-14 rounded-lg border border-slate-200 object-cover" />
                   <button
                     onClick={() => setPending((p) => p.filter((_, j) => j !== i))}
-                    className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-slate-800 text-[10px] text-white"
+                    className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-slate-800 text-white"
+                    aria-label="Remove attachment"
                   >
-                    ✕
+                    <Icon name="close" className="h-3 w-3" />
                   </button>
                 </div>
               ))}
@@ -270,16 +272,18 @@ export default function ChatWidget() {
                 onClick={captureScreenshot}
                 disabled={capturing}
                 title="Capture a screenshot"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg hover:bg-slate-100"
+                aria-label="Capture a screenshot"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-500 hover:bg-slate-100"
               >
-                📸
+                <Icon name="camera" className="h-5 w-5" />
               </button>
               <button
                 onClick={() => fileRef.current?.click()}
                 title="Attach an image"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg hover:bg-slate-100"
+                aria-label="Attach an image"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-500 hover:bg-slate-100"
               >
-                📎
+                <Icon name="paperclip" className="h-5 w-5" />
               </button>
               <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
               <MicButton
@@ -303,9 +307,10 @@ export default function ChatWidget() {
               <button
                 onClick={send}
                 disabled={loading || (!input.trim() && pending.length === 0)}
+                aria-label="Send message"
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white disabled:opacity-40"
               >
-                ➤
+                <Icon name="send" className="h-5 w-5" />
               </button>
             </div>
           </div>
