@@ -9,7 +9,7 @@ import Icon from "@/components/Icon";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-type SP = Promise<{ subject?: string; topic?: string; year?: string; view?: string; pu?: string; pd?: string }>;
+type SP = Promise<{ subject?: string; topic?: string; year?: string; view?: string; kertas?: string; pu?: string; pd?: string }>;
 
 const PAGE_SIZE = 48;
 
@@ -26,12 +26,12 @@ type Q = {
   paper: { paperType: string | null; state: string | null } | null;
 };
 
-function QuestionCard({ q, done, lang }: { q: Q; done: boolean; lang: "en" | "bm" }) {
+function QuestionCard({ q, done, lang, ctx }: { q: Q; done: boolean; lang: "en" | "bm"; ctx: string }) {
   const isAi = q.source === "ai_generated";
   const tLabel = topicLabel({ chapter: q.topic?.chapter, form: q.topic?.form });
   const exam = isAi ? "Soalan AI dijana" : examLabel({ paperType: q.paper?.paperType, state: q.paper?.state, year: q.year });
   return (
-    <Link href={`/practice/${q.id}`} className={`card block p-4 hover:border-brand-300 hover:shadow-sm ${done ? "opacity-80" : ""}`}>
+    <Link href={`/practice/${q.id}${ctx ? `?${ctx}` : ""}`} className={`card block p-4 hover:border-brand-300 hover:shadow-sm ${done ? "opacity-80" : ""}`}>
       <div className="mb-1 flex flex-wrap items-center gap-2">
         {done ? (
           <span className="badge inline-flex items-center gap-1 bg-emerald-100 text-emerald-700"><Icon name="check" className="h-3.5 w-3.5" /> {t(lang, "common.done")}</span>
@@ -60,17 +60,23 @@ export default async function QuestionListPage({ searchParams }: { searchParams:
     return (
       <div className="card p-8 text-center">
         <p className="text-slate-500">{t(lang, "practice.selectTopic")}</p>
-        <Link href="/practice" className="btn-primary mt-4 inline-flex items-center gap-1.5"><Icon name="arrow" className="h-4 w-4 rotate-180" /> {t(lang, "qlist.back")}</Link>
+        <Link href="/practice" className="btn-primary mt-4 inline-flex items-center gap-1.5"><Icon name="arrow" className="h-4 w-4 rotate-180" /> {t(lang, "qlist.backTopics")}</Link>
       </div>
     );
   }
 
-  const scope: Record<string, unknown> = { subjectId, status: "approved" };
-  if (sp.topic) scope.topicId = sp.topic;
-  if (sp.year) scope.year = Number(sp.year);
+  // Base scope (topic or year) and the active Kertas (paper) filter on top.
+  const baseScope: Record<string, unknown> = { subjectId, status: "approved" };
+  if (sp.topic) baseScope.topicId = sp.topic;
+  if (sp.year) baseScope.year = Number(sp.year);
+  const kertas = sp.kertas === "1" || sp.kertas === "2" ? Number(sp.kertas) : null;
+  const scope: Record<string, unknown> = kertas ? { ...baseScope, paperNumber: kertas } : baseScope;
 
   const subject = await prisma.subject.findUnique({ where: { id: subjectId }, select: { name: true } });
   const topic = sp.topic ? await prisma.topic.findUnique({ where: { id: sp.topic }, select: { title: true, form: true, chapter: true } }) : null;
+
+  // How many questions sit under each Kertas (for the filter chips + counts).
+  const kertasGroups = await prisma.question.groupBy({ by: ["paperNumber"], where: baseScope, _count: true, orderBy: { paperNumber: "asc" } });
 
   // Which questions in this scope the student has already attempted (saved state).
   const attempted = await prisma.attempt.findMany({
@@ -109,7 +115,22 @@ export default async function QuestionListPage({ searchParams }: { searchParams:
     const p = new URLSearchParams({ subject: subjectId, view });
     if (sp.topic) p.set("topic", sp.topic);
     if (sp.year) p.set("year", sp.year);
+    if (kertas) p.set("kertas", String(kertas));
     for (const [k, v] of Object.entries(extra)) p.set(k, v);
+    return `/practice/list?${p.toString()}`;
+  };
+  // Context passed to each question so it can offer prev/next within this set.
+  const ctxP = new URLSearchParams({ subject: subjectId, view });
+  if (sp.topic) ctxP.set("topic", sp.topic);
+  if (sp.year) ctxP.set("year", sp.year);
+  if (kertas) ctxP.set("kertas", String(kertas));
+  const ctx = ctxP.toString();
+  // Kertas filter chip link (resets pagination).
+  const kertasHref = (k: number | null) => {
+    const p = new URLSearchParams({ subject: subjectId, view });
+    if (sp.topic) p.set("topic", sp.topic);
+    if (sp.year) p.set("year", sp.year);
+    if (k) p.set("kertas", String(k));
     return `/practice/list?${p.toString()}`;
   };
 
@@ -118,7 +139,7 @@ export default async function QuestionListPage({ searchParams }: { searchParams:
       {/* Back + heading */}
       <div>
         <Link href={backHref} className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:underline">
-          <Icon name="arrow" className="h-4 w-4 rotate-180" /> {t(lang, "qlist.back")}
+          <Icon name="arrow" className="h-4 w-4 rotate-180" /> {t(lang, "qlist.backTopics")}
         </Link>
         <h1 className="font-display mt-2 text-2xl font-bold">{heading}</h1>
         {sub && <p className="text-sm text-slate-500">{sub}</p>}
@@ -135,6 +156,24 @@ export default async function QuestionListPage({ searchParams }: { searchParams:
         </div>
       </div>
 
+      {/* Kertas filter — only when this set spans more than one paper */}
+      {kertasGroups.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          <Link href={kertasHref(null)} className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${!kertas ? "bg-brand-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>
+            {t(lang, "qlist.all")}
+          </Link>
+          {kertasGroups.map((g) => (
+            <Link
+              key={g.paperNumber}
+              href={kertasHref(g.paperNumber)}
+              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${kertas === g.paperNumber ? "bg-brand-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+            >
+              Kertas {g.paperNumber} · {g._count}
+            </Link>
+          ))}
+        </div>
+      )}
+
       {total === 0 && <div className="card p-6 text-center text-sm text-slate-400">{t(lang, "practice.selectTopic")}</div>}
 
       {/* To do — undone on top */}
@@ -143,7 +182,7 @@ export default async function QuestionListPage({ searchParams }: { searchParams:
           <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500">
             {t(lang, "qlist.todo")} <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">{undoneCount}</span>
           </h2>
-          {undone.map((q) => <QuestionCard key={q.id} q={q} done={false} lang={lang} />)}
+          {undone.map((q) => <QuestionCard key={q.id} q={q} done={false} lang={lang} ctx={ctx} />)}
           {undone.length < undoneCount && (
             <Link href={mk({ pu: String(pu + 1) })} scroll={false} className="card block p-3 text-center text-sm font-semibold text-brand-600 hover:border-brand-300">
               {lang === "bm" ? "Tunjuk lagi" : "Show more"} ({undone.length} / {undoneCount})
@@ -158,7 +197,7 @@ export default async function QuestionListPage({ searchParams }: { searchParams:
           <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-emerald-600">
             <Icon name="check" className="h-4 w-4" /> {t(lang, "qlist.completed")} <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-600">{doneCount}</span>
           </h2>
-          {done.map((q) => <QuestionCard key={q.id} q={q} done lang={lang} />)}
+          {done.map((q) => <QuestionCard key={q.id} q={q} done lang={lang} ctx={ctx} />)}
           {done.length < doneCount && (
             <Link href={mk({ pd: String(pd + 1) })} scroll={false} className="card block p-3 text-center text-sm font-semibold text-brand-600 hover:border-brand-300">
               {lang === "bm" ? "Tunjuk lagi" : "Show more"} ({done.length} / {doneCount})

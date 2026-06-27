@@ -13,15 +13,55 @@ import type { McqOption } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
+type SP = Promise<{ subject?: string; topic?: string; year?: string; view?: string; kertas?: string }>;
+
+export default async function QuestionPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: SP }) {
   const student = await requireStudent();
   const lang = await getLang();
   const { id } = await params;
+  const sp = await searchParams;
   const q = await prisma.question.findUnique({
     where: { id },
     include: { subject: true, topic: true, paper: true },
   });
   if (!q || q.status !== "approved") notFound();
+
+  // Navigation context: when the student arrived from a topic/year list, work
+  // out the previous/next question in that same ordered set so they can move
+  // through without going back.
+  const hasCtx = !!(sp.subject && (sp.topic || sp.year));
+  let prevId: string | null = null;
+  let nextId: string | null = null;
+  let pos = 0;
+  let count = 0;
+  const ctxParams = new URLSearchParams();
+  if (hasCtx) {
+    if (sp.subject) ctxParams.set("subject", sp.subject);
+    if (sp.topic) ctxParams.set("topic", sp.topic);
+    if (sp.year) ctxParams.set("year", sp.year);
+    if (sp.view) ctxParams.set("view", sp.view);
+    if (sp.kertas) ctxParams.set("kertas", sp.kertas);
+    const scope: Record<string, unknown> = { subjectId: sp.subject, status: "approved" };
+    if (sp.topic) scope.topicId = sp.topic;
+    if (sp.year) scope.year = Number(sp.year);
+    if (sp.kertas) scope.paperNumber = Number(sp.kertas);
+    const ids = await prisma.question.findMany({
+      where: scope,
+      orderBy: [{ paperNumber: "asc" }, { number: "asc" }],
+      select: { id: true },
+      take: 3000,
+    });
+    const idx = ids.findIndex((x) => x.id === id);
+    count = ids.length;
+    pos = idx + 1;
+    prevId = idx > 0 ? ids[idx - 1].id : null;
+    nextId = idx >= 0 && idx < ids.length - 1 ? ids[idx + 1].id : null;
+  }
+  const qHref = (qid: string) => {
+    const p = new URLSearchParams(ctxParams);
+    return `/practice/${qid}${p.toString() ? `?${p.toString()}` : ""}`;
+  };
+  const listHref = hasCtx ? `/practice/list?${ctxParams.toString()}` : "/practice";
 
   const options = JSON.parse(q.options || "[]") as McqOption[];
   let bookmark = null;
@@ -37,9 +77,14 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="space-y-5">
-      <Link href="/practice" className="inline-flex items-center gap-1.5 text-sm text-brand-600 hover:underline">
-        <Icon name="arrow" className="h-4 w-4 rotate-180" /> {t(lang, "qd.back")}
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link href={listHref} className="inline-flex items-center gap-1.5 text-sm text-brand-600 hover:underline">
+          <Icon name="arrow" className="h-4 w-4 rotate-180" /> {hasCtx ? t(lang, "qlist.back") : t(lang, "qd.back")}
+        </Link>
+        {hasCtx && count > 0 && (
+          <span className="text-xs font-medium text-slate-400">{pos} / {count}</span>
+        )}
+      </div>
 
       <div className="card p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -98,6 +143,28 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
         marks={q.marks}
         stem={q.stem}
       />
+
+      {/* Previous / next within the topic or year */}
+      {hasCtx && (
+        <div className="flex items-center justify-between gap-3 pt-1">
+          {prevId ? (
+            <Link href={qHref(prevId)} className="btn-ghost inline-flex items-center gap-1.5">
+              <Icon name="arrow" className="h-4 w-4 rotate-180" /> {t(lang, "qd.prev")}
+            </Link>
+          ) : (
+            <span />
+          )}
+          {nextId ? (
+            <Link href={qHref(nextId)} className="btn-primary inline-flex items-center gap-1.5">
+              {t(lang, "qd.next")} <Icon name="arrow" className="h-4 w-4" />
+            </Link>
+          ) : (
+            <Link href={listHref} className="btn-ghost inline-flex items-center gap-1.5">
+              {t(lang, "qlist.back")} <Icon name="check" className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }
