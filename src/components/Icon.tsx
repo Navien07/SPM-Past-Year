@@ -2,8 +2,9 @@ import React from "react";
 
 // Lightweight Lucide-style SVG icon set (24x24, currentColor stroke). Replaces
 // emoji icons across the app for a consistent, premium look.
-type P = Record<string, never>;
-const S = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+const S: React.SVGProps<SVGSVGElement> = {
+  fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round",
+};
 
 const PATHS: Record<string, React.ReactNode> = {
   home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></>,
@@ -37,7 +38,7 @@ const PATHS: Record<string, React.ReactNode> = {
 export default function Icon({ name, className = "h-5 w-5" }: { name: string; className?: string }) {
   const node = PATHS[name] ?? PATHS.help;
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" {...(S as P)}>
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" {...S}>
       {node}
     </svg>
   );
