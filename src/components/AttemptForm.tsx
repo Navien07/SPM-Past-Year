@@ -3,6 +3,7 @@
 import { useState } from "react";
 import MicButton from "./MicButton";
 import FormattedText from "./FormattedText";
+import { celebrate } from "./Confetti";
 import { useLang } from "@/lib/useLang";
 import { t } from "@/lib/i18n";
 import type { GradeResult, McqOption } from "@/lib/types";
@@ -42,6 +43,9 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
       if (!res.ok) throw new Error(data.error || "Grading failed");
       setGrade(data.grade);
       setByAi(data.byAi);
+      // Celebrate a strong answer.
+      const p = data.grade?.maxScore ? data.grade.score / data.grade.maxScore : 0;
+      if (p >= 0.5) celebrate(p >= 0.85 ? 1.4 : 0.8);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {

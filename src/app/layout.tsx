@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import ChatWidget from "@/components/ChatWidget";
 import PwaRegister from "@/components/PwaRegister";
+import Confetti from "@/components/Confetti";
 import { getCurrentUser } from "@/lib/auth";
 import { LANG_COOKIE, normLang } from "@/lib/i18n";
 
@@ -75,6 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Cikgu AI chat is for students. */}
         {user?.role === "student" && <ChatWidget />}
         <PwaRegister />
+        <Confetti />
       </body>
     </html>
   );

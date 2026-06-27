@@ -9,6 +9,8 @@ import { t } from "@/lib/i18n";
 import SmartPracticeButton from "@/components/SmartPracticeButton";
 import Landing from "@/components/Landing";
 import Icon from "@/components/Icon";
+import GoalCelebrate from "@/components/GoalCelebrate";
+import { computeGameStats } from "@/lib/gamify";
 
 function SetupNeeded() {
   return (
@@ -56,10 +58,11 @@ export default async function Home() {
   let data: { enrolled: number; questions: number; kbat: number; attempts: number } | null = null;
   let resume: { subjectId: string; topicId: string | null; subjectName: string; topicTitle: string | null } | null = null;
   let streakData = { streak: 0, doneToday: 0 };
+  let game = computeGameStats({ totalScore: 0, attempts: 0, streak: 0, subjectsPractised: 0 });
   try {
     // All independent queries in one round trip (collocated with the DB region,
     // this keeps the dashboard fast).
-    const [enrolled, questions, kbat, attempts, recent, last] = await Promise.all([
+    const [enrolled, questions, kbat, attempts, recent, last, scoreAgg, practised] = await Promise.all([
       prisma.enrollment.count({ where: { studentId: student.id, status: "active" } }),
       prisma.question.count({ where: { status: "approved" } }),
       prisma.question.count({ where: { status: "approved", isKbat: true } }),
@@ -75,8 +78,11 @@ export default async function Home() {
         orderBy: { createdAt: "desc" },
         include: { question: { include: { subject: true, topic: true } } },
       }),
+      prisma.attempt.aggregate({ where: { studentId: student.id }, _sum: { score: true } }),
+      prisma.attempt.findMany({ where: { studentId: student.id }, select: { question: { select: { subjectId: true } } }, distinct: ["questionId"], take: 3000 }),
     ]);
     data = { enrolled, questions, kbat, attempts };
+    const subjectsPractised = new Set(practised.map((a) => a.question.subjectId)).size;
 
     // Streak + daily goal from attempt activity.
     const dayKey = (d: Date) => d.toISOString().slice(0, 10);
@@ -94,6 +100,7 @@ export default async function Home() {
 
     // "Continue where you left off" — most recent attempt's subject/topic.
     streakData = { streak, doneToday };
+    game = computeGameStats({ totalScore: scoreAgg._sum.score ?? 0, attempts, streak, subjectsPractised });
     if (last) {
       resume = {
         subjectId: last.question.subjectId,
@@ -169,6 +176,36 @@ export default async function Home() {
           <div className="mt-1 h-1.5 w-28 overflow-hidden rounded-full bg-slate-100">
             <div className="h-full bg-emerald-500" style={{ width: `${Math.min(100, (streakData.doneToday / DAILY_GOAL) * 100)}%` }} />
           </div>
+        </div>
+      </div>
+
+      <GoalCelebrate done={streakData.doneToday >= DAILY_GOAL} />
+
+      {/* Level + XP + badges */}
+      <div className="card p-4">
+        <div className="flex items-center gap-3">
+          <span className="font-display grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-600 to-accent-500 text-lg font-black text-white">
+            {game.level}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold">Level {game.level}</span>
+              <span className="text-xs text-slate-500">{game.xp.toLocaleString("en-MY")} XP</span>
+            </div>
+            <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-accent-400 transition-all duration-500" style={{ width: `${game.levelProgress}%` }} />
+            </div>
+            <div className="mt-0.5 text-[11px] text-slate-400">{game.xpIntoLevel}/{game.xpForLevel} XP to level {game.level + 1}</div>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {game.badges.map((b) => (
+            <span key={b.key} title={b.label}
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${b.earned ? "bg-accent-100 text-accent-700" : "bg-slate-100 text-slate-400"}`}>
+              <Icon name={b.icon} className="h-3.5 w-3.5" />
+              {b.label}
+            </span>
+          ))}
         </div>
       </div>
 
