@@ -4,6 +4,8 @@ import { requireStudent } from "@/lib/student";
 import { getLang } from "@/lib/lang-server";
 import { t } from "@/lib/i18n";
 import Icon from "@/components/Icon";
+import ReadinessRing from "@/components/ReadinessRing";
+import { subjectReadiness, overallReadiness, BAND_COLOR } from "@/lib/readiness";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -31,6 +33,7 @@ export default async function AnalyticsPage() {
   const student = await requireStudent();
 
   let attempts, sessions, enrolledSubjectIds: string[], totalApprovedInEnrolled: number, topicsTotal: number, topicsDone: number;
+  let topicsBySubject = new Map<string, { total: number }>();
   try {
     attempts = await prisma.attempt.findMany({
       where: { studentId: student.id },
@@ -44,11 +47,16 @@ export default async function AnalyticsPage() {
     enrolledSubjectIds = enrollments.map((e) => e.subjectId);
     const topicsWithApproved = await prisma.topic.findMany({
       where: { subjectId: { in: enrolledSubjectIds }, questions: { some: { status: "approved" } } },
-      select: { id: true },
+      select: { id: true, subjectId: true },
     });
     topicsTotal = topicsWithApproved.length;
     const doneTopicIds = new Set(attempts.map((a) => a.question.topicId).filter(Boolean) as string[]);
     topicsDone = topicsWithApproved.filter((t) => doneTopicIds.has(t.id)).length;
+    for (const tp of topicsWithApproved) {
+      const cur = topicsBySubject.get(tp.subjectId) ?? { total: 0 };
+      cur.total += 1;
+      topicsBySubject.set(tp.subjectId, cur);
+    }
     totalApprovedInEnrolled = await prisma.question.count({ where: { subjectId: { in: enrolledSubjectIds }, status: "approved" } });
   } catch {
     return <AnalyticsError />;
@@ -73,6 +81,30 @@ export default async function AnalyticsPage() {
   const subjectMastery = [...bySubject.values()].map((s) => ({ name: s.name, pct: Math.round(s.sum / s.n) })).sort((a, b) => b.pct - a.pct);
   const weakest = [...subjectMastery].reverse().slice(0, 2);
 
+  // Per-subject exam readiness (mastery + topic coverage + practice volume).
+  const bySubjectId = new Map<string, { name: string; sum: number; n: number; topics: Set<string> }>();
+  for (const a of attempts) {
+    const id = a.question.subjectId;
+    const cur = bySubjectId.get(id) ?? { name: a.question.subject.name, sum: 0, n: 0, topics: new Set<string>() };
+    cur.sum += a.maxScore ? (a.score / a.maxScore) * 100 : 0;
+    cur.n += 1;
+    if (a.question.topicId) cur.topics.add(a.question.topicId);
+    bySubjectId.set(id, cur);
+  }
+  const readinessList = [...bySubjectId.entries()]
+    .map(([id, s]) =>
+      subjectReadiness({
+        name: s.name,
+        mastery: s.sum / s.n,
+        topicsDone: s.topics.size,
+        topicsTotal: topicsBySubject.get(id)?.total ?? s.topics.size,
+        attempts: s.n,
+      }),
+    )
+    .sort((a, b) => b.readiness - a.readiness);
+  const overall = overallReadiness(readinessList, enrolledSubjectIds.length);
+  const overallColor = BAND_COLOR[overall.band];
+
   const trend = attempts.map((a) => ({
     label: a.question.subject.code ?? a.question.subject.name.slice(0, 3),
     pct: a.maxScore ? Math.round((a.score / a.maxScore) * 100) : 0,
@@ -92,6 +124,49 @@ export default async function AnalyticsPage() {
       <div>
  <h1 className="text-2xl font-bold">{t(lang, "analytics.title")}</h1>
         <p className="text-sm text-slate-500">{student.name}&apos;s learning analytics.</p>
+      </div>
+
+      {/* Exam readiness forecast */}
+      <div className="card overflow-hidden p-0">
+        <div className="flex flex-col items-center gap-6 bg-gradient-to-br from-brand-600 to-accent-600 p-6 text-white sm:flex-row sm:items-center sm:gap-8">
+          <div className="rounded-full bg-white p-2 shadow-lg">
+            <ReadinessRing value={overall.score} grade={overall.started === 0 ? "?" : overall.grade} color={overallColor.ring} />
+          </div>
+          <div className="min-w-0 flex-1 text-center sm:text-left">
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/70">{t(lang, "readiness.title")}</p>
+            <h2 className="font-display mt-1 text-2xl font-bold sm:text-3xl">
+              {overall.started === 0 ? t(lang, "readiness.locked") : `${t(lang, "readiness.forecast")} ${overall.grade}`}
+            </h2>
+            <p className="mt-2 max-w-md text-sm text-white/85">{overall.message}</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+              <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">{overall.started}/{overall.total} {t(lang, "readiness.subjects")}</span>
+              <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">{topicsDone}/{topicsTotal} {t(lang, "readiness.topics")}</span>
+              <Link href="/practice" className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-700 transition hover:bg-white/90">{t(lang, "readiness.improve")}</Link>
+            </div>
+          </div>
+        </div>
+        {readinessList.length > 0 && (
+          <div className="divide-y divide-slate-100">
+            {readinessList.map((s) => {
+              const cc = BAND_COLOR[s.band];
+              return (
+                <div key={s.name} className="flex items-center gap-3 px-5 py-3">
+                  <span className={`grid h-9 w-11 shrink-0 place-items-center rounded-lg ${cc.bg} ${cc.text} font-display text-sm font-bold`}>{s.grade}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-sm font-medium">{s.name}</span>
+                      <span className="text-xs font-semibold text-slate-500">{s.readiness}%</span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full" style={{ width: `${s.readiness}%`, backgroundColor: cc.ring }} />
+                    </div>
+                    <p className="mt-1 text-[11px] text-slate-400">{s.mastery}% {t(lang, "readiness.accuracy")} · {s.coverage}% {t(lang, "readiness.covered")}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Summary of where you are */}

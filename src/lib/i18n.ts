@@ -117,6 +117,16 @@ export const STRINGS: Dict = {
   "stat.time": { en: "Time on task", bm: "Masa belajar" },
   "stat.practised": { en: "Subjects practised", bm: "Subjek dilatih" },
 
+  // exam readiness
+  "readiness.title": { en: "SPM readiness", bm: "Kesediaan SPM" },
+  "readiness.forecast": { en: "On track for", bm: "Menuju ke arah" },
+  "readiness.locked": { en: "Unlock your forecast", bm: "Buka ramalan anda" },
+  "readiness.subjects": { en: "subjects started", bm: "subjek dimulakan" },
+  "readiness.topics": { en: "topics covered", bm: "topik diliputi" },
+  "readiness.improve": { en: "Improve now", bm: "Tingkatkan sekarang" },
+  "readiness.accuracy": { en: "accuracy", bm: "ketepatan" },
+  "readiness.covered": { en: "covered", bm: "diliputi" },
+
   // help
   "help.title": { en: "Help Centre", bm: "Pusat Bantuan" },
   "help.subtitle": { en: "How to use SPM AI, and an AI assistant ready for any question.", bm: "Cara guna SPM AI, serta pembantu AI sedia membantu sebarang soalan." },
