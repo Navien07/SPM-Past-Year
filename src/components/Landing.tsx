@@ -184,9 +184,11 @@ export default function Landing({ taken, total }: { taken: number; total: number
       </section>
 
       {/* ───────── LIVE PRODUCT TOUR ───────── */}
-      <section aria-label="How SPM AI works">
-        <ProductTour />
-      </section>
+      <Reveal>
+        <section aria-label="How SPM AI works">
+          <ProductTour />
+        </section>
+      </Reveal>
 
       {/* ───────── STATS BAND ───────── */}
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">

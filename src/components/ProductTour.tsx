@@ -10,6 +10,21 @@ import { useEffect, useRef, useState } from "react";
 const STEPS = 11;          // 0..10
 const STEP_MS = 1500;
 
+const FEATURES = [
+  "Topic & year practice",
+  "Instant AI grading",
+  "Cikgu AI tutor",
+  "Past, trial, MRSM & state papers",
+  "Timed exam mode",
+  "Flashcards & spaced review",
+  "Exam-readiness forecast",
+  "KSSM syllabus browser",
+  "AI question generator",
+  "Progress & analytics",
+  "Streaks, XP & badges",
+  "Resume anywhere (PWA)",
+];
+
 const PHASES = [
   { from: 0, label: "1 · Attempt", desc: "Practise real SPM questions, by topic or year." },
   { from: 1, label: "2 · Stuck?", desc: "Got it wrong? Instant feedback, no waiting." },
@@ -62,9 +77,9 @@ export default function ProductTour() {
   const resume = step >= 9;
 
   return (
-    <div ref={ref} className="grid items-center gap-8 lg:grid-cols-[1fr_minmax(0,420px)]">
-      {/* Narrative */}
-      <div>
+    <div ref={ref} className="grid items-start gap-8 lg:grid-cols-[1fr_360px]">
+      {/* Narrative + features (phone shows first on mobile so the demo is seen) */}
+      <div className="order-2 lg:order-1 lg:sticky lg:top-24">
         <h2 className="font-display text-3xl font-black sm:text-4xl">See exactly how it works</h2>
         <p className="mt-3 max-w-md text-slate-600">
           One loop, mastered: attempt, learn from Cikgu AI, reattempt, and watch your readiness climb, on any device.
@@ -73,8 +88,8 @@ export default function ProductTour() {
           {PHASES.map((p) => {
             const active = !reduced && phase.label === p.label;
             return (
-              <li key={p.label} className={`flex items-start gap-3 rounded-2xl border p-3 transition-all duration-300 ${active ? "border-[#2D5BFF]/30 bg-[#2D5BFF]/5" : "border-transparent"}`}>
-                <span className={`mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full transition-colors duration-300 ${active ? "bg-[#2D5BFF]" : "bg-slate-300"}`} />
+              <li key={p.label} className={`flex items-start gap-3 rounded-2xl border p-3 transition-all duration-300 ${active ? "scale-[1.02] border-[#2D5BFF]/30 bg-[#2D5BFF]/5 shadow-sm" : "border-transparent"}`}>
+                <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full transition-colors duration-300 ${active ? "bg-[#2D5BFF]" : "bg-slate-300"}`} />
                 <div>
                   <p className={`text-sm font-bold ${active ? "text-[#2D5BFF]" : "text-slate-700"}`}>{p.label}</p>
                   <p className="text-sm text-slate-500">{p.desc}</p>
@@ -83,10 +98,23 @@ export default function ProductTour() {
             );
           })}
         </ul>
+
+        {/* Everything inside */}
+        <div className="mt-7">
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">Everything inside</p>
+          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
+            {FEATURES.map((f) => (
+              <div key={f} className="flex items-start gap-2 text-sm text-slate-600">
+                <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" {...svg}><path d="M20 6 9 17l-5-5" /></svg>
+                {f}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Phone mock */}
-      <div className="mx-auto w-full max-w-[380px]">
+      <div className="order-1 mx-auto w-full max-w-[360px] lg:order-2 lg:sticky lg:top-24">
         <div className="overflow-hidden rounded-[2rem] border-[6px] border-[#0B1020] bg-slate-50 shadow-2xl">
           {/* app chrome */}
           <div className="flex items-center justify-between bg-white px-4 py-2.5 text-[11px] font-semibold text-slate-400">

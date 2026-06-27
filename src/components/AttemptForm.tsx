@@ -211,21 +211,23 @@ export default function AttemptForm({ questionId, questionType, options, marks, 
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() =>
-                  window.dispatchEvent(
-                    new CustomEvent("open-cikgu-chat", {
-                      detail: {
-                        prompt: `I answered: "${answer.slice(0, 600)}". I scored ${grade.score}/${grade.maxScore}. Explain my mistake step by step and show me exactly how to get full marks.`,
-                      },
-                    }),
-                  )
-                }
-                className="btn-primary inline-flex items-center gap-1.5"
-              >
-                <Icon name="teacher" className="h-4 w-4" />
-                {t(lang, "af.explainMistake")}
-              </button>
+              {pct < 100 && (
+                <button
+                  onClick={() =>
+                    window.dispatchEvent(
+                      new CustomEvent("open-cikgu-chat", {
+                        detail: {
+                          prompt: `I answered: "${answer.slice(0, 600)}". I scored ${grade.score}/${grade.maxScore}. Explain my mistake step by step and show me exactly how to get full marks.`,
+                        },
+                      }),
+                    )
+                  }
+                  className="btn-primary inline-flex items-center gap-1.5"
+                >
+                  <Icon name="teacher" className="h-4 w-4" />
+                  {t(lang, "af.explainMistake")}
+                </button>
+              )}
               <button
                 onClick={() => {
                   setGrade(null);
