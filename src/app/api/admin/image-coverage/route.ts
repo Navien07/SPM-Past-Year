@@ -12,12 +12,15 @@ export async function GET(req: NextRequest) {
   const actor = await authorizeImport(req);
   if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  // Count across ALL statuses: held (pending) diagram questions that have been
+  // backfilled with a figure must still show as "with images", or the backfill
+  // progress looks wrong (they only return to 'approved' via re-approve).
   const rows = await prisma.$queryRawUnsafe<Row[]>(
     `SELECT s.code, s.name,
             count(*)::bigint total,
             count(*) FILTER (WHERE q.images <> '[]' AND q.images <> '')::bigint with_images
      FROM "Question" q JOIN "Subject" s ON s.id = q."subjectId"
-     WHERE q.status = 'approved'
+     WHERE q.status <> 'rejected'
      GROUP BY s.code, s.name
      ORDER BY s.name`,
   );
